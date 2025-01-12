@@ -5,8 +5,17 @@ import { AntdRegistry } from "@ant-design/nextjs-registry";
 import "@/app/globals.css";
 import NextAuthWrapper from "@/library/next.auth.wrapper";
 
-const inter = Inter({ subsets: ["latin"] });
 
+const inteBold = Inter({
+  subsets: ["latin"],
+  weight: ["700"], 
+  display: "swap",
+});
+const interRegular = Inter({
+  subsets: ["latin"],
+  weight: ["500"],
+  display: "swap",
+});
 export const metadata: Metadata = {
   icons: {
     icon: "/favicon.ico",
@@ -22,7 +31,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={interRegular.className}>
         <AntdRegistry>
           <NextAuthWrapper>{children}</NextAuthWrapper>
         </AntdRegistry>
