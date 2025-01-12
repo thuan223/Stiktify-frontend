@@ -1,10 +1,21 @@
 "use client"
+import { handleBanUserAPI, handleUnBanUserAPI } from "@/actions/manage.user.action"
 import { formatDateTime } from "@/utils/utils"
 import { EditTwoTone, FileSearchOutlined, LockTwoTone, SmileOutlined, UnlockTwoTone } from "@ant-design/icons"
-import { Popconfirm } from "antd"
+import { notification, Popconfirm } from "antd"
 
-export const ActionManagerUser = (value: any, record: any, index: any) => {
+export const ActionManagerUser = (value: any, record: IUser, index: any) => {
 
+    const handleBanUser = async (id: string) => {
+        const res = await handleBanUserAPI(id)
+        notification.success({ message: res.message })
+    }
+
+
+    const handleUnBannedUser = async (id: string) => {
+        const res = await handleUnBanUserAPI(id)
+        notification.success({ message: res.message })
+    }
     return (
         <div style={{ display: "flex", gap: 20, justifyContent: "start" }}>
             <FileSearchOutlined
@@ -22,7 +33,7 @@ export const ActionManagerUser = (value: any, record: any, index: any) => {
             {value ?
                 <Popconfirm
                     title="Are you sure unlock this user?"
-                    // onConfirm={() => handleDeleteUser(record)}
+                    onConfirm={() => handleUnBannedUser(record._id)}
                     okText="Yes"
                     cancelText="No"
                 >
@@ -38,7 +49,7 @@ export const ActionManagerUser = (value: any, record: any, index: any) => {
                 :
                 <Popconfirm
                     title="Are you sure lock this user?"
-                    // onConfirm={() => handleDeleteUser(record)}
+                    onConfirm={() => handleBanUser(record._id)}
                     okText="Yes"
                     cancelText="No"
                 >

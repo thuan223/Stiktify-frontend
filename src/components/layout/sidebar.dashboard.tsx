@@ -4,7 +4,6 @@ import Menu from "antd/es/menu";
 import {
     AppstoreOutlined,
     MailOutlined,
-    SettingOutlined,
     TeamOutlined,
 
 } from '@ant-design/icons';
@@ -22,7 +21,7 @@ const DashboardSideBar = () => {
 
         {
             key: 'grp',
-            label: 'Hỏi Dân IT',
+            label: 'Stiktify',
             type: 'group',
             children: [
                 {
@@ -31,7 +30,7 @@ const DashboardSideBar = () => {
                     icon: <AppstoreOutlined />,
                 },
                 {
-                    key: "users",
+                    key: "user",
                     label: <Link href={"/dashboard/user"}>Manage Users</Link>,
                     icon: <TeamOutlined />,
                 },
@@ -61,35 +60,7 @@ const DashboardSideBar = () => {
                     ],
                 },
                 {
-                    key: 'sub2',
-                    label: 'Navigation Two',
-                    icon: <AppstoreOutlined />,
-                    children: [
-                        { key: '5', label: 'Option 5' },
-                        { key: '6', label: 'Option 6' },
-                        {
-                            key: 'sub3',
-                            label: 'Submenu',
-                            children: [
-                                { key: '7', label: 'Option 7' },
-                                { key: '8', label: 'Option 8' },
-                            ],
-                        },
-                    ],
-                },
-                {
                     type: 'divider',
-                },
-                {
-                    key: 'sub4',
-                    label: 'Navigation Three',
-                    icon: <SettingOutlined />,
-                    children: [
-                        { key: '9', label: 'Option 9' },
-                        { key: '10', label: 'Option 10' },
-                        { key: '11', label: 'Option 11' },
-                        { key: '12', label: 'Option 12' },
-                    ],
                 },
             ],
         },
