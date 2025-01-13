@@ -7,16 +7,18 @@ import {
     TeamOutlined,
 
 } from '@ant-design/icons';
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import type { MenuProps } from 'antd';
 import Link from 'next/link'
 import { DashboardContext } from "@/library/dashboard.context";
+import { usePathname } from "next/navigation";
 
 type MenuItem = Required<MenuProps>['items'][number];
 const DashboardSideBar = () => {
+    const pathname = usePathname();
     const { Sider } = Layout;
     const { collapseMenu } = useContext(DashboardContext)!;
-
+    const [pathActive, setPathActive] = useState(pathname)
     const items: MenuItem[] = [
 
         {
@@ -25,12 +27,12 @@ const DashboardSideBar = () => {
             type: 'group',
             children: [
                 {
-                    key: "dashboard",
+                    key: "/dashboard",
                     label: <Link href={"/dashboard"}>Dashboard</Link>,
                     icon: <AppstoreOutlined />,
                 },
                 {
-                    key: "user",
+                    key: "/dashboard/user",
                     label: <Link href={"/dashboard/user"}>Manage Users</Link>,
                     icon: <TeamOutlined />,
                 },
@@ -66,14 +68,14 @@ const DashboardSideBar = () => {
         },
     ];
 
+
     return (
         <Sider
             collapsed={collapseMenu}
         >
-
             <Menu
                 mode="inline"
-                defaultSelectedKeys={['dashboard']}
+                defaultSelectedKeys={[pathActive]}
                 items={items}
                 style={{ height: '100vh' }}
             />

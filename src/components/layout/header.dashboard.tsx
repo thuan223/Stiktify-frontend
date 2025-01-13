@@ -6,6 +6,7 @@ import { DownOutlined, SmileOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Dropdown, Space } from 'antd';
 import { DashboardContext } from '@/library/dashboard.context';
+import Link from 'next/link';
 
 const DashboardHeader = () => {
     const { Header } = Layout;
@@ -15,20 +16,20 @@ const DashboardHeader = () => {
         {
             key: '1',
             label: (
-                <a target="_blank" rel="noopener noreferrer" href="https://www.antgroup.com">
-                    1st menu item
-                </a>
+                <Link target="_blank" rel="noopener noreferrer" href="https://www.antgroup.com">
+                    Profile
+                </Link>
             ),
         },
         {
             key: '2',
             label: (
-                <a target="_blank" rel="noopener noreferrer" href="https://www.aliyun.com">
+                <Link target="_blank" rel="noopener noreferrer" href="https://www.aliyun.com">
                     2nd menu item (disabled)
-                </a>
+                </Link>
             ),
             icon: <SmileOutlined />,
-            disabled: true,
+            // disabled: true,
         },
 
         {

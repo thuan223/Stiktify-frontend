@@ -5,6 +5,7 @@ interface IUser {
     email: string,
     isBan: boolean,
     status: string,
+    image: string,
     role: string,
     accountType: string,
     isActive: boolean,
@@ -31,4 +32,12 @@ interface ICreateUserByManager {
     email: string,
     password: string
     confirmPassword?: string
+}
+
+interface IUpdateUserByManager {
+    _id: string,
+    fullname: string,
+    isBan: boolean,
+    isActive: boolean,
+    image?: string
 }

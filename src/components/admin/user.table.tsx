@@ -6,6 +6,7 @@ import { Button } from "antd";
 import { UserAddOutlined } from "@ant-design/icons";
 import { useState } from "react";
 import CreateUserModal from "./create.user.model";
+import UpdateUserModal from "./edit.user.modal";
 interface IProps {
     dataSource: IUser[];
     meta: {
@@ -20,6 +21,8 @@ interface IProps {
 const ManageUserTable = (props: IProps) => {
     const { dataSource, meta } = props;
     const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false)
+    const [isUpdateModalOpen, setIsUpdateModalOpen] = useState<boolean>(false)
+    const [dataUser, setDataUser] = useState<IUser | null>(null)
     const columns: ColumnsType<IUser> = [
         {
             title: 'Full name',
@@ -46,15 +49,23 @@ const ManageUserTable = (props: IProps) => {
             title: 'Status',
             dataIndex: 'status',
             key: 'status',
-            render: StyleStatus
+            render: (value: string) => StyleStatus({ value })
         },
         {
             title: 'Action',
             dataIndex: 'isBan',
             key: 'isBan',
-            render: ActionManagerUser
+            render: (
+                value: boolean,
+                record: IUser,
+                index: number,
+
+            ) => ActionManagerUser(value, record, index, setIsUpdateModalOpen, setDataUser)
         }
     ];
+
+    console.log("check data user: ", dataUser);
+
     return (
         <>
             <div style={{
@@ -72,7 +83,7 @@ const ManageUserTable = (props: IProps) => {
             </div >
             <TableCustomize columns={columns} dataSource={dataSource} meta={meta} />
             <CreateUserModal isCreateModalOpen={isCreateModalOpen} setIsCreateModalOpen={setIsCreateModalOpen} />
-
+            <UpdateUserModal setDataUser={setDataUser} dataUser={dataUser} isUpdateModalOpen={isUpdateModalOpen} setIsUpdateModalOpen={setIsUpdateModalOpen} />
         </>
     )
 }
