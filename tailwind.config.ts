@@ -11,7 +11,18 @@ export default {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        "mint-green": "#80EE98",
+        "tropical-teal": "#09D1C7",
+        "sea-foam": "#46DFB1",
+        "ocean-deep": "#15919B",
+        "aqua-twilight": "#0C6478",
+        "midnight-blue": "#213A58",
       },
+      backgroundImage: {
+       "custom-gradient": `linear-gradient(to bottom, var(--mint-green), var(--seafoam), var(--tropical-teal), var(--ocean-deep))`
+
+      },
+      
     },
   },
   plugins: [],
