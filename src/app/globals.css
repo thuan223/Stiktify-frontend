@@ -1,9 +1,8 @@
 * {
   margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
 :root {
   --mint-green: #80EE98;
@@ -13,3 +12,6 @@
   --aqua-twilight: #0C6478;
   --midnight-blue: #213A58;
 }
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
