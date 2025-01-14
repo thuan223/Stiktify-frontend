@@ -1,5 +1,5 @@
 "use client"
-import { handleCreateUserAction, handleUpdateUserAction } from '@/actions/manage.user.action';
+import { handleUpdateUserAction } from '@/actions/manage.user.action';
 import {
     Modal, Input, Form, Row, Col,
     notification,
@@ -68,7 +68,7 @@ const UpdateUserModal = (props: IProps) => {
                 <div
                     style={{ display: "flex", justifyContent: "center" }}
                 >
-                    <ImageCustomize />
+                    <ImageCustomize image={dataUser?.image || ""} />
                 </div>
                 <div style={{ display: "flex", gap: 50 }}>
                     <div>

@@ -2,7 +2,10 @@ import React from 'react';
 import { Image, Space } from 'antd';
 import noAvatar from "@/assets/no-avatar.png";
 
-const ImageCustomize: React.FC = () => {
+interface IProps {
+    image: string
+}
+const ImageCustomize: React.FC<IProps> = ({ image }) => {
     return (
         <div
             style={{
@@ -27,7 +30,7 @@ const ImageCustomize: React.FC = () => {
                     }}
                     height={120}
                     width={120}
-                    src={noAvatar.src}
+                    src={image === "" ? noAvatar.src : image}
                 />
             </Space>
         </div>

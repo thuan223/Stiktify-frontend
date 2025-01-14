@@ -181,7 +181,7 @@ const ForgotPassword = () => {
                     className="object-cover w-[30px] h-[30px]"
                   />
                 </div>
-                  <span className="text-aqua-twilight">Stiktify</span>
+                <span className="text-aqua-twilight">Stiktify</span>
                 <a href="/login" className="text-aqua-twilight underline">
                   Login
                 </a>
@@ -195,7 +195,7 @@ const ForgotPassword = () => {
           {current === 1 && (
             <>
               <p
-                className={`text-[16px] pl-[20px] pr-[20px] text-midnight-blue text-center mb-6 mt-[10px] mb-[10px] ${interRegular.className}`}
+                className={`text-[16px] pl-[20px] pr-[20px] text-midnight-blue text-center mt-[10px] mb-[10px] ${interRegular.className}`}
               >
                 Please check your email:{" "}
                 <p className="text-aqua-twilight">{email}</p> And Enter the code
@@ -275,13 +275,13 @@ const ForgotPassword = () => {
                   </button>
                 </div>
               </form>
-              
+
             </>
           )}
           {current === 2 && (
             <>
               <p
-                className={`text-[16px] pl-[20px] pr-[20px] text-aqua-twilight text-center mb-8 mt-[30px] mb-[10px] ${interRegular.className}`}
+                className={`text-[16px] pl-[20px] pr-[20px] text-aqua-twilight text-center mt-[30px] mb-[10px] ${interRegular.className}`}
               >
                 Your account password has been successfully changed. Please
                 login again.
@@ -314,7 +314,7 @@ const ForgotPassword = () => {
                     className="object-cover w-[30px] h-[30px]"
                   />
                 </div>
-                  <span className="text-aqua-twilight">Stiktify</span>
+                <span className="text-aqua-twilight">Stiktify</span>
                 <a href="/login" className="text-aqua-twilight underline">
                   Login
                 </a>
