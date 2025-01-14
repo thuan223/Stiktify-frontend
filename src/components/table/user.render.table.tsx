@@ -16,7 +16,6 @@ export const ActionManagerUser = (value: any, record: IUser, index: any, setIsUp
         notification.success({ message: res.message })
     }
 
-
     return (
         <>
             <div style={{ display: "flex", gap: 20, justifyContent: "start" }}>
@@ -43,9 +42,7 @@ export const ActionManagerUser = (value: any, record: IUser, index: any, setIsUp
                         <LockTwoTone
                             twoToneColor={"#ff7675"}
                             style={{ fontSize: 20 }}
-                            onClick={() => {
-                                setIsUpdateModalOpen(true);
-                            }} />
+                        />
                     </Popconfirm>
                     :
                     <Popconfirm
@@ -56,10 +53,7 @@ export const ActionManagerUser = (value: any, record: IUser, index: any, setIsUp
                     >
                         <UnlockTwoTone
                             style={{ fontSize: 20 }}
-                            onClick={() => {
-                                // setIsUpdateModalOpen(true);
-                                // setDataUpdate(record)
-                            }} />
+                        />
 
 
                     </Popconfirm>
