@@ -1,14 +1,10 @@
 "use client"
 import { ColumnsType } from "antd/es/table";
 import TableCustomize from "../table/table.dashboard"
-import { ActionManagerUser, FormatDateTime, StyleStatus } from "../table/user.render.table";
-import { Button } from "antd";
-import { UserAddOutlined } from "@ant-design/icons";
 import { useState } from "react";
-import CreateUserModal from "./create.user.model";
-import UpdateUserModal from "./edit.user.modal";
+
 interface IProps {
-    dataSource: IUser[];
+    dataSource: IShortVideo[];
     meta: {
         current: number,
         pageSize: number,
@@ -18,21 +14,26 @@ interface IProps {
 
 
 
-const ManageUserTable = (props: IProps) => {
+const ManageShortVideoTable = (props: IProps) => {
     const { dataSource, meta } = props;
     const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false)
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState<boolean>(false)
-    const [dataUser, setDataUser] = useState<IUser | null>(null)
-    const columns: ColumnsType<IUser> = [
+    const [dataUser, setDataUser] = useState<IShortVideo | null>(null)
+    const columns: ColumnsType<IShortVideo> = [
         {
-            title: 'Full name',
-            dataIndex: 'fullname',
-            key: 'fullname',
+            title: 'Username',
+            dataIndex: 'userId',
+            key: 'userId',
+            render: (value, record, index) => {
+                return (
+                    <div>{value.userName}</div>
+                )
+            },
         },
         {
-            title: 'Email',
-            dataIndex: 'email',
-            key: 'email',
+            title: 'Type',
+            dataIndex: 'videoType',
+            key: 'videoType',
         },
         {
             title: 'Code',
@@ -43,24 +44,24 @@ const ManageUserTable = (props: IProps) => {
             title: 'Code Expired',
             dataIndex: 'codeExpired',
             key: 'codeExpired',
-            render: FormatDateTime
+            // render: 
         },
         {
             title: 'Status',
             dataIndex: 'status',
             key: 'status',
-            render: (value: string) => StyleStatus({ value })
+            // render: (value: string) => StyleStatus({ value })
         },
         {
             title: 'Action',
             dataIndex: 'isBan',
             key: 'isBan',
-            render: (
-                value: boolean,
-                record: IUser,
-                index: number,
+            // render: (
+            //     value: boolean,
+            //     record: IUser,
+            //     index: number,
 
-            ) => ActionManagerUser(value, record, index, setIsUpdateModalOpen, setDataUser)
+            // ) => ActionManagerUser(value, record, index, setIsUpdateModalOpen, setDataUser)
         }
     ];
 
@@ -73,17 +74,15 @@ const ManageUserTable = (props: IProps) => {
                 fontWeight: 600,
                 fontSize: 20
             }}>
-                <span>Manager Users</span>
-                <Button onClick={() => setIsCreateModalOpen(true)}>
+                <span>Manager Short Video</span>
+                {/* <Button onClick={() => setIsCreateModalOpen(true)}>
                     <UserAddOutlined />
                     <span>Add New</span>
-                </Button>
+                </Button> */}
             </div >
             <TableCustomize columns={columns} dataSource={dataSource} meta={meta} />
-            <CreateUserModal isCreateModalOpen={isCreateModalOpen} setIsCreateModalOpen={setIsCreateModalOpen} />
-            <UpdateUserModal setDataUser={setDataUser} dataUser={dataUser} isUpdateModalOpen={isUpdateModalOpen} setIsUpdateModalOpen={setIsUpdateModalOpen} />
         </>
     )
 }
 
-export default ManageUserTable
+export default ManageShortVideoTable

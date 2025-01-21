@@ -5,7 +5,7 @@ import {
     AppstoreOutlined,
     MailOutlined,
     TeamOutlined,
-
+    VideoCameraOutlined
 } from '@ant-design/icons';
 import React, { useContext, useEffect, useState } from 'react';
 import type { MenuProps } from 'antd';
@@ -35,6 +35,11 @@ const DashboardSideBar = () => {
                     key: "/dashboard/user",
                     label: <Link href={"/dashboard/user"}>Manage Users</Link>,
                     icon: <TeamOutlined />,
+                },
+                {
+                    key: "/dashboard/short-video",
+                    label: <Link href={"/dashboard/short-video"}>Manage Short Video</Link>,
+                    icon: <VideoCameraOutlined />,
                 },
                 {
                     key: 'sub1',

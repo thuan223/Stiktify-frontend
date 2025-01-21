@@ -11,9 +11,9 @@ const ManageUserPage = async ({ searchParams }: any) => {
     const data = res.data
 
     const meta = {
-        current: data?.meta.current || 1,
-        pageSize: data?.meta.pageSize || 10,
-        total: data?.meta.total || 1,
+        current: data?.meta?.current || 1,
+        pageSize: data?.meta?.pageSize || 10,
+        total: data?.meta?.total || 1,
     }
     return (
         <div>
