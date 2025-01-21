@@ -2,6 +2,10 @@
 import { ColumnsType } from "antd/es/table";
 import TableCustomize from "../table/table.dashboard"
 import { useState } from "react";
+import { formatNumber } from "@/utils/utils";
+import { FlagTwoTone } from "@ant-design/icons";
+import { notification, Popconfirm } from "antd";
+import { handleFlagShortVideoAction } from "@/actions/manage.short.video.action";
 
 interface IProps {
     dataSource: IShortVideo[];
@@ -19,49 +23,78 @@ const ManageShortVideoTable = (props: IProps) => {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false)
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState<boolean>(false)
     const [dataUser, setDataUser] = useState<IShortVideo | null>(null)
+
+    const handleFlagVideo = async (record: IShortVideo) => {
+        const res = await handleFlagShortVideoAction(record._id, !record.flag)
+        notification.success({ message: res.message })
+    }
+
     const columns: ColumnsType<IShortVideo> = [
         {
             title: 'Username',
             dataIndex: 'userId',
             key: 'userId',
-            render: (value, record, index) => {
-                return (
-                    <div>{value.userName}</div>
-                )
-            },
+            render: (value, record, index) => (
+                <div>{value.userName}</div>
+            )
         },
         {
-            title: 'Type',
-            dataIndex: 'videoType',
-            key: 'videoType',
+            title: 'Thumbnail',
+            dataIndex: 'videoThumbnail',
+            key: 'videoThumbnail',
+            render: (value, record, index) => (
+                <div style={{ width: "150px", height: "100px" }}>
+                    <img src={value} alt={value} />
+                </div>
+            ),
         },
         {
-            title: 'Code',
-            dataIndex: 'activeCode',
-            key: 'activeCode',
+            title: 'Views',
+            dataIndex: 'totalViews',
+            key: 'totalViews',
+            render: (value, record, index) => (
+                <div>{formatNumber(value ?? 0)}</div>
+            )
         },
         {
-            title: 'Code Expired',
-            dataIndex: 'codeExpired',
-            key: 'codeExpired',
-            // render: 
+            title: 'Reactions',
+            dataIndex: 'totalReaction',
+            render: (value, record, index) => (
+                <div>{formatNumber(value ?? 0)}</div>
+            )
         },
         {
-            title: 'Status',
-            dataIndex: 'status',
-            key: 'status',
-            // render: (value: string) => StyleStatus({ value })
+            title: 'Comments',
+            dataIndex: 'totalComment',
+            key: 'totalComment',
+            render: (value, record, index) => (
+                <div>{formatNumber(value ?? 0)}</div>
+            )
+        },
+        {
+            title: 'Favorite',
+            dataIndex: 'totalFavorite',
+            key: 'totalFavorite',
+            render: (value, record, index) => (
+                <div>{formatNumber(value ?? 0)}</div>
+            )
         },
         {
             title: 'Action',
-            dataIndex: 'isBan',
-            key: 'isBan',
-            // render: (
-            //     value: boolean,
-            //     record: IUser,
-            //     index: number,
-
-            // ) => ActionManagerUser(value, record, index, setIsUpdateModalOpen, setDataUser)
+            dataIndex: 'flag',
+            key: 'flag',
+            render: (value, record, index) => {
+                return (
+                    <Popconfirm
+                        title="Sure to flag video?"
+                        onConfirm={() => handleFlagVideo(record)}
+                        okText="Yes"
+                        cancelText="No"
+                    >
+                        <FlagTwoTone style={{ fontSize: "20px" }} twoToneColor={value ? "#ff7675" : ""} />
+                    </Popconfirm>
+                )
+            },
         }
     ];
 

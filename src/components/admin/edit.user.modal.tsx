@@ -32,7 +32,6 @@ const UpdateUserModal = (props: IProps) => {
     }
 
     const onFinish = async (values: IUpdateUserByManager) => {
-        console.log('Success:', values);
         const data: IUpdateUserByManager = {
             _id: values._id,
             fullname: values.fullname,
@@ -44,8 +43,6 @@ const UpdateUserModal = (props: IProps) => {
         form.resetFields()
         setIsUpdateModalOpen(false);
     };
-
-    console.log("Check data model>>>>", dataUser);
 
     return (
         <Modal

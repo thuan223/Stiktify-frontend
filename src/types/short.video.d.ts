@@ -12,5 +12,7 @@ interface IShortVideo {
     videoDescription: string,
     isBlock: boolean,
     videoThumbnail: string,
-    videoTag: any[]
+    videoTag: any[],
+    isDelete: boolean,
+    flag: boolean
 }
