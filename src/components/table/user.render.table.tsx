@@ -6,15 +6,11 @@ import { notification, Popconfirm } from "antd"
 
 export const ActionManagerUser = (value: any, record: IUser, index: any, setIsUpdateModalOpen: (v: boolean) => void, setDataUser: (v: IUser) => void) => {
 
-    const handleBanUser = async (id: string) => {
-        const res = await handleBanUserAction(id)
+    const handleBanUser = async (id: string, isBan: boolean) => {
+        const res = await handleBanUserAction(id, isBan)
         notification.success({ message: res.message })
     }
 
-    const handleUnBannedUser = async (id: string) => {
-        const res = await handleUnBanUserAction(id)
-        notification.success({ message: res.message })
-    }
 
     return (
         <>
@@ -34,7 +30,7 @@ export const ActionManagerUser = (value: any, record: IUser, index: any, setIsUp
                 {value ?
                     <Popconfirm
                         title="Are you sure unlock this user?"
-                        onConfirm={() => handleUnBannedUser(record._id)}
+                        onConfirm={() => handleBanUser(record._id, !record.isBan)}
                         okText="Yes"
                         cancelText="No"
                     >
@@ -47,7 +43,7 @@ export const ActionManagerUser = (value: any, record: IUser, index: any, setIsUp
                     :
                     <Popconfirm
                         title="Are you sure lock this user?"
-                        onConfirm={() => handleBanUser(record._id)}
+                        onConfirm={() => handleBanUser(record._id, !record.isBan)}
                         okText="Yes"
                         cancelText="No"
                     >

@@ -16,18 +16,24 @@ export const handleGetAllUser = async (current: string, pageSize: string) => {
     return result
 }
 
-export const handleBanUserAction = async (id: string) => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/ban-user/${id}`, {
-        method: "GET",
+export const handleBanUserAction = async (id: string, isBan: boolean) => {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/ban-user`, {
+        method: "POST",
         headers: {
             "Content-Type": "application/json",
             // 'Content-Type': 'application/x-www-form-urlencoded',
             "Authorization": `Bearer ${token}`
         },
+        body: JSON.stringify({
+            _id: id,
+            isBan: isBan
+        })
     })
 
     revalidateTag("list-user")
     const result: IBackendRes<any> = await res.json();
+    console.log("check result: ", result);
+
     return result
 }
 
@@ -74,6 +80,19 @@ export const handleUpdateUserAction = async (data: IUpdateUserByManager) => {
     })
 
     revalidateTag("list-user")
+    const result: IBackendRes<any> = await res.json();
+    return result
+}
+
+export const handleFilterAndSearchAction = async (current: number, pageSize: number, search: string, filterRes: string) => {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/filter-search?current=${current}&pageSize=${pageSize}&search=${search}&filterReq=${filterRes}`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        },
+        // next: { tags: ["list-user-by-filter"] }
+    })
     const result: IBackendRes<any> = await res.json();
     return result
 }

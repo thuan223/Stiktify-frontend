@@ -17,7 +17,7 @@ const ManageUserPage = async ({ searchParams }: any) => {
     }
     return (
         <div>
-            <ManageUserTable dataSource={data?.result || []} meta={meta} />
+            <ManageUserTable metaDefault={{ current: result, LIMIT: LIMIT }} dataSource={data?.result || []} meta={meta} />
         </div>
     )
 }
