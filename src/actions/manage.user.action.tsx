@@ -32,8 +32,6 @@ export const handleBanUserAction = async (id: string, isBan: boolean) => {
 
     revalidateTag("list-user")
     const result: IBackendRes<any> = await res.json();
-    console.log("check result: ", result);
-
     return result
 }
 
@@ -91,7 +89,7 @@ export const handleFilterAndSearchAction = async (current: number, pageSize: num
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`
         },
-        // next: { tags: ["list-user-by-filter"] }
+        next: { tags: ["list-user"] }
     })
     const result: IBackendRes<any> = await res.json();
     return result
