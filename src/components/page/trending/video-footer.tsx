@@ -1,3 +1,4 @@
+import { formatDateTimeVn } from "@/utils/utils";
 import React from "react";
 
 interface VideoFooterProps {
@@ -22,9 +23,8 @@ const VideoFooter: React.FC<VideoFooterProps> = ({
         <div className="flex space-x-4">
         <span>{`#${videoTag.join(" #")}`}</span>
           <span>{`${totalView} views`}</span>
-          <span>{`Uploaded on: ${new Date(
-            createAt
-          ).toLocaleDateString()}`}</span>
+          <span>{`Uploaded on: ${formatDateTimeVn(
+            createAt)}`}</span>
         </div>
       </div>
     </div>

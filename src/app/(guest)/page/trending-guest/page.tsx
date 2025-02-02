@@ -6,33 +6,6 @@ import VideoFooter from "@/components/page/trending/video-footer";
 import { sendRequest } from "@/utils/api";
 import React, { useEffect, useState } from "react";
 
-interface IUser {
-  _id: string;
-  userName: string;
-  fullname: string;
-  email: string;
-  isBan: boolean;
-  status: string;
-  role: string;
-  accountType: string;
-}
-interface IVideo {
-  _id: string;
-  videoUrl: string;
-  totalReaction: number;
-  totalViews: number;
-  userId: IUser;
-  musicId: string;
-  videoDescription: string;
-  isBlock: boolean;
-  videoThumbnail: string;
-  videoTag: string[];
-  totalComment: number;
-  videoType: string;
-  createAt: Date;
-  isDelete: boolean;
-  flag: string[];
-}
 
 const TrendingPage = () => {
   const [searchValue, setSearchValue] = useState<string>("");
@@ -43,11 +16,8 @@ const TrendingPage = () => {
   const getVideoData = async () => {
     try {
       const res = await sendRequest<IBackendRes<IVideo[]>>({
-        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/trending-videos`,
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/trending-guest-videos`,
         method: "POST",
-        body: {
-          userId: "6741ab10342097607f0129f0",
-        },
       });
 
       if (res.data && Array.isArray(res.data)) {
@@ -100,19 +70,12 @@ const TrendingPage = () => {
     if (currentVideo === null) setCurrentVideo(videoData[0] || null);
   }, [videoData]);
   const handleVideoWatched = async () => {
-    await sendRequest<IBackendRes<IVideo[]>>({
-      url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/create-wishlist-videos`,
-      method: "POST",
-      body: {
-        userId: "6741ab10342097607f0129f0",
-        videoId: currentVideo?._id,
-      },
-    });
+    console.log("Watching video")
   };
 
   return (
     <div onWheel={handleScroll}>
-      <Header searchValue={searchValue} setSearchValue={setSearchValue} />
+      <Header searchValue={searchValue} setSearchValue={setSearchValue} isGuest={true} />
       {currentVideo ? (
         <MainVideo
           videoUrl={currentVideo.videoUrl}
