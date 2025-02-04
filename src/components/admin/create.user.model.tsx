@@ -22,7 +22,6 @@ const CreateUserModal = (props: IProps) => {
     }
 
     const onFinish = async (values: ICreateUserByManager) => {
-        console.log('Success:', values.password);
         if (values.password !== values.confirmPassword) {
             return notification.warning({ message: "Confirm password not match with password" })
         }
