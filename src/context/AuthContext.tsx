@@ -2,7 +2,7 @@
 
 import { createContext, useState, useEffect, ReactNode } from "react";
 import { sendRequest } from "@/utils/api";
-
+import Cookies from "js-cookie";
 interface AuthContextType {
   accessToken: string | null;
   user: any;
@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = (token: string) => {
     setAccessToken(token);
-    console.log("token >>>", token);
+    Cookies.set('token', token, { expires: 365 })
     localStorage.setItem("accessToken", token);
   };
 
