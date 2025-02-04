@@ -20,7 +20,7 @@ interface IVideo {
   videoType: string;
   createAt: Date;
   isDelete: boolean;
-  flag: string[];
+  flag: boolean;
 }
 interface IUser {
   _id: string;
