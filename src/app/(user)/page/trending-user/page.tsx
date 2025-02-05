@@ -3,8 +3,9 @@ import Header from "@/components/page/trending/header";
 import InteractSideBar from "@/components/page/trending/interact_sidebar";
 import MainVideo from "@/components/page/trending/main_video";
 import VideoFooter from "@/components/page/trending/video-footer";
+import { AuthContext } from "@/context/AuthContext";
 import { sendRequest } from "@/utils/api";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 
 
@@ -15,14 +16,15 @@ const TrendingPage = () => {
   const [currentVideoIndex, setCurrentVideoIndex] = useState<number>(0);
   const [currentVideo, setCurrentVideo] = useState<IVideo | null>(null);
   const [requestCount, setRequestCount] = useState<number>(0);
-  const token = process.env.NEXT_PUBLIC_TOKEN;
+  const { user,accessToken, logout } = useContext(AuthContext) ?? {};
   const getVideoData = async () => {
+    console.log("accessToken",accessToken)
     try {
       const res = await sendRequest<IBackendRes<IVideo[]>>({
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/trending-user-videos`,
         method: "POST",
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${accessToken}`,
         },
         body: {
           userId: "6741ab10342097607f0129f0",
@@ -64,6 +66,7 @@ const TrendingPage = () => {
     }
   };
   useEffect(() => {
+    console.log("user",user)
     getVideoData();
   }, []);
 
@@ -84,7 +87,7 @@ const TrendingPage = () => {
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/create-wishlist-videos`,
         method: "POST",
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${accessToken}`,
         },
         body: {
           userId: "6741ab10342097607f0129f0",
@@ -104,7 +107,7 @@ const TrendingPage = () => {
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/viewinghistory`,
         method: "POST",
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${accessToken}`,
         },
         body: {
           userId: "6741ab10342097607f0129f0",

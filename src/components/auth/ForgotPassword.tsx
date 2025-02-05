@@ -182,10 +182,13 @@ const ForgotPassword = () => {
                   />
                 </div>
                 <span className="text-aqua-twilight">Stiktify</span>
-                <a href="/login" className="text-aqua-twilight underline">
+                <a href="/auth/login" className="text-aqua-twilight underline">
                   Login
                 </a>
-                <a href="/register" className="text-aqua-twilight underline">
+                <a
+                  href="/auth/register"
+                  className="text-aqua-twilight underline"
+                >
                   Register
                 </a>
               </div>
@@ -275,7 +278,6 @@ const ForgotPassword = () => {
                   </button>
                 </div>
               </form>
-
             </>
           )}
           {current === 2 && (
@@ -315,10 +317,13 @@ const ForgotPassword = () => {
                   />
                 </div>
                 <span className="text-aqua-twilight">Stiktify</span>
-                <a href="/login" className="text-aqua-twilight underline">
+                <a href="/auth/login" className="text-aqua-twilight underline">
                   Login
                 </a>
-                <a href="/register" className="text-aqua-twilight underline">
+                <a
+                  href="/auth/register"
+                  className="text-aqua-twilight underline"
+                >
                   Register
                 </a>
               </div>

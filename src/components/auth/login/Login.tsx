@@ -29,7 +29,9 @@ const Login = () => {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
+  const [isActive, setIsActive] = useState(true);
+  const [code, setCode] = useState<string>("");
+  const [userId,setUserId] = useState<string>("");
   const onLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     const res = await sendRequest<IBackendRes<any>>({
@@ -49,8 +51,19 @@ const Login = () => {
     if (res?.data?.user?.role == "ADMIN") {
       router.push("/dashboard/user");
     } else if (res?.data?.user?.role == "USERS") {
-      router.push("/trendingPage");
+      router.push("/page/trending-user");
     } else {
+      if (res?.message === "Account has not been activated") {
+        setIsActive(false);
+      const res2=  await sendRequest<IBackendRes<any>>({
+          url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/retry-active`,
+          method: "POST",
+          body: {
+            email: email,
+          },
+        });
+        setUserId(res2.data._id)
+      }
       notification.error({
         message: "Username or password is not correct",
         description: res?.message,
@@ -58,7 +71,36 @@ const Login = () => {
       });
     }
   };
-
+  const handleCheckCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+   const res= await sendRequest<IBackendRes<any>>({
+      url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/check-code`,
+      method: "POST",
+      body: {
+        _id: userId,
+        activeCode:code
+      },
+    });
+    if(res.statusCode!=400){
+      notification.success({
+        message: "Retry Active Account Successfully",
+        description: res?.message,
+        duration: 3,
+      });
+      setCode("");
+      setIsActive(true)
+    }else{
+      notification.error({
+        message: "Retry Active Account Failure",
+        description: res?.message,
+        duration: 3,
+      });
+      setCode("");
+    }
+    
+    console.log(res);
+    
+  };
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-custom-gradient">
       {/* Form Container */}
@@ -80,57 +122,103 @@ const Login = () => {
           >
             Login
           </h2>
-          <form onSubmit={onLogin} className="space-y-6 pl-[20px] pr-[20px]">
-            <div>
-              <label
-                htmlFor="email"
-                className={`block text-[16px] font-medium text-midnight-blue ${interRegular.className}`}
-              >
-                Email:
-              </label>
-              <input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="stikify@example.com"
-                className="mt-2 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-ocean-deep"
-                required
-              />
-            </div>
+          {isActive ? (
+            <form onSubmit={onLogin} className="space-y-6 pl-[20px] pr-[20px]">
+              <div>
+                <label
+                  htmlFor="email"
+                  className={`block text-[16px] font-medium text-midnight-blue ${interRegular.className}`}
+                >
+                  Email:
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="stikify@example.com"
+                  className="mt-2 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-ocean-deep"
+                  required
+                />
+              </div>
 
-            <div>
-              <label
-                htmlFor="password"
-                className={`block text-[16px] font-medium text-midnight-blue ${interRegular.className}`}
-              >
-                Password:
-              </label>
-              <input
-                type="password"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder=""
-                className="mt-2 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-ocean-deep"
-                required
-              />
-            </div>
+              <div>
+                <label
+                  htmlFor="password"
+                  className={`block text-[16px] font-medium text-midnight-blue ${interRegular.className}`}
+                >
+                  Password:
+                </label>
+                <input
+                  type="password"
+                  id="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder=""
+                  className="mt-2 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-ocean-deep"
+                  required
+                />
+              </div>
 
-            <button
-              type="submit"
-              className="w-full py-3 bg-aqua-twilight text-white font-semibold rounded-lg hover:bg-midnight-blue focus:outline-none focus:ring-2 focus:ring-midnight-blue flex items-center"
-            >
-              <span className="flex-grow text-center ml-5">Login</span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 512 512"
-                className="h-5 w-5 fill-current text-white group-hover:text-midnight-blue transition-colors duration-300 mr-5"
+              <button
+                type="submit"
+                className="w-full py-3 bg-aqua-twilight text-white font-semibold rounded-lg hover:bg-midnight-blue focus:outline-none focus:ring-2 focus:ring-midnight-blue flex items-center"
               >
-                <path d="M16.1 260.2c-22.6 12.9-20.5 47.3 3.6 57.3L160 376l0 103.3c0 18.1 14.6 32.7 32.7 32.7c9.7 0 18.9-4.3 25.1-11.8l62-74.3 123.9 51.6c18.9 7.9 40.8-4.5 43.9-24.7l64-416c1.9-12.1-3.4-24.3-13.5-31.2s-23.3-7.5-34-1.4l-448 256zm52.1 25.5L409.7 90.6 190.1 336l1.2 1L68.2 285.7zM403.3 425.4L236.7 355.9 450.8 116.6 403.3 425.4z" />
-              </svg>
-            </button>
-          </form>
+                <span className="flex-grow text-center ml-5">Login</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 512 512"
+                  className="h-5 w-5 fill-current text-white group-hover:text-midnight-blue transition-colors duration-300 mr-5"
+                >
+                  <path d="M16.1 260.2c-22.6 12.9-20.5 47.3 3.6 57.3L160 376l0 103.3c0 18.1 14.6 32.7 32.7 32.7c9.7 0 18.9-4.3 25.1-11.8l62-74.3 123.9 51.6c18.9 7.9 40.8-4.5 43.9-24.7l64-416c1.9-12.1-3.4-24.3-13.5-31.2s-23.3-7.5-34-1.4l-448 256zm52.1 25.5L409.7 90.6 190.1 336l1.2 1L68.2 285.7zM403.3 425.4L236.7 355.9 450.8 116.6 403.3 425.4z" />
+                </svg>
+              </button>
+            </form>
+          ) : (
+            <div>
+              <p
+                className={`text-[16px] pl-[20px] pr-[20px] text-midnight-blue text-center mt-[10px] mb-[10px] ${interRegular.className}`}
+              >
+                Please check your email:{" "}
+                <span className="text-aqua-twilight">{email}</span> And Enter
+                the code we sent you in the field below to Active Account.
+              </p>
+              <form
+                onSubmit={handleCheckCode}
+                className="space-y-[10px] pl-[20px] pr-[20px]"
+              >
+                <div>
+                  <label
+                    htmlFor="text"
+                    className={`block text-[16px] font-medium text-midnight-blue ${interRegular.className}`}
+                  >
+                    Verification code:{" "}
+                    <span className="text-aqua-twilight ml-[10px]">
+                      The code is valid for 5 minutes.
+                    </span>
+                  </label>
+                  <input
+                    type="text"
+                    id="text"
+                    value={code}
+                    onChange={(e) => setCode(e.target.value)}
+                    placeholder="Enter Verification Code"
+                    className="mt-[2px] block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-ocean-deep"
+                    required
+                  />
+                </div>
+
+                <div className="flex space-x-4">
+                  <button
+                    type="submit"
+                    className="flex-grow py-3 bg-aqua-twilight text-white font-semibold rounded-lg hover:bg-midnight-blue focus:outline-none focus:ring-2 focus:ring-midnight-blue flex items-center"
+                  >
+                    <span className="flex-grow text-center">Submit</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
 
           <div className="flex justify-center space-x-4 mt-[30px]">
             <div
