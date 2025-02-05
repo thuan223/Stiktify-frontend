@@ -1,8 +1,10 @@
 "use server"
 
 import { revalidateTag } from "next/cache";
+import { cookies } from "next/headers";
 
-const token = process.env.TOKEN
+const cookieStore = cookies()
+const token = cookieStore.get("token")?.value
 
 export const handleGetAllShortVideo = async (current: string, pageSize: string) => {
     const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/list-video?current=${current}&pageSize=${pageSize}`, {
