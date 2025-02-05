@@ -1,7 +1,7 @@
 "use client"
 import { handleBanUserAction, handleUnBanUserAction } from "@/actions/manage.user.action"
 import { formatDateTime } from "@/utils/utils"
-import { EditTwoTone, FileSearchOutlined, LockTwoTone, SmileOutlined, UnlockTwoTone } from "@ant-design/icons"
+import { FileSearchOutlined, LockTwoTone, SmileOutlined, UnlockTwoTone } from "@ant-design/icons"
 import { notification, Popconfirm } from "antd"
 
 export const ActionManagerUser = (value: any, record: IUser, index: any, setIsUpdateModalOpen: (v: boolean) => void, setDataUser: (v: IUser) => void) => {
@@ -15,14 +15,8 @@ export const ActionManagerUser = (value: any, record: IUser, index: any, setIsUp
     return (
         <>
             <div style={{ display: "flex", gap: 20, justifyContent: "start" }}>
-                <FileSearchOutlined
-                    style={{ fontSize: 20, color: "#636e72" }}
-                    onClick={() => {
-                        // setIsUpdateModalOpen(true);
-                        // setDataUpdate(record)
-                    }} />
-                <EditTwoTone twoToneColor={"#fdcb6e"}
-                    style={{ fontSize: 20 }}
+                <FileSearchOutlined twoToneColor={"#636e72"}
+                    style={{ fontSize: 20, opacity: 0.7 }}
                     onClick={() => {
                         setIsUpdateModalOpen(true);
                         setDataUser(record)
