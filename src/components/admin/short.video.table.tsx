@@ -44,7 +44,7 @@ const ManageShortVideoTable = (props: IProps) => {
             key: 'videoThumbnail',
             render: (value, record, index) => (
                 <div style={{ width: "150px", height: "100px", borderRadius: "3px", boxShadow: "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)", textAlign: "center" }}>
-                    <img src={value} alt={value} style={{ borderRadius: "3px" }} />
+                    <img src={value} alt={value} style={{ borderRadius: "3px", width: "100%", height: "100%" }} />
                 </div>
             ),
         },
