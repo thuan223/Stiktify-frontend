@@ -1,4 +1,7 @@
 "use client";
+
+import { useRouter } from "next/navigation";
+
 interface HeaderProps {
   searchValue: string;
   setSearchValue: React.Dispatch<React.SetStateAction<string>>;
@@ -10,6 +13,7 @@ const Header: React.FC<HeaderProps> = ({
   setSearchValue,
   isGuest,
 }) => {
+  const router = useRouter();
   return (
     <header className="flex items-center justify-between p-4 bg-white shadow-md">
       <div className="flex items-center flex-1 justify-center">
@@ -36,8 +40,11 @@ const Header: React.FC<HeaderProps> = ({
       <div className="flex items-center space-x-4">
         <div className="text-xl cursor-pointer">
           {isGuest ? (
-            <button className="text-red-500 bg-white border-2 border-red-500 rounded-lg py-1 px-4 hover:bg-red-500 hover:text-white transition-all duration-300">
-             Sign In
+            <button
+              onClick={()=>router.push("/auth/login")}
+              className="text-red-500 bg-white border-2 border-red-500 rounded-lg py-1 px-4 hover:bg-red-500 hover:text-white transition-all duration-300"
+            >
+              Sign In
             </button>
           ) : (
             <svg
