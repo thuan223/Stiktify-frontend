@@ -3,12 +3,10 @@ import Header from "@/components/page/trending/header";
 import InteractSideBar from "@/components/page/trending/interact_sidebar";
 import MainVideo from "@/components/page/trending/main_video";
 import VideoFooter from "@/components/page/trending/video-footer";
+import CommentSection from "@/components/page/trending/comment_section";
 import { AuthContext } from "@/context/AuthContext";
 import { sendRequest } from "@/utils/api";
 import React, { useContext, useEffect, useState } from "react";
-
-
-
 
 const TrendingPage = () => {
   const [searchValue, setSearchValue] = useState<string>("");
@@ -18,12 +16,22 @@ const TrendingPage = () => {
   const [requestCount, setRequestCount] = useState<number>(0);
   const { user, accessToken, logout } = useContext(AuthContext) ?? {};
 
+  const [showComments, setShowComments] = useState<boolean>(false);
+
+  const toggleComments = () => {
+    setShowComments((prev) => !prev);
+  };
+
+  const getVideoData = async () => {
+    console.log("accessToken", accessToken);
+
   useEffect(() => {
     getVideoData()
   }, [accessToken])
 
   const getVideoData = async () => {
     if (!accessToken) return;
+
     try {
       const res = await sendRequest<IBackendRes<IVideo[]>>({
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/trending-user-videos`,
@@ -51,6 +59,10 @@ const TrendingPage = () => {
   };
 
   const handleScroll = (event: React.WheelEvent) => {
+    if (showComments) {
+      event.preventDefault();
+      return;
+    }
     if (event.deltaY > 0) {
       if (currentVideoIndex < videoData.length - 1) {
         const newIndex = currentVideoIndex + 1;
@@ -71,7 +83,6 @@ const TrendingPage = () => {
     }
   };
   useEffect(() => {
-    console.log("user", user)
     getVideoData();
   }, []);
 
@@ -143,9 +154,22 @@ const TrendingPage = () => {
         videoDescription={currentVideo?.videoDescription || ""}
         totalView={currentVideo?.totalViews || 0}
         videoTag={currentVideo?.videoTag || []}
-        createAt={currentVideo?.createAt.toString() || ""}
+        createAt={currentVideo?.createAt?.toString() || ""}
       />
-      <InteractSideBar creatorId={currentVideo?.userId.fullname || ""} />
+      <InteractSideBar
+        creatorId={currentVideo?.userId.fullname || ""}
+        onCommentClick={toggleComments}
+        videoId={currentVideo?._id}
+        numberComment={currentVideo?.totalComment}
+      />
+
+      {showComments && (
+        <CommentSection
+          onCommentClick={toggleComments}
+          videoId={currentVideo?._id}
+          showComments={showComments}
+        />
+      )}
     </div>
   );
 };
