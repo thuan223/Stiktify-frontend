@@ -138,7 +138,7 @@ const TrendingPage = () => {
         videoDescription={currentVideo?.videoDescription || ""}
         totalView={currentVideo?.totalViews || 0}
         videoTag={currentVideo?.videoTag || []}
-        createAt={currentVideo?.createAt.toString() || ""}
+        createAt={currentVideo?.createAt?.toString() || ""}
       />
       <InteractSideBar creatorId={currentVideo?.userId.fullname || ""} />
     </div>

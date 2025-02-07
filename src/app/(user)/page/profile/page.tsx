@@ -1,38 +1,35 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import UserProfile from "@/components/page/profile/UserProfile";
 import { sendRequest } from "@/utils/api";
+import { AuthContext } from "@/context/AuthContext";
 
 const ProfilePage = () => {
   const [profileData, setProfileData] = useState<any>(null); // Chắc chắn profileData là một object hợp lệ
   const [loading, setLoading] = useState(true);
-
+  const { user, accessToken, logout } = useContext(AuthContext) ?? {};
   useEffect(() => {
     const fetchProfileData = async () => {
-      let token = localStorage.getItem("token");
-
-      if (!token) {
+      if (!accessToken) {
         console.error("🚨 Token is missing! User might not be logged in.");
         setLoading(false);
         return;
       }
-
-      token = token.trim();
-
-      console.log("🔍 Sending token:", token);
+      console.log("🔍 Sending accessToken:", accessToken);
 
       try {
         const response = await fetch(
-          "http://localhost:8080/api/v1/users/get-user",
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/get-user`,
           {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
+              Authorization: `Bearer ${accessToken}`,
             },
           }
         );
+        console.log("check >>>>>", response);
 
         if (!response.ok) {
           if (response.status === 401) {
@@ -51,21 +48,21 @@ const ProfilePage = () => {
     };
 
     fetchProfileData();
-  }, []);
+  }, [accessToken]);
 
   const handleUpdateProfile = async (updatedProfile: any) => {
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
+      const accessToken = localStorage.getItem("accessToken");
+      if (!accessToken) {
         console.error("🚨 Token is missing!");
         return;
       }
 
       const res = await sendRequest<IBackendRes<any>>({
-        url: "http://localhost:8080/api/v1/users/update-profile",
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/update-profile`,
         method: "PATCH",
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${accessToken}`,
         },
         body: updatedProfile, // Gửi dữ liệu từ user profile đã có _id
       });
