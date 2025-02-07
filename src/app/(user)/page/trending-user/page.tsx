@@ -24,6 +24,14 @@ const TrendingPage = () => {
 
   const getVideoData = async () => {
     console.log("accessToken", accessToken);
+
+  useEffect(() => {
+    getVideoData()
+  }, [accessToken])
+
+  const getVideoData = async () => {
+    if (!accessToken) return;
+
     try {
       const res = await sendRequest<IBackendRes<IVideo[]>>({
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/trending-user-videos`,
@@ -75,7 +83,6 @@ const TrendingPage = () => {
     }
   };
   useEffect(() => {
-    console.log("user", user);
     getVideoData();
   }, []);
 
