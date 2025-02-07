@@ -1,7 +1,10 @@
 "use server"
 
 import { revalidateTag } from "next/cache";
-const token = process.env.TOKEN
+import { cookies } from "next/headers";
+
+const cookieStore = cookies()
+const token = cookieStore.get("token")?.value
 
 export const handleGetAllUser = async (current: string, pageSize: string) => {
     const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/list-user?current=${current}&pageSize=${pageSize}`, {
