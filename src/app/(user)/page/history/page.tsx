@@ -2,8 +2,9 @@
 import HistoryList from "@/components/page/history/history-list";
 import SettingHistory from "@/components/page/history/setting-history";
 import Header from "@/components/page/trending/header";
+import { AuthContext } from "@/context/AuthContext";
 import { sendRequest } from "@/utils/api";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 const ViewingHistory = () => {
   const [searchValue, setSearchValue] = useState<string>("");
@@ -11,6 +12,7 @@ const ViewingHistory = () => {
   const [isFetch, setIsFetch] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [maxLength, setMaxLength] = useState(false);
+  const { user,accessToken, logout } = useContext(AuthContext) ?? {};
   const getViewingHistoryList = async () => {
     const filter = JSON.stringify({ userId: "6741ab10342097607f0129f0" });
 
@@ -22,7 +24,7 @@ const ViewingHistory = () => {
       )}&current=${currentPage}&pageSize=10&`,
       method: "GET",
       headers: {
-        Authorization: `Bearer ${process.env.NEXT_PUBLIC_TOKEN}`,
+        Authorization: `Bearer ${accessToken}`,
       },
     });
     setIsFetch(false);
