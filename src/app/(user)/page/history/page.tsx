@@ -12,30 +12,35 @@ const ViewingHistory = () => {
   const [isFetch, setIsFetch] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [maxLength, setMaxLength] = useState(false);
-  const { user,accessToken, logout } = useContext(AuthContext) ?? {};
-  const getViewingHistoryList = async () => {
-    const filter = JSON.stringify({ userId: "6741ab10342097607f0129f0" });
+  const { user, accessToken, logout } = useContext(AuthContext) ?? {};
+  useEffect(() => {
+    getViewingHistoryList()
+  }, [accessToken])
 
-    const res = await sendRequest<IBackendRes<any>>({
-      url: `${
-        process.env.NEXT_PUBLIC_BACKEND_URL
-      }/api/v1/viewinghistory/list-viewing-history?query=${encodeURIComponent(
-        filter
-      )}&current=${currentPage}&pageSize=10&`,
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-    setIsFetch(false);
-    if (res.data.result.length === 0) {
-      setMaxLength(true);
+  const getViewingHistoryList = async () => {
+    if (accessToken) {
+      const filter = JSON.stringify({ userId: "6741ab10342097607f0129f0" });
+      const res = await sendRequest<IBackendRes<any>>({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL
+          }/api/v1/viewinghistory/list-viewing-history?query=${encodeURIComponent(
+            filter
+          )}&current=${currentPage}&pageSize=10&`,
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      setIsFetch(false);
+      if (res.data.result.length === 0) {
+        setMaxLength(true);
+      }
+      if (videoList.length == 0) {
+        setVideoList(res?.data?.result);
+      } else {
+        setVideoList((prev) => [...prev, ...(res?.data?.result || [])]);
+      }
     }
-    if (videoList.length == 0) {
-      setVideoList(res?.data?.result);
-    } else {
-      setVideoList((prev) => [...prev, ...(res?.data?.result || [])]);
-    }
+
   };
 
   useEffect(() => {
