@@ -8,16 +8,13 @@ import { AuthContext } from "@/context/AuthContext";
 const ProfilePage = () => {
   const [profileData, setProfileData] = useState<any>(null); // Chắc chắn profileData là một object hợp lệ
   const [loading, setLoading] = useState(true);
-  const { user, accessToken, logout } = useContext(AuthContext) ?? {};
+  const { accessToken} = useContext(AuthContext) ?? {};
   useEffect(() => {
     const fetchProfileData = async () => {
       if (!accessToken) {
-        console.error("🚨 Token is missing! User might not be logged in.");
         setLoading(false);
         return;
       }
-      console.log("🔍 Sending accessToken:", accessToken);
-
       try {
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/get-user`,
@@ -29,19 +26,15 @@ const ProfilePage = () => {
             },
           }
         );
-        console.log("check >>>>>", response);
 
         if (!response.ok) {
           if (response.status === 401) {
-            console.error("🚨 Unauthorized: Token may be invalid or expired");
           }
           throw new Error(`HTTP Error ${response.status}`);
         }
-
         const result = await response.json();
         setProfileData(result.data);
       } catch (error) {
-        console.error("❌ Error fetching profile:", error);
       } finally {
         setLoading(false);
       }
@@ -54,10 +47,8 @@ const ProfilePage = () => {
     try {
       const accessToken = localStorage.getItem("accessToken");
       if (!accessToken) {
-        console.error("🚨 Token is missing!");
         return;
       }
-
       const res = await sendRequest<IBackendRes<any>>({
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/update-profile`,
         method: "PATCH",
@@ -66,11 +57,8 @@ const ProfilePage = () => {
         },
         body: updatedProfile, // Gửi dữ liệu từ user profile đã có _id
       });
-
-      console.log("Profile updated:", res);
       setProfileData(res.data); // Cập nhật lại dữ liệu sau khi lưu
     } catch (error) {
-      console.error("❌ Error updating profile:", error);
     }
   };
 
