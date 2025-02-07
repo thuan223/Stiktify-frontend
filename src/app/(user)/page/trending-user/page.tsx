@@ -22,9 +22,6 @@ const TrendingPage = () => {
     setShowComments((prev) => !prev);
   };
 
-  const getVideoData = async () => {
-    console.log("accessToken", accessToken);
-
   useEffect(() => {
     getVideoData()
   }, [accessToken])
@@ -172,6 +169,7 @@ const TrendingPage = () => {
       )}
     </div>
   );
-};
+
+}
 
 export default TrendingPage;
