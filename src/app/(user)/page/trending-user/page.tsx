@@ -147,6 +147,7 @@ const TrendingPage = () => {
       ) : (
         <p>Loading video...</p>
       )}
+      
       <VideoFooter
         videoDescription={currentVideo?.videoDescription || ""}
         totalView={currentVideo?.totalViews || 0}

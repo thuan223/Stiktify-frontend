@@ -90,7 +90,7 @@ const TrendingPage = () => {
         videoTag={currentVideo?.videoTag || []}
         createAt={currentVideo?.createAt.toString() || ""}
       />
-      <InteractSideBar creatorId={currentVideo?.userId.fullname || ""} />
+      <InteractSideBar  creatorId={currentVideo?.userId.fullname || ""} />
     </div>
   );
 };
