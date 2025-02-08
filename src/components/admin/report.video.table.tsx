@@ -3,10 +3,11 @@ import { ColumnsType } from "antd/es/table";
 import TableCustomize from "../table/table.dashboard"
 import { useState } from "react";
 import { formatNumber } from "@/utils/utils";
-import { FlagTwoTone } from "@ant-design/icons";
-import { Image, notification, Popconfirm } from "antd";
+import { FlagTwoTone, UnorderedListOutlined } from "@ant-design/icons";
+import { Button, Image, notification, Popconfirm, Tooltip } from "antd";
 import { handleFlagShortVideoAction } from "@/actions/manage.short.video.action";
 import VideoCustomize from "../video/video.customize";
+import ModalListReport from "../modal/modal.list.report";
 
 interface IProps {
     dataSource: IReport[];
@@ -21,20 +22,25 @@ interface IProps {
 
 const ManageReportTable = (props: IProps) => {
     const { dataSource, meta } = props;
-    const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false)
+    const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(false)
+    const [dataReport, setDataReport] = useState<IDataReport[] | []>([])
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState<boolean>(false)
     const [dataUser, setDataUser] = useState<IShortVideo | null>(null)
 
     const handleFlagVideo = async (record: IShortVideo) => {
         const res = await handleFlagShortVideoAction(record._id, !record.flag)
-        notification.success({ message: res.message })
+        if (res.statusCode === 201) {
+            return notification.success({ message: res.message })
+        }
+        return notification.error({ message: res.message })
+
     }
 
     const columns: ColumnsType<IReport> = [
         {
             title: 'Username',
             dataIndex: 'dataVideo',
-            key: 'userId',
+            key: 'userName',
             render: (value, record, index) => (
                 <div>{record.dataVideo.userId.userName}</div>
             )
@@ -49,48 +55,50 @@ const ManageReportTable = (props: IProps) => {
         },
         {
             title: 'Views',
-            dataIndex: 'totalViews',
+            dataIndex: 'dataVideo',
             key: 'totalViews',
+            render: (value: IShortVideo, record, index) => (
+                <div>{formatNumber(value.totalViews ?? 0)}</div>
+            )
+        },
+        {
+            title: 'Total Report',
+            dataIndex: 'total',
+            key: 'total',
             render: (value, record, index) => (
                 <div>{formatNumber(value ?? 0)}</div>
             )
         },
         {
-            title: 'Reactions',
-            dataIndex: 'totalReaction',
+            title: 'Reasons',
+            dataIndex: 'dataReport',
+            key: 'dataReport',
             render: (value, record, index) => (
-                <div>{formatNumber(value ?? 0)}</div>
-            )
-        },
-        {
-            title: 'Comments',
-            dataIndex: 'totalComment',
-            key: 'totalComment',
-            render: (value, record, index) => (
-                <div>{formatNumber(value ?? 0)}</div>
-            )
-        },
-        {
-            title: 'Favorite',
-            dataIndex: 'totalFavorite',
-            key: 'totalFavorite',
-            render: (value, record, index) => (
-                <div>{formatNumber(value ?? 0)}</div>
+                <>
+                    <Tooltip overlayInnerStyle={{ background: "white", color: "#1e272e" }} title="Click here to show list report">
+                        <Button onClick={() => {
+                            setIsReportModalOpen(true)
+                            setDataReport(value)
+                        }}><UnorderedListOutlined /></Button>
+                    </Tooltip>
+                </>
             )
         },
         {
             title: 'Action',
-            dataIndex: 'flag',
+            dataIndex: 'dataVideo',
             key: 'flag',
-            render: (value, record, index) => {
+            render: (value: IShortVideo, record, index) => {
                 return (
                     <Popconfirm
                         title="Sure to flag video?"
-                        // onConfirm={() => handleFlagVideo(record)}
+                        onConfirm={() => handleFlagVideo(value)}
                         okText="Yes"
                         cancelText="No"
                     >
-                        <FlagTwoTone style={{ fontSize: "20px" }} twoToneColor={value ? "#ff7675" : ""} />
+                        <FlagTwoTone
+                            style={{ fontSize: "20px" }}
+                            twoToneColor={value.flag ? "#ff7675" : ""} />
                     </Popconfirm>
                 )
             },
@@ -106,13 +114,15 @@ const ManageReportTable = (props: IProps) => {
                 fontWeight: 600,
                 fontSize: 20
             }}>
-                <span>Manager Short Video</span>
+                <span>Manager Report Video</span>
                 {/* <Button onClick={() => setIsCreateModalOpen(true)}>
                     <UserAddOutlined />
                     <span>Add New</span>
                 </Button> */}
             </div >
             <TableCustomize columns={columns} dataSource={dataSource} meta={meta} />
+            <ModalListReport data={dataReport} isModalOpen={isReportModalOpen} setIsModalOpen={setIsReportModalOpen} />
+
         </>
     )
 }

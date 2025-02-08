@@ -1,18 +1,29 @@
-import React, { useEffect, useState } from 'react';
-import { Button, Modal } from 'antd';
+import React, { useEffect, useRef, useState } from 'react';
+import { Modal } from 'antd';
 
 interface IProps {
     isModalOpen: boolean,
     setIsModalOpen: (v: boolean) => void
-    videoUrl: string
+    videoUrl: string,
+    videoThumbnail: string
 }
 const ModalWatchVideo = (props: IProps) => {
-    const { isModalOpen, setIsModalOpen, videoUrl } = props
+    const { isModalOpen, setIsModalOpen, videoUrl, videoThumbnail } = props
+    const videoRef = useRef<HTMLVideoElement>(null);
 
     const [size, setSize] = useState({
         width: typeof window !== "undefined" ? window.innerWidth / 1.5 : 0,
         height: typeof window !== "undefined" ? window.innerHeight / 1.3 : 0
     });
+
+    useEffect(() => {
+        if (!isModalOpen) {
+            if (videoRef.current) {
+                videoRef.current.pause();
+                // videoRef.current.currentTime = 0; 
+            }
+        }
+    }, [isModalOpen])
 
     useEffect(() => {
         if (typeof window === "undefined") return;
@@ -36,26 +47,33 @@ const ModalWatchVideo = (props: IProps) => {
     return (
         <>
             <Modal
+                style={{ top: "8%" }}
                 width={size.width}
                 open={isModalOpen}
                 onOk={handleOk}
                 onCancel={handleCancel}
                 styles={{
-                    content: { marginTop: 0, top: 0, padding: 0 },
-                    body: { height: size.height, overflow: "hidden", }
+                    content: { marginTop: 0, top: 0, padding: 5, paddingBottom: 1, backgroundColor: "#1e272e" },
+                    body: { overflow: "hidden", }
                 }}
                 footer={false}
                 closable={false}
             >
-                <div style={{ width: "100%", height: "100%", display: "flex" }}>
-                    <iframe
-                        src={videoUrl}
-                        title="YouTube video player"
-                        style={{ flex: 1, border: "none" }}
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        referrerPolicy="strict-origin-when-cross-origin"
-                        allowFullScreen
-                    />
+                <div>
+                    <video
+                        style={{
+                            borderRadius: "5px"
+                        }}
+                        ref={videoRef}
+                        width="100%"
+                        height="100%"
+                        controls
+                        autoPlay
+                        loop
+                        poster={videoThumbnail}>
+                        <source src={videoUrl} type="video/mp4" />
+                        Your browser does not support the video tag.
+                    </video>
                 </div>
             </Modal>
 

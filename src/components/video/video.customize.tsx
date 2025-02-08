@@ -1,4 +1,4 @@
-import { Image, Tooltip } from "antd";
+import { Tooltip } from "antd";
 import { useState } from "react";
 import ModalWatchVideo from "../modal/modal.video";
 interface IProps {
@@ -9,10 +9,11 @@ interface IProps {
 const VideoCustomize = (props: IProps) => {
     const { videoThumbnail, videoUrl } = props
     const [watchVideo, setWatchVideo] = useState(false)
+
     return (
         <>
-            <ModalWatchVideo videoUrl={videoUrl} isModalOpen={watchVideo} setIsModalOpen={setWatchVideo} />
-            <Tooltip color="cyan" title="Watch Video" >
+            <ModalWatchVideo videoThumbnail={videoThumbnail} videoUrl={videoUrl} isModalOpen={watchVideo} setIsModalOpen={setWatchVideo} />
+            <Tooltip overlayInnerStyle={{ background: "white", color: "#1e272e" }} title="Watch Video" >
                 <div
                     onClick={() => setWatchVideo(true)}
                     style={{
