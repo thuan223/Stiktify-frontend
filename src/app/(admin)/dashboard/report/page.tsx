@@ -11,7 +11,7 @@ const ShortVideoPage = async ({ searchParams }: any) => {
 
     const res = await handleGetAllReportAction(result, LIMIT)
 
-    const data = res.data
+    const data = res?.data
 
     const meta = {
         current: data?.meta?.current || 1,
