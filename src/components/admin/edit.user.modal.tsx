@@ -39,7 +39,7 @@ const UpdateUserModal = (props: IProps) => {
             isBan: isBanStatus
         }
         const res = await handleUpdateUserAction(data)
-        notification.success({ message: res.message })
+        notification.success({ message: res?.message })
         form.resetFields()
         setIsUpdateModalOpen(false);
     };

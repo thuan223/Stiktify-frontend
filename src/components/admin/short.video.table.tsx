@@ -26,7 +26,7 @@ const ManageShortVideoTable = (props: IProps) => {
 
     const handleFlagVideo = async (record: IShortVideo) => {
         const res = await handleFlagShortVideoAction(record._id, !record.flag)
-        notification.success({ message: res.message })
+        notification.success({ message: res?.message })
     }
 
     const columns: ColumnsType<IShortVideo> = [

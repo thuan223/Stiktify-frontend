@@ -8,7 +8,7 @@ export const ActionManagerUser = (value: any, record: IUser, index: any, setIsUp
 
     const handleBanUser = async (id: string, isBan: boolean) => {
         const res = await handleBanUserAction(id, isBan)
-        notification.success({ message: res.message })
+        notification.success({ message: res?.message })
     }
 
 

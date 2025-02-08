@@ -8,7 +8,7 @@ const ManageUserPage = async ({ searchParams }: any) => {
 
     const res = await handleGetAllUser(result, LIMIT)
 
-    const data = res.data
+    const data = res?.data
 
     const meta = {
         current: data?.meta?.current || 1,

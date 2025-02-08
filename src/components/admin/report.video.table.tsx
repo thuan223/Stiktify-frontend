@@ -29,10 +29,10 @@ const ManageReportTable = (props: IProps) => {
 
     const handleFlagVideo = async (record: IShortVideo) => {
         const res = await handleFlagShortVideoAction(record._id, !record.flag)
-        if (res.statusCode === 201) {
-            return notification.success({ message: res.message })
+        if (res?.statusCode === 201) {
+            return notification.success({ message: res?.message })
         }
-        return notification.error({ message: res.message })
+        return notification.error({ message: res?.message })
 
     }
 
