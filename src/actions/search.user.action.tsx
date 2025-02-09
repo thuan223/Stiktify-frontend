@@ -31,10 +31,6 @@ export const handleSearchUserByName = async (
     console.error("Error fetching data:", res.statusText);
     return { data: [] };
   }
-
   const result: IBackendRes<any> = await res.json();
-  console.log("API response:", result); // Log the result to debug
   return result;
 };
-
-

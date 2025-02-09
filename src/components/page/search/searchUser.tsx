@@ -2,7 +2,6 @@
 
 import { handleSearchUserByName } from "@/actions/search.user.action";
 import { useState, useEffect } from "react";
-import { FaSearch } from "react-icons/fa"; // Import icon search
 
 const SearchUser = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -53,7 +52,14 @@ const SearchUser = () => {
             onClick={handleSearch}
             className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-red-500"
           >
-            <FaSearch size={20} />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path d="M10 2a8 8 0 0 1 5.293 13.707l4.977 4.977-1.414 1.414-4.977-4.977A8 8 0 1 1 10 2m0 2a6 6 0 1 0 0 12A6 6 0 0 0 10 4Z" />
+            </svg>
           </button>
         </div>
         <div className="overflow-y-auto max-h-[300px] border border-gray-300 rounded-lg w-full">
