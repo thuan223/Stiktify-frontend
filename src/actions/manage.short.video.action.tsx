@@ -46,3 +46,31 @@ export const handleFlagShortVideoAction = async (id: string, flag: boolean) => {
         return null
     }
 }
+
+export const handleSearchShortVideos = async (
+    searchText: string,
+    current: number,
+    pageSize: number
+  ) => {
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/search-video?searchText=${encodeURIComponent(
+          searchText
+        )}&current=${current}&pageSize=${pageSize}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          next: { tags: ["search-short-video"] },
+        }
+      );
+  
+      const result: IBackendRes<any> = await res.json();
+      return result;
+    } catch (error) {
+      console.error("Error searching videos:", error);
+      return null;
+    }
+  };

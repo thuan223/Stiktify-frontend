@@ -32,7 +32,6 @@ const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className="flex items-center justify-between p-4 bg-white shadow-md">
-      {/* Search Input */}
       <div className="flex items-center flex-1 justify-center">
         <input
           type="text"
