@@ -4,6 +4,7 @@ interface IShortVideo {
     totalFavorite: number,
     totalReaction: number,
     totalViews: number,
+    totalComment:number,
     userId: IUserID,
     musicId: string,
     videoDescription: string,

@@ -20,9 +20,11 @@ export const fetchMyVideos = async (current: number, pageSize: number) => {
 
   if (!res.ok) {
     console.error("Error fetching videos:", res.statusText);
-    return { data: [] };
+    return { data: { result: [] } }; // Chắc chắn `result` luôn có giá trị
   }
 
   const result: IBackendRes<any> = await res.json();
-  return result;
+  console.log("Fetched Data:", result); // Debug API Response
+
+  return result.data.result; // Chỉ trả về `result` thay vì toàn bộ `data`
 };
