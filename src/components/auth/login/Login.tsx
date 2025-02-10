@@ -31,7 +31,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [isActive, setIsActive] = useState(true);
   const [code, setCode] = useState<string>("");
-  const [userId,setUserId] = useState<string>("");
+  const [userId, setUserId] = useState<string>("");
   const onLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     const res = await sendRequest<IBackendRes<any>>({
@@ -55,17 +55,17 @@ const Login = () => {
     } else {
       if (res?.message === "Account has not been activated") {
         setIsActive(false);
-      const res2=  await sendRequest<IBackendRes<any>>({
+        const res2 = await sendRequest<IBackendRes<any>>({
           url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/retry-active`,
           method: "POST",
           body: {
             email: email,
           },
         });
-        setUserId(res2.data._id)
+        setUserId(res2.data._id);
       }
       notification.error({
-        message: "Username or password is not correct",
+        message: "Login Unsuccessfully",
         description: res?.message,
         duration: 3,
       });
@@ -73,23 +73,23 @@ const Login = () => {
   };
   const handleCheckCode = async (e: React.FormEvent) => {
     e.preventDefault();
-   const res= await sendRequest<IBackendRes<any>>({
+    const res = await sendRequest<IBackendRes<any>>({
       url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/check-code`,
       method: "POST",
       body: {
         _id: userId,
-        activeCode:code
+        activeCode: code,
       },
     });
-    if(res.statusCode!=400){
+    if (res.statusCode != 400) {
       notification.success({
         message: "Retry Active Account Successfully",
         description: res?.message,
         duration: 3,
       });
       setCode("");
-      setIsActive(true)
-    }else{
+      setIsActive(true);
+    } else {
       notification.error({
         message: "Retry Active Account Failure",
         description: res?.message,
@@ -97,9 +97,8 @@ const Login = () => {
       });
       setCode("");
     }
-    
+
     console.log(res);
-    
   };
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-custom-gradient">
@@ -129,10 +128,10 @@ const Login = () => {
                   htmlFor="email"
                   className={`block text-[16px] font-medium text-midnight-blue ${interRegular.className}`}
                 >
-                  Email:
+                  Email or Username:
                 </label>
                 <input
-                  type="email"
+                  type="text"
                   id="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}

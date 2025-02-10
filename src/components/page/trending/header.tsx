@@ -1,19 +1,39 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { Dropdown, Menu } from "antd";
+import { handleSearchShortVideos } from "@/actions/manage.short.video.action";
+import Search from "antd/es/transfer/search";
 
 interface HeaderProps {
   searchValue: string;
   setSearchValue: React.Dispatch<React.SetStateAction<string>>;
   isGuest: Boolean;
+  onClick?: (value?: any) => void;
 }
 
 const Header: React.FC<HeaderProps> = ({
   searchValue,
   setSearchValue,
   isGuest,
+  onClick
 }) => {
   const router = useRouter();
+  const [selected, setSelected] = useState("");
+
+  const menu = (
+    <Menu
+      onClick={({ key }) => {
+        setSelected(key);
+        if (key === "my-videos") {
+          router.push("/page/my-video");
+        }
+      }}
+      items={[{ key: "my-videos", label: "My Videos" }]}
+    />
+  );
+
   return (
     <header className="flex items-center justify-between p-4 bg-white shadow-md">
       <div className="flex items-center flex-1 justify-center">
@@ -25,6 +45,7 @@ const Header: React.FC<HeaderProps> = ({
           className={`w-[30%] md:w-[35%] lg:w-[45%] px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none`}
         />
         <button
+          onClick={onClick}
           className="flex items-center justify-center p-[10px] rounded-r-lg border border-gray-300"
           aria-label="Search"
         >
@@ -52,12 +73,11 @@ const Header: React.FC<HeaderProps> = ({
           Upload
         </button>
       </div>
-      
       <div className="flex items-center space-x-4">
         <div className="text-xl cursor-pointer">
           {isGuest ? (
             <button
-              onClick={()=>router.push("/auth/login")}
+              onClick={() => router.push("/auth/login")}
               className="text-red-500 bg-white border-2 border-red-500 rounded-lg py-1 px-4 hover:bg-red-500 hover:text-white transition-all duration-300"
             >
               Sign In
@@ -72,15 +92,18 @@ const Header: React.FC<HeaderProps> = ({
             </svg>
           )}
         </div>
-        <div className="text-xl cursor-pointer">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-7 w-7"
-            viewBox="0 0 448 512"
-          >
-            <path d="M16 132h416c8.8 0 16-7.2 16-16V76c0-8.8-7.2-16-16-16H16C7.2 60 0 67.2 0 76v40c0 8.8 7.2 16 16 16zm0 160h416c8.8 0 16-7.2 16-16v-40c0-8.8-7.2-16-16-16H16c-8.8 0-16 7.2-16 16v40c0 8.8 7.2 16 16 16zm0 160h416c8.8 0 16-7.2 16-16v-40c0-8.8-7.2-16-16-16H16c-8.8 0-16 7.2-16 16v40c0 8.8 7.2 16 16 16z" />
-          </svg>
-        </div>
+
+        <Dropdown overlay={menu} trigger={["click"]}>
+          <div className="text-xl cursor-pointer">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-7 w-7"
+              viewBox="0 0 448 512"
+            >
+              <path d="M16 132h416c8.8 0 16-7.2 16-16V76c0-8.8-7.2-16-16-16H16C7.2 60 0 67.2 0 76v40c0 8.8 7.2 16 16 16zm0 160h416c8.8 0 16-7.2 16-16v-40c0-8.8-7.2-16-16-16H16c-8.8 0-16 7.2-16 16v40c0 8.8 7.2 16 16 16zm0 160h416c8.8 0 16-7.2 16-16v-40c0-8.8-7.2-16-16-16H16c-8.8 0-16 7.2-16 16v40c0 8.8 7.2 16 16 16z" />
+            </svg>
+          </div>
+        </Dropdown>
       </div>
     </header>
   );

@@ -9,39 +9,40 @@ interface Video {
   videoUrl: string | undefined;
 }
 
-const VideoDetail = () => {
-  const { id } = useParams(); 
+const ShareVideo = () => {
+  const { id } = useParams();
   const { accessToken } = useContext(AuthContext) ?? {};
   const [videoData, setVideoData] = useState<Video | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (id && accessToken) fetchVideoSharel();
+    if (id && accessToken) {
+      fetchVideoShare();
+    } else {
+      setError("Missing video ID or access token");
+      setLoading(false);
+    }
   }, [id, accessToken]);
-  useEffect(() => {
-    fetchVideoSharel();
-  }, []);
-
-  const fetchVideoSharel = async () => {
+  const fetchVideoShare = async () => {
     try {
-      const res = await sendRequest<{ videoUrl: string }>({
+      const res = await sendRequest<{ videoUrl: string }>( {
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/share/${id}`,
         method: "GET",
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
       });
-  
+
       console.log("Video response:", res);
-  
+
       if (res && res.videoUrl) {
         setVideoData(res);
       } else {
-        setError("Video not found or missing videoUrl");
+        setError("Video not found");
       }
     } catch (err) {
-      setError("Failed to fetch video details");
+      setError("Failed to fetch video");
       console.error(err);
     } finally {
       setLoading(false);
@@ -55,12 +56,19 @@ const VideoDetail = () => {
   return (
     <div className="p-6 max-w-lg mx-auto border rounded-lg shadow-md">
       <h1 className="text-2xl font-bold mb-4">Video Player</h1>
+      
+      {/* Video Player */}
       <video className="w-full rounded-lg" controls>
         <source src={videoData.videoUrl} type="video/mp4" />
         Your browser does not support the video tag.
       </video>
+
+      {/* Display Video URL */}
+      <p className="mt-4 text-sm text-gray-600">
+        <strong>Video URL:</strong> {videoData.videoUrl}
+      </p>
     </div>
   );
 };
 
-export default VideoDetail;
+export default ShareVideo;

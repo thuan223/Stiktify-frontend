@@ -23,8 +23,8 @@ const TrendingPage = () => {
   };
 
   useEffect(() => {
-    getVideoData()
-  }, [accessToken])
+    getVideoData();
+  }, [accessToken]);
 
   const getVideoData = async () => {
     if (!accessToken) return;
@@ -132,6 +132,30 @@ const TrendingPage = () => {
       console.error("Failed to create Viewing History:", error);
     }
   };
+  const onCommentAdded = () => {
+    if (currentVideo) {
+      setCurrentVideo({
+        ...currentVideo,
+        totalComment: (currentVideo.totalComment || 0) + 1,
+      });
+    }
+  };
+  const onReactionAdded = () => {
+    if (currentVideo) {
+      setCurrentVideo({
+        ...currentVideo,
+        totalReaction: (currentVideo.totalReaction || 0) + 1,
+      });
+    }
+  };
+  const onReactionRemove = () => {
+    if (currentVideo) {
+      setCurrentVideo({
+        ...currentVideo,
+        totalReaction: (currentVideo.totalReaction || 0) - 1,
+      });
+    }
+  };
   return (
     <div onWheel={handleScroll}>
       <Header
@@ -160,6 +184,9 @@ const TrendingPage = () => {
         onCommentClick={toggleComments}
         videoId={currentVideo?._id}
         numberComment={currentVideo?.totalComment}
+        numberReaction={currentVideo?.totalReaction}
+        onReactionAdded={onReactionAdded}
+        onReactionRemove={onReactionRemove}
       />
 
       {showComments && (
@@ -167,11 +194,11 @@ const TrendingPage = () => {
           onCommentClick={toggleComments}
           videoId={currentVideo?._id}
           showComments={showComments}
+          onCommentAdded={onCommentAdded}
         />
       )}
     </div>
   );
-
-}
+};
 
 export default TrendingPage;

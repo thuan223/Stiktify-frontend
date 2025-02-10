@@ -3,9 +3,12 @@ import Layout from "antd/es/layout";
 import Menu from "antd/es/menu";
 import {
     AppstoreOutlined,
+    ExceptionOutlined,
+    InfoCircleOutlined,
     MailOutlined,
     TeamOutlined,
-    VideoCameraOutlined
+    VideoCameraOutlined,
+    WarningOutlined
 } from '@ant-design/icons';
 import React, { useContext, useEffect, useState } from 'react';
 import type { MenuProps } from 'antd';
@@ -40,6 +43,11 @@ const DashboardSideBar = () => {
                     key: "/dashboard/short-video",
                     label: <Link href={"/dashboard/short-video"}>Manage Short Video</Link>,
                     icon: <VideoCameraOutlined />,
+                },
+                {
+                    key: "/dashboard/report",
+                    label: <Link href={"/dashboard/report"}>Manage Report</Link>,
+                    icon: <InfoCircleOutlined />,
                 },
                 {
                     key: 'sub1',

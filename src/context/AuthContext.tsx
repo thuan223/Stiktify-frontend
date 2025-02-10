@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = (token: string) => {
     setAccessToken(token);
-    Cookies.set('token', token, { expires: 365 })
+    Cookies.set("token", token, { expires: 365 });
     localStorage.setItem("accessToken", token);
   };
 

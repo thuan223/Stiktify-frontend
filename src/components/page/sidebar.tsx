@@ -47,6 +47,18 @@ const SideBar: React.FC<SideBarProps> = ({ isGuest }) => {
           ) : (
             <li>
               <Link
+                href="/page/search-user"
+                className={getLinkClass("/page/search-user")}
+              >
+                Search user
+              </Link>
+            </li>
+          )}
+          {isGuest ? (
+            ""
+          ) : (
+            <li>
+              <Link
                 href="/page/following"
                 className={getLinkClass("/page/following")}
               >

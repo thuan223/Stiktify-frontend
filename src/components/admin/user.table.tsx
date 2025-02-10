@@ -39,8 +39,8 @@ const ManageUserTable = (props: IProps) => {
         (async () => {
             if (search.length > 0 || filterReq.length > 0) {
                 const res = await handleFilterAndSearchAction(metaDefault.current, metaDefault.LIMIT, search, filterReq)
-                setDataTable(res.data?.result)
-                setMetaTable(res.data?.meta)
+                setDataTable(res?.data?.result)
+                setMetaTable(res?.data?.meta)
             } else {
                 setMetaTable(meta)
                 setDataTable(dataSource)

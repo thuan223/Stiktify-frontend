@@ -4,15 +4,20 @@ interface IShortVideo {
     totalFavorite: number,
     totalReaction: number,
     totalViews: number,
-    userId: {
-        _id: string,
-        userName: string
-    },
+    totalComment:number,
+    userId: IUserID,
     musicId: string,
     videoDescription: string,
     isBlock: boolean,
     videoThumbnail: string,
     videoTag: any[],
     isDelete: boolean,
-    flag: boolean
+    flag: boolean,
+    createAt: string,
+    updatedAt: string
+}
+
+interface IUserID {
+    _id: string,
+    userName: string
 }

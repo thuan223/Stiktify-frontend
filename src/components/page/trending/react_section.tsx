@@ -1,14 +1,7 @@
 import React, { useContext, useState, useEffect } from "react";
 import { sendRequest } from "@/utils/api";
 import { AuthContext } from "@/context/AuthContext";
-import {
-  FaThumbsUp,
-  FaHeart,
-  FaSurprise,
-  FaSadTear,
-  FaAngry,
-  FaSmile,
-} from "react-icons/fa";
+import { FaThumbsUp } from "react-icons/fa";
 
 import like_gif from "@/assets/reaction/gif/thumb-up.gif";
 import like_img from "@/assets/reaction/image/thumb-up.png";
@@ -28,6 +21,12 @@ import Image from "next/image";
 interface Reaction {
   _id: string;
   icon: JSX.Element;
+}
+
+interface ReactionSectionProp {
+  videoId: string | undefined;
+  onReactionAdded: () => void;
+  onReactionRemove: () => void;
 }
 
 const reactions: Reaction[] = [
@@ -165,8 +164,10 @@ const reactions: Reaction[] = [
   },
 ];
 
-const ReactSection: React.FC<{ videoId: string | undefined }> = ({
+const ReactSection: React.FC<ReactionSectionProp> = ({
   videoId,
+  onReactionAdded,
+  onReactionRemove,
 }) => {
   const { accessToken } = useContext(AuthContext) ?? {};
   const [selectedReaction, setSelectedReaction] = useState<Reaction | null>(
@@ -192,9 +193,9 @@ const ReactSection: React.FC<{ videoId: string | undefined }> = ({
           headers: { Authorization: `Bearer ${accessToken}` },
         });
 
-        if (res && res.data.reactionTypeId) {
+        if (res && res?.data?.reactionTypeId) {
           const foundReaction = reactions.find(
-            (r) => r._id === res.data.reactionTypeId
+            (r) => r._id === res?.data?.reactionTypeId
           );
           if (foundReaction) setSelectedReaction(foundReaction);
         }
@@ -208,9 +209,9 @@ const ReactSection: React.FC<{ videoId: string | undefined }> = ({
     fetchUserReaction();
   }, [videoId, accessToken]);
 
-  const handleReactionClick = async (reaction: Reaction) => {
+  const handleAddReaction = async (reaction: Reaction) => {
     if (!videoId || !accessToken) return;
-
+    const oldSelectedReaction = selectedReaction;
     setSelectedReaction(reaction);
     setShowReactions(false);
 
@@ -221,6 +222,25 @@ const ReactSection: React.FC<{ videoId: string | undefined }> = ({
         body: { videoId, reactionTypeId: reaction._id },
         headers: { Authorization: `Bearer ${accessToken}` },
       });
+      oldSelectedReaction! ? "" : onReactionAdded();
+    } catch (error) {
+      console.error("Error updating reaction:", error);
+    }
+  };
+
+  const handleRemoveReaction = async () => {
+    if (!videoId || !accessToken) return;
+
+    setSelectedReaction(null);
+    setShowReactions(false);
+    try {
+      const res = await sendRequest<IBackendRes<any>>({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/video-reactions/unreact`,
+        method: "POST",
+        body: { videoId },
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      onReactionRemove();
     } catch (error) {
       console.error("Error updating reaction:", error);
     }
@@ -242,7 +262,7 @@ const ReactSection: React.FC<{ videoId: string | undefined }> = ({
                 <div
                   key={reaction._id}
                   className="cursor-pointer p-1 flex items-center justify-center"
-                  onClick={() => handleReactionClick(reaction)}
+                  onClick={() => handleAddReaction(reaction)}
                 >
                   {reaction.icon}
                 </div>
@@ -250,14 +270,15 @@ const ReactSection: React.FC<{ videoId: string | undefined }> = ({
             </div>
           )}
           <div
-            className="cursor-pointer pr-3 flex items-center justify-center"
+            className="cursor-pointer w-auto h-auto pr-3 flex items-center justify-center"
             onMouseEnter={() => setShowReactions(true)}
-            // onMouseLeave={() => setShowReactions(false)}
+            onMouseLeave={() => setShowReactions(false)}
+            onClick={() => handleRemoveReaction}
           >
             {selectedReaction ? (
-              selectedReaction.icon
+              <div onClick={handleRemoveReaction}>{selectedReaction.icon}</div>
             ) : (
-              <FaThumbsUp className="text-gray-400" size={24} />
+              <FaThumbsUp className="text-gray-400 scale-[2] ml-2" size={15} />
             )}
           </div>
         </>
