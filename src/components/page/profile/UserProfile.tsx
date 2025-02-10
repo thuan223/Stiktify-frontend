@@ -7,6 +7,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { parseISO, format } from "date-fns";
 import ChangePasswordModal from "./ChangePasswordModal";
 import { useRouter } from "next/navigation";
+import { notification } from "antd";
 
 interface UserProfileProps {
   profile?: {
@@ -125,6 +126,8 @@ const UserProfile: React.FC<UserProfileProps> = ({
     }
 
     if (!validateInputs()) {
+      notification.error({ message: errorMessage })
+
       return;
     }
 
