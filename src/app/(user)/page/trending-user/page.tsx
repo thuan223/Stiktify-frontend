@@ -24,10 +24,10 @@ const TrendingPage = () => {
 
   useEffect(() => {
     getVideoData();
-  }, [accessToken]);
+  }, [accessToken, user]);
 
   const getVideoData = async () => {
-    if (!accessToken) return;
+    if (!accessToken || !user) return;
 
     try {
       const res = await sendRequest<IBackendRes<IVideo[]>>({
@@ -37,7 +37,7 @@ const TrendingPage = () => {
           Authorization: `Bearer ${accessToken}`,
         },
         body: {
-          userId: "6741ab10342097607f0129f0",
+          userId: user._id,
         },
       });
 
@@ -103,7 +103,7 @@ const TrendingPage = () => {
           Authorization: `Bearer ${accessToken}`,
         },
         body: {
-          userId: "6741ab10342097607f0129f0",
+          userId: user._id,
           videoId: currentVideo?._id,
         },
       });
@@ -123,7 +123,7 @@ const TrendingPage = () => {
           Authorization: `Bearer ${accessToken}`,
         },
         body: {
-          userId: "6741ab10342097607f0129f0",
+          userId: user._id,
           videoId: currentVideo?._id,
         },
       });
@@ -171,7 +171,7 @@ const TrendingPage = () => {
       ) : (
         <p>Loading video...</p>
       )}
-      
+
       <VideoFooter
         videoDescription={currentVideo?.videoDescription || ""}
         totalView={currentVideo?.totalViews || 0}

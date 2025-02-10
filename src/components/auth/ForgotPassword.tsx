@@ -55,6 +55,18 @@ const ForgotPassword = () => {
   };
   const onFinishStep1 = async (e: React.FormEvent) => {
     e.preventDefault();
+    if(password.length<6){
+      notification.error({
+        message: "Invalid Input",
+        description: "Password must have at least 6 characters!",
+      });
+    }
+    if(confirmPassword.length<6){
+      notification.error({
+        message: "Invalid Input",
+        description: "ConfirmPassword must have at least 6 characters!",
+      });
+    }
     if (password !== confirmPassword) {
       notification.error({
         message: "Invalid Input",

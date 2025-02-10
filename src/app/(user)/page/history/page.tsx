@@ -15,11 +15,11 @@ const ViewingHistory = () => {
   const { user, accessToken, logout } = useContext(AuthContext) ?? {};
   useEffect(() => {
     getViewingHistoryList()
-  }, [accessToken])
+  }, [accessToken,user])
 
   const getViewingHistoryList = async () => {
-    if (accessToken) {
-      const filter = JSON.stringify({ userId: "6741ab10342097607f0129f0" });
+    if (accessToken&&user) {
+      const filter = JSON.stringify({ userId: user._id});
       const res = await sendRequest<IBackendRes<any>>({
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL
           }/api/v1/viewinghistory/list-viewing-history?query=${encodeURIComponent(
