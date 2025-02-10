@@ -8,6 +8,8 @@ interface AuthContextType {
   user: any;
   login: (token: string) => void;
   logout: () => void;
+  listFollow: string[];
+  setListFollow?: (v: any) => void;
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);
@@ -15,6 +17,7 @@ export const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
+  const [listFollow, setListFollow] = useState<string[] | []>([]);
 
   const login = (token: string) => {
     setAccessToken(token);
@@ -62,7 +65,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ accessToken, user, login, logout }}>
+    <AuthContext.Provider
+      value={{ accessToken, user, login, logout, listFollow, setListFollow }}
+    >
       {children}
     </AuthContext.Provider>
   );
