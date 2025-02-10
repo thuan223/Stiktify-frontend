@@ -8,9 +8,10 @@ import { notification, Popconfirm } from "antd";
 import {
   handleFlagShortVideoAction,
   handleSearchShortVideos,
+  handleFilterByCategory,
 } from "@/actions/manage.short.video.action";
 import InputCustomize from "../input/input.customize";
-import DropdownCustomize from "../dropdown/dropdown.customize";
+import DropdownCustomizeFilterVideo from "../dropdown/dropdownFilterVide";
 
 interface IProps {
   dataSource: IShortVideo[];
@@ -35,36 +36,51 @@ const ManageShortVideoTable = (props: IProps) => {
   };
 
   useEffect(() => {
+    console.log("filterReq:", filterReq);
     (async () => {
       if (search.length > 0 || filterReq.length > 0) {
-        const res = await handleSearchShortVideos(
-          search,
-          meta.current,
-          meta.pageSize
-        );
+        if (search.length > 0) {
+          const res = await handleSearchShortVideos(
+            search,
+            meta.current,
+            meta.pageSize
+          );
 
-        if (res?.data?.result && Array.isArray(res.data.result)) {
-          // Sắp xếp video có chứa từ khóa lên đầu
-          const sortedVideos = [...res.data.result].sort((a, b) => {
-            const aMatch = a.videoDescription
-              ?.toLowerCase()
-              .includes(search.toLowerCase())
-              ? 1
-              : 0;
-            const bMatch = b.videoDescription
-              ?.toLowerCase()
-              .includes(search.toLowerCase())
-              ? 1
-              : 0;
-            return bMatch - aMatch;
-          });
+          if (res?.data?.result && Array.isArray(res.data.result)) {
+            const sortedVideos = [...res.data.result].sort((a, b) => {
+              const aMatch = a.videoDescription
+                ?.toLowerCase()
+                .includes(search.toLowerCase())
+                ? 1
+                : 0;
+              const bMatch = b.videoDescription
+                ?.toLowerCase()
+                .includes(search.toLowerCase())
+                ? 1
+                : 0;
+              return bMatch - aMatch;
+            });
 
-          setDataTable(sortedVideos);
-          setMetaTable(res.data.meta);
-          setForceRender((prev) => prev + 1);
-        } else {
-          setDataTable(dataSource);
-          setMetaTable(meta);
+            setDataTable(sortedVideos);
+            setMetaTable(res.data.meta);
+          } else {
+            setDataTable(dataSource);
+            setMetaTable(meta);
+          }
+        } else if (filterReq.length > 0) {
+          console.log("Calling API for category:", filterReq);
+          const res = await handleFilterByCategory(
+            filterReq,
+            meta.current,
+            meta.pageSize
+          );
+
+          console.log("Response data:", res);
+
+          if (res?.statusCode === 200) {
+            setDataTable(res.data.result);
+            setMetaTable(res.data.meta);
+          }
         }
       } else {
         setDataTable(dataSource);
@@ -186,20 +202,19 @@ const ManageShortVideoTable = (props: IProps) => {
           />
         </div>
         <div>
-          <DropdownCustomize
+          <DropdownCustomizeFilterVideo
             title="Filter"
             selected={filterReq}
-            setSelect={setFilterReq}
+            setSelect={(value: any) => setFilterReq(value)} // Cập nhật giá trị filterReq khi thay đổi
             icon={<FilterOutlined />}
           />
         </div>
       </div>
 
       <TableCustomize
-        key={forceRender}
         columns={columns}
-        dataSource={dataTable}
-        meta={metaTable}
+        dataSource={dataTable} // Đảm bảo dataTable được cập nhật đúng
+        meta={metaTable} // Cập nhật meta nếu cần thiết
       />
     </>
   );

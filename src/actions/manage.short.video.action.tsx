@@ -62,7 +62,6 @@ export const handleSearchShortVideos = async (
   pageSize: number
 ) => {
   try {
-    console.log("🚀 Gọi API tìm kiếm:", searchText, current, pageSize);
     const res = await fetch(
       `${
         process.env.NEXT_PUBLIC_BACKEND_URL
@@ -79,10 +78,34 @@ export const handleSearchShortVideos = async (
       }
     );
     const result = await res.json();
-    console.log("✅ API trả về:", result);
     return result;
   } catch (error) {
-    console.error("❌ Lỗi khi gọi API:", error);
+    return null;
+  }
+};
+
+export const handleFilterByCategory = async (
+  category: string,
+  current: number,
+  pageSize: number
+) => {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/filter-by-category?category=${encodeURIComponent(category)}&current=${current}&pageSize=${pageSize}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // token có sẵn trong cookie
+        },
+        next: { tags: ["filter-by-category"] }, // Thêm revalidation nếu cần
+      }
+    );
+
+    const result: IBackendRes<any> = await res.json();
+    return result; // Trả về kết quả
+  } catch (error) {
+    console.error("Lỗi khi gọi API lọc theo thể loại:", error);
     return null;
   }
 };
