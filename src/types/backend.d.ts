@@ -36,4 +36,16 @@ declare global {
     };
     access_token: string;
   }
+
+  interface IBackendRes<T> {
+  meta: {
+    current: number;
+    pageSize: number;
+    totalItems: number;
+    totalPages: number;
+  };
+  result: T[];  // Array of user objects
+  message?: string;  // Optional message field
+}
+
 }

@@ -1,9 +1,12 @@
 "use client";
 
 import { useContext, useState } from "react";
-import { AuthContext } from "@/context/AuthContext"; // Đảm bảo rằng AuthContext đã được import đúng
-import { useRouter } from "next/navigation";
+import { AuthContext } from "@/context/AuthContext";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { parseISO, format } from "date-fns";
 import ChangePasswordModal from "./ChangePasswordModal";
+import { useRouter } from "next/navigation";
 
 interface UserProfileProps {
   profile?: {
@@ -14,11 +17,13 @@ interface UserProfileProps {
     phone: string;
     address: string;
   };
-  onUpdateProfile: (updatedProfile: any) => void; // Hàm callback khi cập nhật thông tin
+  existingPhones: string[];
+  onUpdateProfile: (updatedProfile: any) => void;
 }
 
 const UserProfile: React.FC<UserProfileProps> = ({
   profile,
+  existingPhones = [],
   onUpdateProfile,
 }) => {
   if (!profile) {
@@ -27,10 +32,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
     );
   }
 
-  // Lấy user từ AuthContext
   const context = useContext(AuthContext);
-
-  // Kiểm tra nếu context không có giá trị
   if (!context) {
     console.error("AuthContext is not available");
     return <div>Error: AuthContext is not available</div>;
@@ -43,21 +45,26 @@ const UserProfile: React.FC<UserProfileProps> = ({
   const handleLogout = () => {
     logout(), router.replace("/auth/login");
   };
-  console.log("User from context:", user);
 
-  // State để lưu thông tin chỉnh sửa
   const [editProfile, setEditProfile] = useState({
     fullname: profile.fullname || "",
-    dob: profile.dob || "",
+    dob: profile.dob ? parseISO(profile.dob) : null, // Chuyển đổi từ string thành Date object
     email: profile.email || "",
     phone: profile.phone || "",
     address: profile.address || "",
   });
 
-  // State để lưu thông báo thành công
   const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
-  // Hàm xử lý khi người dùng chỉnh sửa thông tin
+  // Xử lý khi chọn ngày mới
+  const handleDateChange = (date: Date | null) => {
+    setEditProfile({
+      ...editProfile,
+      dob: date,
+    });
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setEditProfile({
@@ -66,22 +73,70 @@ const UserProfile: React.FC<UserProfileProps> = ({
     });
   };
 
-  // Hàm xử lý khi nhấn nút Cập nhật
+  const validateInputs = () => {
+    setErrorMessage("");
+
+    // Kiểm tra ngày sinh
+    if (!editProfile.dob) {
+      setErrorMessage("Date of Birth cannot be empty.");
+      return false;
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Xóa giờ để so sánh chính xác
+
+    const year = editProfile.dob.getFullYear();
+    if (year < 1900) {
+      setErrorMessage("Date of Birth must be after the year 1900.");
+      return false;
+    }
+    if (editProfile.dob >= today) {
+      setErrorMessage("Date of Birth cannot be today or in the future.");
+      return false;
+    }
+
+    // Kiểm tra số điện thoại
+    if (!editProfile.phone) {
+      setErrorMessage("Phone number cannot be empty.");
+      return false;
+    }
+    if (!/^\d{10}$/.test(editProfile.phone)) {
+      setErrorMessage("Phone number must be exactly 10 digits.");
+      return false;
+    }
+    if (existingPhones?.includes(editProfile.phone)) {
+      setErrorMessage("Phone number already exists.");
+      return false;
+    }
+
+    // Kiểm tra địa chỉ (tối đa 150 từ)
+    if (editProfile.address.split(" ").length > 150) {
+      setErrorMessage("Address cannot exceed 150 words.");
+      return false;
+    }
+
+    return true;
+  };
+
   const handleSave = () => {
     if (!user?._id) {
       console.error("User ID is missing!");
       return;
     }
 
-    // Bỏ qua email trong phần cập nhật (không thay đổi email)
+    if (!validateInputs()) {
+      return;
+    }
+
     const { email, ...profileWithoutEmail } = editProfile;
+    const profileWithId = {
+      ...profileWithoutEmail,
+      _id: user._id,
+      dob: editProfile.dob ? format(editProfile.dob, "yyyy-MM-dd") : null, // Format lại để lưu vào database
+    };
 
-    // Kết hợp user _id vào profile để gửi lên backend
-    const profileWithId = { ...profileWithoutEmail, _id: user._id };
-
-    // Gọi hàm onUpdateProfile truyền dữ liệu
     onUpdateProfile(profileWithId);
-    setSuccessMessage("Profile updated successfully!"); // Thêm thông báo thành công
+    setSuccessMessage("Profile updated successfully!");
   };
 
   const handleOpenModal = () => setIsModalOpen(true);
@@ -92,14 +147,13 @@ const UserProfile: React.FC<UserProfileProps> = ({
       <div className="flex flex-col items-center">
         <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center mb-4">
           <span className="text-2xl font-bold text-gray-600">
-            {editProfile.fullname ? editProfile.fullname.charAt(0) : "?"}{" "}
+            {editProfile.fullname ? editProfile.fullname.charAt(0) : "?"}
           </span>
         </div>
         <p className="text-gray-500">@{profile.userName || "No username"}</p>
       </div>
 
       <div className="mt-6 space-y-4">
-        {/* Fullname */}
         <div className="flex items-center gap-2">
           <span className="text-gray-600">Fullname:</span>
           <input
@@ -111,7 +165,6 @@ const UserProfile: React.FC<UserProfileProps> = ({
           />
         </div>
 
-        {/* Email */}
         <div className="flex items-center gap-2">
           <span className="text-gray-600">Email:</span>
           <input
@@ -120,22 +173,22 @@ const UserProfile: React.FC<UserProfileProps> = ({
             value={editProfile.email}
             onChange={handleChange}
             className="flex-1 p-2 border border-gray-300 rounded-md text-gray-900"
-            disabled // Không cho chỉnh sửa email
+            disabled
           />
         </div>
 
-        {/* Date of Birth */}
+        {/* Date Picker */}
         <div className="flex items-center gap-2">
           <span className="text-gray-600">Date of Birth:</span>
-          <input
-            name="dob"
-            value={editProfile.dob}
-            onChange={handleChange}
-            className="flex-1 p-2 border border-gray-300 rounded-md text-gray-900"
+          <DatePicker
+            selected={editProfile.dob}
+            onChange={handleDateChange}
+            dateFormat="dd/MM/yyyy"
+            className="p-2 border border-gray-300 rounded-md text-gray-900 w-full"
+            placeholderText="Select a date"
           />
         </div>
 
-        {/* Phone */}
         <div className="flex items-center gap-2">
           <span className="text-gray-600">Phone:</span>
           <input
@@ -147,7 +200,6 @@ const UserProfile: React.FC<UserProfileProps> = ({
           />
         </div>
 
-        {/* Address */}
         <div className="flex items-center gap-2">
           <span className="text-gray-600">Address:</span>
           <input
