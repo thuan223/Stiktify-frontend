@@ -171,6 +171,7 @@ const TrendingPage = () => {
       ) : (
         <p>Loading video...</p>
       )}
+      
       <VideoFooter
         videoDescription={currentVideo?.videoDescription || ""}
         totalView={currentVideo?.totalViews || 0}
@@ -179,6 +180,7 @@ const TrendingPage = () => {
       />
       <InteractSideBar
         creatorId={currentVideo?.userId.fullname || ""}
+        userId={currentVideo?.userId._id || ""}
         onCommentClick={toggleComments}
         videoId={currentVideo?._id}
         numberComment={currentVideo?.totalComment}

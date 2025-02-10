@@ -1,8 +1,10 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import ReactSection from "./react_section";
 
 interface InteractSideBarProps {
+  userId:string;
   creatorId: string;
   videoId: string | undefined;
   onCommentClick: () => void;
@@ -17,16 +19,29 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
   onCommentClick,
   videoId,
   numberComment,
+  userId,
   numberReaction,
   onReactionAdded,
   onReactionRemove,
 }) => {
+  const router = useRouter();
+
+  const handleProfileClick = () => {
+    router.push(`/page/detail_user/${userId}`);
+  };
+  const handleShareClick = () => {
+    router.push(`/page/share/${videoId}`);
+  };
+
   return (
     <div className="w-[15%] bg-white shadow-lg absolute right-0 top-[95px] pt-10 pl-10 h-3/4">
       <nav>
         <ul className="space-y-10">
           <li className="flex items-end">
-            <div className="text-xl cursor-pointer mr-2">
+            <div
+              className="text-xl cursor-pointer mr-2 hover:text-blue-500 transition"
+              onClick={handleProfileClick}
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-7 w-7"
@@ -35,7 +50,12 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
                 <path d="M224 256c70.7 0 128-57.3 128-128S294.7 0 224 0 96 57.3 96 128s57.3 128 128 128zm89.6 32h-16.7c-22.2 10.2-46.9 16-72.9 16s-50.6-5.8-72.9-16h-16.7C60.2 288 0 348.2 0 422.4V464c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48v-41.6c0-74.2-60.2-134.4-134.4-134.4z" />
               </svg>
             </div>
-            {creatorId}
+            <span
+              className="cursor-pointer text-lg font-medium hover:underline hover:text-blue-500 transition"
+              onClick={handleProfileClick}
+            >
+              {creatorId}
+            </span>
           </li>
           <li className="flex items-center">
             <ReactSection
@@ -78,7 +98,7 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-7 w-7"
                 viewBox="0 0 576 512"
-              >
+                onClick={handleShareClick}>
                 <path d="M561.9 158.1L417.9 14.1C387.9-15.9 336 5.1 336 48v57.2c-42.5 1.9-84 6.6-120.8 18-35.2 11-63.1 27.6-82.9 49.4C108.2 199.2 96 232.6 96 271.9c0 61.7 33.2 112.5 84.9 144.8 37.5 23.5 85.2-12.7 71-55.7-15.5-47.1-17.2-70.9 84.1-78.8V336c0 43 52 63.9 81.9 33.9l144-144c18.8-18.7 18.8-49.1 0-67.9zM384 336V232.2C255.3 234.1 166.5 255.4 206.3 376 176.8 357.6 144 324.1 144 271.9c0-109.3 129.1-118.9 240-119.9V48l144 144-144 144zm24.7 84.5a82.7 82.7 0 0 0 21-9.3c8-5 18.3 .8 18.3 10.2V464c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V112c0-26.5 21.5-48 48-48h132c6.6 0 12 5.4 12 12v4.5c0 4.9-3 9.4-7.6 11.2-13.7 5.3-26.4 11.5-38.1 18.6a12.1 12.1 0 0 1 -6.3 1.8H54a6 6 0 0 0 -6 6v340a6 6 0 0 0 6 6h340a6 6 0 0 0 6-6v-26c0-5.4 3.6-10.1 8.7-11.5z" />
               </svg>
             </div>
