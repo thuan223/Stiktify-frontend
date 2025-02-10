@@ -3,11 +3,12 @@ import { ColumnsType } from "antd/es/table";
 import TableCustomize from "../table/table.dashboard"
 import { useState } from "react";
 import { formatNumber } from "@/utils/utils";
-import { FlagTwoTone, UnorderedListOutlined } from "@ant-design/icons";
+import { DeleteTwoTone, FlagTwoTone, UnorderedListOutlined } from "@ant-design/icons";
 import { Button, Image, notification, Popconfirm, Tooltip } from "antd";
 import { handleFlagShortVideoAction } from "@/actions/manage.short.video.action";
 import VideoCustomize from "../video/video.customize";
 import ModalListReport from "../modal/modal.list.report";
+import { handleDeleteReportVideoAction } from "@/actions/manage.report.action";
 
 interface IProps {
     dataSource: IReport[];
@@ -24,8 +25,6 @@ const ManageReportTable = (props: IProps) => {
     const { dataSource, meta } = props;
     const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(false)
     const [dataReport, setDataReport] = useState<IDataReport[] | []>([])
-    const [isUpdateModalOpen, setIsUpdateModalOpen] = useState<boolean>(false)
-    const [dataUser, setDataUser] = useState<IShortVideo | null>(null)
 
     const handleFlagVideo = async (record: IShortVideo) => {
         const res = await handleFlagShortVideoAction(record._id, !record.flag)
@@ -33,7 +32,14 @@ const ManageReportTable = (props: IProps) => {
             return notification.success({ message: res?.message })
         }
         return notification.error({ message: res?.message })
+    }
 
+    const handleDeleteReportVideo = async (id: string) => {
+        const res = await handleDeleteReportVideoAction(id)
+        if (res?.statusCode === 200) {
+            return notification.success({ message: res?.message })
+        }
+        return notification.error({ message: res?.message })
     }
 
     const columns: ColumnsType<IReport> = [
@@ -90,16 +96,28 @@ const ManageReportTable = (props: IProps) => {
             key: 'flag',
             render: (value: IShortVideo, record, index) => {
                 return (
-                    <Popconfirm
-                        title="Sure to flag video?"
-                        onConfirm={() => handleFlagVideo(value)}
-                        okText="Yes"
-                        cancelText="No"
-                    >
-                        <FlagTwoTone
-                            style={{ fontSize: "20px" }}
-                            twoToneColor={value.flag ? "#ff7675" : ""} />
-                    </Popconfirm>
+                    <div style={{ display: "flex", gap: 10 }}>
+                        <Popconfirm
+                            title="Sure to flag video?"
+                            onConfirm={() => handleFlagVideo(value)}
+                            okText="Yes"
+                            cancelText="No"
+                        >
+                            <FlagTwoTone
+                                style={{ fontSize: "20px" }}
+                                twoToneColor={value.flag ? "#ff7675" : ""} />
+                        </Popconfirm>
+                        <Popconfirm
+                            title="Sure to delete video report?"
+                            onConfirm={() => handleDeleteReportVideo(record.dataVideo._id)}
+                            okText="Yes"
+                            cancelText="No"
+                        >
+                            <DeleteTwoTone
+                                style={{ fontSize: "20px" }}
+                                twoToneColor={"#ff7675"} />
+                        </Popconfirm>
+                    </div>
                 )
             },
         }

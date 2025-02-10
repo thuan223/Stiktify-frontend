@@ -5,6 +5,8 @@ import { AuthContext } from "@/context/AuthContext";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { parseISO, format } from "date-fns";
+import ChangePasswordModal from "./ChangePasswordModal";
+import { useRouter } from "next/navigation";
 
 interface UserProfileProps {
   profile?: {
@@ -36,8 +38,13 @@ const UserProfile: React.FC<UserProfileProps> = ({
     return <div>Error: AuthContext is not available</div>;
   }
 
-  const { user } = context;
-  console.log("User from context:", user);
+  const { user, logout } = context; // Lấy user từ context
+  const router = useRouter();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleLogout = () => {
+    logout(), router.replace("/auth/login");
+  };
 
   const [editProfile, setEditProfile] = useState({
     fullname: profile.fullname || "",
@@ -132,6 +139,9 @@ const UserProfile: React.FC<UserProfileProps> = ({
     setSuccessMessage("Profile updated successfully!");
   };
 
+  const handleOpenModal = () => setIsModalOpen(true);
+  const handleCloseModal = () => setIsModalOpen(false);
+
   return (
     <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-2xl">
       <div className="flex flex-col items-center">
@@ -201,19 +211,31 @@ const UserProfile: React.FC<UserProfileProps> = ({
           />
         </div>
 
-        {/* Hiển thị lỗi */}
-        {errorMessage && (
-          <div className="text-red-500 text-center mt-2">{errorMessage}</div>
-        )}
+        <div className="mt-6 flex justify-between">
+          <div className="mt-6 flex justify-start">
+            <button
+              onClick={handleOpenModal}
+              className="bg-blue-500 text-white mr-4 px-4 py-2 rounded"
+            >
+              Change Password
+            </button>
+          </div>
 
-        {/* Save Button */}
-        <div className="mt-6 flex justify-end">
-          <button
-            onClick={handleSave}
-            className="bg-green-500 text-white px-4 py-2 rounded"
-          >
-            Save Profile
-          </button>
+          <div className="mt-6 flex justify-end">
+            <button
+              onClick={handleLogout}
+              className="bg-orange-500 text-white mr-4 px-4 py-2 rounded"
+            >
+              Logout
+            </button>
+
+            <button
+              onClick={handleSave}
+              className="bg-green-500 text-white px-4 py-2 rounded"
+            >
+              Save Profile
+            </button>
+          </div>
         </div>
 
         {/* Success Message */}
@@ -223,6 +245,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
           </div>
         )}
       </div>
+      {isModalOpen && <ChangePasswordModal onClose={handleCloseModal} />}
     </div>
   );
 };

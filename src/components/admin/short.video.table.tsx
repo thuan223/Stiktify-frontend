@@ -3,7 +3,13 @@ import { ColumnsType } from "antd/es/table";
 import TableCustomize from "../table/table.dashboard";
 import { useEffect, useState } from "react";
 import { formatNumber } from "@/utils/utils";
-import { FilterOutlined, FlagTwoTone, SearchOutlined } from "@ant-design/icons";
+import {
+  FilterOutlined,
+  FlagTwoTone,
+  LockTwoTone,
+  SearchOutlined,
+  UnlockTwoTone,
+} from "@ant-design/icons";
 import { notification, Popconfirm } from "antd";
 import {
   handleFlagShortVideoAction,
@@ -12,6 +18,8 @@ import {
 } from "@/actions/manage.short.video.action";
 import InputCustomize from "../input/input.customize";
 import DropdownCustomizeFilterVideo from "../dropdown/dropdownFilterVide";
+
+import VideoCustomize from "../video/video.customize";
 
 interface IProps {
   dataSource: IShortVideo[];
@@ -74,8 +82,6 @@ const ManageShortVideoTable = (props: IProps) => {
             meta.current,
             meta.pageSize
           );
-
-          console.log("Response data:", res);
 
           if (res?.statusCode === 200) {
             setDataTable(res.data.result);
