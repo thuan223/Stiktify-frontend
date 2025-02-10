@@ -3,9 +3,10 @@ import { ColumnsType } from "antd/es/table";
 import TableCustomize from "../table/table.dashboard"
 import { useState } from "react";
 import { formatNumber } from "@/utils/utils";
-import { FlagTwoTone } from "@ant-design/icons";
+import { BlockOutlined, FlagTwoTone, LockTwoTone, UnlockTwoTone } from "@ant-design/icons";
 import { notification, Popconfirm } from "antd";
 import { handleFlagShortVideoAction } from "@/actions/manage.short.video.action";
+import VideoCustomize from "../video/video.customize";
 
 interface IProps {
     dataSource: IShortVideo[];
@@ -26,7 +27,7 @@ const ManageShortVideoTable = (props: IProps) => {
 
     const handleFlagVideo = async (record: IShortVideo) => {
         const res = await handleFlagShortVideoAction(record._id, !record.flag)
-        notification.success({ message: res.message })
+        notification.success({ message: res?.message })
     }
 
     const columns: ColumnsType<IShortVideo> = [
@@ -43,9 +44,7 @@ const ManageShortVideoTable = (props: IProps) => {
             dataIndex: 'videoThumbnail',
             key: 'videoThumbnail',
             render: (value, record, index) => (
-                <div style={{ width: "150px", height: "100px", borderRadius: "3px", boxShadow: "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)", textAlign: "center" }}>
-                    <img src={value} alt={value} style={{ borderRadius: "3px", width: "100%", height: "100%" }} />
-                </div>
+                <VideoCustomize videoThumbnail={record.videoThumbnail} videoUrl={record.videoUrl} />
             ),
         },
         {
@@ -85,14 +84,43 @@ const ManageShortVideoTable = (props: IProps) => {
             key: 'flag',
             render: (value, record, index) => {
                 return (
-                    <Popconfirm
-                        title="Sure to flag video?"
-                        onConfirm={() => handleFlagVideo(record)}
-                        okText="Yes"
-                        cancelText="No"
-                    >
-                        <FlagTwoTone style={{ fontSize: "20px" }} twoToneColor={value ? "#ff7675" : ""} />
-                    </Popconfirm>
+                    <div style={{ display: "flex", gap: 10 }}>
+                        <Popconfirm
+                            title="Sure to flag video?"
+                            onConfirm={() => handleFlagVideo(record)}
+                            okText="Yes"
+                            cancelText="No"
+                        >
+                            <FlagTwoTone style={{ fontSize: "20px" }} twoToneColor={value ? "#ff7675" : ""} />
+                        </Popconfirm>
+                        {record.isBlock ?
+                            <Popconfirm
+                                title="Are you sure unlock this user?"
+                                // onConfirm={() => handleBanUser(record._id, !record.isBan)}
+                                okText="Yes"
+                                cancelText="No"
+                            >
+
+                                <LockTwoTone
+                                    twoToneColor={"#ff7675"}
+                                    style={{ fontSize: "20px" }}
+                                />
+                            </Popconfirm>
+                            :
+                            <Popconfirm
+                                title="Are you sure lock this user?"
+                                // onConfirm={() => handleBanUser(record._id, !record.isBan)}
+                                okText="Yes"
+                                cancelText="No"
+                            >
+                                <UnlockTwoTone
+                                    style={{ fontSize: "20px" }}
+                                />
+
+
+                            </Popconfirm>
+                        }
+                    </div>
                 )
             },
         }

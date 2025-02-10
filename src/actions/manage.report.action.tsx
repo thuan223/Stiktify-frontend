@@ -6,15 +6,15 @@ import { cookies } from "next/headers";
 const cookieStore = cookies()
 const token = cookieStore.get("token")?.value
 
-export const handleGetAllShortVideo = async (current: string, pageSize: string) => {
+export const handleGetAllReportAction = async (current: string, pageSize: string) => {
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/list-video?current=${current}&pageSize=${pageSize}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/report/list-report?current=${current}&pageSize=${pageSize}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${token}`
             },
-            next: { tags: ["list-short-video"] }
+            next: { tags: ["list-report"] }
         })
         const result: IBackendRes<any> = await res.json();
         return result
@@ -23,22 +23,17 @@ export const handleGetAllShortVideo = async (current: string, pageSize: string) 
     }
 }
 
-export const handleFlagShortVideoAction = async (id: string, flag: boolean) => {
+export const handleDeleteReportVideoAction = async (id: string) => {
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/flag-video`, {
-            method: "POST",
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/report/delete-report/${id}`, {
+            method: "DELETE",
             headers: {
                 "Content-Type": "application/json",
                 // 'Content-Type': 'application/x-www-form-urlencoded',
                 "Authorization": `Bearer ${token}`
             },
-            body: JSON.stringify({
-                _id: id,
-                flag: flag
-            })
         })
 
-        revalidateTag("list-short-video")
         revalidateTag("list-report")
         const result: IBackendRes<any> = await res.json();
         return result
