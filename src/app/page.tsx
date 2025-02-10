@@ -1,10 +1,4 @@
-import DashboardPageComponent from "@/components/layout/dashboard";
-
+import { redirect } from "next/navigation";
 export default async function Home() {
-
-  return (
-    <div>
-      <DashboardPageComponent />
-    </div>
-  );
+  redirect("/page/trending-guest");
 }

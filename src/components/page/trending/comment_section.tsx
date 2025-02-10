@@ -7,6 +7,7 @@ interface CommentSectionProps {
   videoId: string | undefined;
   onCommentClick: () => void;
   showComments: boolean;
+  onCommentAdded?: () => void;
 }
 
 interface Comment {
@@ -20,6 +21,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
   videoId,
   onCommentClick,
   showComments,
+  onCommentAdded,
 }) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -96,6 +98,10 @@ const CommentSection: React.FC<CommentSectionProps> = ({
 
         setComments((prevComments) => [...prevComments, newCommentData]);
         setNewComment("");
+
+        if (onCommentAdded) {
+          onCommentAdded();
+        }
       }
     } catch (error) {
       console.error("Error posting comment:", error);

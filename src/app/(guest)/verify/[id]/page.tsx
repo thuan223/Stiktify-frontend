@@ -1,6 +1,6 @@
 import VerifyAccount from "@/components/verify/activeAccount/ActiveAccount";
 
-const VerifyPage = ({ params }: { params: { id: String } }) => {
+const VerifyPage = ({ params }: { params: { id: string } }) => {
   return (
     <div>
       <VerifyAccount params={params} />
