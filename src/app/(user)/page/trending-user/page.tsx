@@ -132,6 +132,8 @@ const TrendingPage = () => {
       console.error("Failed to create Viewing History:", error);
     }
   };
+  console.log("log video >>>>", );
+  
   return (
     <div onWheel={handleScroll}>
       <Header
@@ -139,7 +141,7 @@ const TrendingPage = () => {
         searchValue={searchValue}
         setSearchValue={setSearchValue}
       />
-      {currentVideo ? (
+      {/* {currentVideo ? (
         <MainVideo
           videoUrl={currentVideo.videoUrl}
           onVideoWatched={handleVideoWatched}
@@ -166,7 +168,7 @@ const TrendingPage = () => {
           videoId={currentVideo?._id}
           showComments={showComments}
         />
-      )}
+      )} */}
     </div>
   );
 

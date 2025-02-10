@@ -3,17 +3,21 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Dropdown, Menu } from "antd";
+import { handleSearchShortVideos } from "@/actions/manage.short.video.action";
+import Search from "antd/es/transfer/search";
 
 interface HeaderProps {
   searchValue: string;
   setSearchValue: React.Dispatch<React.SetStateAction<string>>;
   isGuest: Boolean;
+  onClick?: (value?: any) => void;
 }
 
 const Header: React.FC<HeaderProps> = ({
   searchValue,
   setSearchValue,
   isGuest,
+  onClick
 }) => {
   const router = useRouter();
   const [selected, setSelected] = useState("");
@@ -41,6 +45,7 @@ const Header: React.FC<HeaderProps> = ({
           className={`w-[30%] md:w-[35%] lg:w-[45%] px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none`}
         />
         <button
+          onClick={onClick}
           className="flex items-center justify-center p-[10px] rounded-r-lg border border-gray-300"
           aria-label="Search"
         >
