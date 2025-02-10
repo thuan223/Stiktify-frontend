@@ -156,6 +156,7 @@ const TrendingPage = () => {
       />
       <InteractSideBar
         creatorId={currentVideo?.userId.fullname || ""}
+        userId={currentVideo?.userId._id || ""}
         onCommentClick={toggleComments}
         videoId={currentVideo?._id}
         numberComment={currentVideo?.totalComment}
