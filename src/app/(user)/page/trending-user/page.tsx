@@ -51,7 +51,7 @@ const TrendingPage = () => {
         }
       }
     } catch (error) {
-      console.error("Failed to fetch trending videos:", error);
+      console.log("Failed to fetch trending videos:", error);
     }
   };
 
@@ -79,21 +79,15 @@ const TrendingPage = () => {
       }
     }
   };
+
   useEffect(() => {
     getVideoData();
   }, []);
 
   useEffect(() => {
-    if (currentVideo) {
-      console.log("Current Video:", currentVideo);
-    }
-  }, [currentVideo]);
-  useEffect(() => {
-    console.log(videoData);
-    console.log(videoData.length);
-    console.log(requestCount);
     if (currentVideo === null) setCurrentVideo(videoData[0] || null);
   }, [videoData]);
+
   const handleVideoWatched = async () => {
     try {
       const res = await sendRequest<IBackendRes<IVideo[]>>({
@@ -107,7 +101,6 @@ const TrendingPage = () => {
           videoId: currentVideo?._id,
         },
       });
-      console.log("API response:", res);
       createViewingHistory();
     } catch (error) {
       console.error("Failed to fetch wishlist videos:", error);
@@ -127,7 +120,6 @@ const TrendingPage = () => {
           videoId: currentVideo?._id,
         },
       });
-      console.log("API response:", res);
     } catch (error) {
       console.error("Failed to create Viewing History:", error);
     }

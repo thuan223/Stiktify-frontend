@@ -26,15 +26,13 @@ const ShareVideo = () => {
   }, [id, accessToken]);
   const fetchVideoShare = async () => {
     try {
-      const res = await sendRequest<{ videoUrl: string }>( {
+      const res = await sendRequest<{ videoUrl: string }>({
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/share/${id}`,
         method: "GET",
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
       });
-
-      console.log("Video response:", res);
 
       if (res && res.videoUrl) {
         setVideoData(res);
@@ -56,7 +54,7 @@ const ShareVideo = () => {
   return (
     <div className="p-6 max-w-lg mx-auto border rounded-lg shadow-md">
       <h1 className="text-2xl font-bold mb-4">Video Player</h1>
-      
+
       {/* Video Player */}
       <video className="w-full rounded-lg" controls>
         <source src={videoData.videoUrl} type="video/mp4" />

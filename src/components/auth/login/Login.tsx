@@ -45,7 +45,6 @@ const Login = () => {
         password,
       },
     });
-    console.log("token >>>", res?.data?.access_token);
 
     if (res?.data?.access_token) {
       login?.(res?.data?.access_token);
@@ -100,8 +99,6 @@ const Login = () => {
       });
       setCode("");
     }
-
-    console.log(res);
   };
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-custom-gradient">

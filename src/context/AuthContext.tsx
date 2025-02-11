@@ -26,6 +26,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = () => {
+    Cookies.remove("token");
     setAccessToken(null);
     setUser(null);
     localStorage.removeItem("accessToken");
