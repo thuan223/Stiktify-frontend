@@ -74,7 +74,9 @@ const CreateUserModal = (props: IProps) => {
                         <Form.Item
                             label="Email"
                             name="email"
-                            rules={[{ required: true, message: 'Please input your email!' }]}
+                            rules={[{ required: true, message: 'Please input your email!' },
+                            { type: 'email', message: 'Email wrong format!' }
+                            ]}
                         >
                             <Input type='email' />
                         </Form.Item>
@@ -84,7 +86,9 @@ const CreateUserModal = (props: IProps) => {
                 <Form.Item
                     label="Password"
                     name="password"
-                    rules={[{ required: true, message: 'Please input your password!' }]}
+                    rules={[{ required: true, message: 'Please input your password!' },
+                    { min: 6, message: 'Password must be at least 6 characters!' }
+                    ]}
                 >
                     <Input type='password' />
                 </Form.Item>
