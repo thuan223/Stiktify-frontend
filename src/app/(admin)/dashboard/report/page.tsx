@@ -1,7 +1,5 @@
 import { handleGetAllReportAction } from "@/actions/manage.report.action";
-import { handleGetAllShortVideo } from "@/actions/manage.short.video.action";
 import ManageReportTable from "@/components/admin/report.video.table";
-import ManageShortVideoTable from "@/components/admin/short.video.table";
 
 const ShortVideoPage = async ({ searchParams }: any) => {
     const { current, pageSize } = await searchParams

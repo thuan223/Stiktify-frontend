@@ -1,4 +1,3 @@
-
 import DashboardContent from '@/components/layout/content.dashboard';
 import DashboardFooter from '@/components/layout/footer.dashboard';
 import DashboardHeader from '@/components/layout/header.dashboard';

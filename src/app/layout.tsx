@@ -29,7 +29,6 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
       router.replace("/dashboard/user");
     }
   }, [user, router]);
-
   return <>{children}</>;
 }
 
