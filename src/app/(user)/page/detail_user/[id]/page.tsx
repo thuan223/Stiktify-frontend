@@ -35,7 +35,6 @@ const UserDetail = () => {
 
   const fetchUserDetail = async () => {
     try {
-      console.log("check user", id);
       const res = await sendRequest<{ data: User }>({
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/get-user/${id}`,
         method: "GET",
@@ -43,7 +42,6 @@ const UserDetail = () => {
           Authorization: `Bearer ${accessToken}`,
         },
       });
-      console.log("check user", res);
       if (res.data) {
         setUserData(res.data);
       } else {
@@ -73,21 +71,9 @@ const UserDetail = () => {
       <div className="space-y-6">
         <UserInfo label="Username" value={userData.userName} icon={<FaRegUserCircle />} />
         <UserInfo label="Email" value={userData.email} icon={<FaRegEnvelope />} />
-        <UserInfo label="Role" value={userData.role} icon={<FaRegClipboard />} />
         <UserInfo label="Account Type" value={userData.accountType} icon={<FaRegUserCircle />} />
         <UserInfo label="Status" value={userData.status} icon={<FaShieldAlt />} />
-        <UserInfo 
-          label="Is Active" 
-          value={userData.isActive ? "✅ Active" : "❌ Inactive"} 
-          icon={<FaShieldAlt />} 
-          isStatus={true} 
-        />
-        <UserInfo 
-          label="Is Banned" 
-          value={userData.isBan ? "🚫 Banned" : "✅ Not Banned"} 
-          icon={<FaShieldAlt />} 
-          isStatus={true} 
-        />
+
       </div>
     </div>
   );
@@ -99,9 +85,6 @@ const UserInfo = ({ label, value, icon, isStatus }: { label: string, value: stri
       <div className="text-xl text-gray-600">{icon}</div>
       <p className="text-lg font-semibold text-gray-700">{label}:</p>
     </div>
-    <p className={`text-lg font-medium ${isStatus ? value.includes("❌") ? "text-red-500" : "text-green-500" : "text-gray-800"}`}>
-      {value}
-    </p>
   </div>
 );
 
