@@ -61,7 +61,6 @@ const UploadPage = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-8 rounded-lg shadow-lg max-w-xl mx-auto">
       <h2 className="text-4xl font-bold text-gray-800 mb-8">Upload Video Post</h2>
-
       <div className="w-full mb-6">
         <label htmlFor="video" className="text-lg text-gray-700 mb-2 block">Choose a video file</label>
         <input
@@ -71,7 +70,6 @@ const UploadPage = () => {
           className="w-full p-4 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
-
       <div className="w-full mb-6">
         <label htmlFor="videoUrl" className="text-lg text-gray-700 mb-2 block">Video URL</label>
         <input
@@ -83,7 +81,6 @@ const UploadPage = () => {
           className="w-full p-4 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
-
       <div className="w-full mb-6">
         <label htmlFor="videoDescription" className="text-lg text-gray-700 mb-2 block">Video Description</label>
         <textarea
@@ -95,8 +92,6 @@ const UploadPage = () => {
           rows={4}
         />
       </div>
-
-
       <button
         onClick={handleUpload}
         disabled={loading}
@@ -104,7 +99,6 @@ const UploadPage = () => {
       >
         {loading ? "Uploading..." : "Upload"}
       </button>
-
       {error && <p className="text-red-500 mt-4">{error}</p>}
       {successMessage && <p className="text-green-500 mt-4">{successMessage}</p>}
     </div>

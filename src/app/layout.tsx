@@ -6,6 +6,7 @@ import "@/app/globals.css";
 import { AuthContext, AuthProvider } from "@/context/AuthContext";
 import { useContext, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { getAllFollowing } from "@/actions/manage.follow.action";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,6 +21,7 @@ const inter = Inter({ subsets: ["latin"] });
 function AuthWrapper({ children }: { children: React.ReactNode }) {
   const { user } = useContext(AuthContext) ?? {};
   const router = useRouter();
+
   useEffect(() => {
     if (user?.role === "USERS") {
       router.replace("/page/trending-user");
@@ -27,7 +29,6 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
       router.replace("/dashboard/user");
     }
   }, [user, router]);
-
   return <>{children}</>;
 }
 

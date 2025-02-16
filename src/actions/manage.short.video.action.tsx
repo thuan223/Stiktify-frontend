@@ -63,8 +63,7 @@ export const handleSearchShortVideos = async (
 ) => {
   try {
     const res = await fetch(
-      `${
-        process.env.NEXT_PUBLIC_BACKEND_URL
+      `${process.env.NEXT_PUBLIC_BACKEND_URL
       }/api/v1/short-videos/search-video?searchText=${encodeURIComponent(
         searchText
       )}&current=${current}&pageSize=${pageSize}`,
@@ -78,8 +77,6 @@ export const handleSearchShortVideos = async (
       }
     );
     const result = await res.json();
-    console.log("checkkkk API search", result);
-    
     return result;
   } catch (error) {
     return null;

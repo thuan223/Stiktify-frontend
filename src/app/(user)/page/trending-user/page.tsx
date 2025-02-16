@@ -24,10 +24,10 @@ const TrendingPage = () => {
 
   useEffect(() => {
     getVideoData();
-  }, [accessToken]);
+  }, [accessToken, user]);
 
   const getVideoData = async () => {
-    if (!accessToken) return;
+    if (!accessToken || !user) return;
 
     try {
       const res = await sendRequest<IBackendRes<IVideo[]>>({
@@ -37,7 +37,7 @@ const TrendingPage = () => {
           Authorization: `Bearer ${accessToken}`,
         },
         body: {
-          userId: "6741ab10342097607f0129f0",
+          userId: user._id,
         },
       });
 
@@ -51,7 +51,7 @@ const TrendingPage = () => {
         }
       }
     } catch (error) {
-      console.error("Failed to fetch trending videos:", error);
+      console.log("Failed to fetch trending videos:", error);
     }
   };
 
@@ -79,21 +79,15 @@ const TrendingPage = () => {
       }
     }
   };
+
   useEffect(() => {
     getVideoData();
   }, []);
 
   useEffect(() => {
-    if (currentVideo) {
-      console.log("Current Video:", currentVideo);
-    }
-  }, [currentVideo]);
-  useEffect(() => {
-    console.log(videoData);
-    console.log(videoData.length);
-    console.log(requestCount);
     if (currentVideo === null) setCurrentVideo(videoData[0] || null);
   }, [videoData]);
+
   const handleVideoWatched = async () => {
     try {
       const res = await sendRequest<IBackendRes<IVideo[]>>({
@@ -103,11 +97,10 @@ const TrendingPage = () => {
           Authorization: `Bearer ${accessToken}`,
         },
         body: {
-          userId: "6741ab10342097607f0129f0",
+          userId: user._id,
           videoId: currentVideo?._id,
         },
       });
-      console.log("API response:", res);
       createViewingHistory();
     } catch (error) {
       console.error("Failed to fetch wishlist videos:", error);
@@ -123,11 +116,10 @@ const TrendingPage = () => {
           Authorization: `Bearer ${accessToken}`,
         },
         body: {
-          userId: "6741ab10342097607f0129f0",
+          userId: user._id,
           videoId: currentVideo?._id,
         },
       });
-      console.log("API response:", res);
     } catch (error) {
       console.error("Failed to create Viewing History:", error);
     }
@@ -171,7 +163,7 @@ const TrendingPage = () => {
       ) : (
         <p>Loading video...</p>
       )}
-      
+
       <VideoFooter
         videoDescription={currentVideo?.videoDescription || ""}
         totalView={currentVideo?.totalViews || 0}

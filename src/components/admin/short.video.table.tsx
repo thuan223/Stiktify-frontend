@@ -44,7 +44,6 @@ const ManageShortVideoTable = (props: IProps) => {
   };
 
   useEffect(() => {
-    console.log("filterReq:", filterReq);
     (async () => {
       if (search.length > 0 || filterReq.length > 0) {
         if (search.length > 0) {
@@ -76,7 +75,6 @@ const ManageShortVideoTable = (props: IProps) => {
             setMetaTable(meta);
           }
         } else if (filterReq.length > 0) {
-          console.log("Calling API for category:", filterReq);
           const res = await handleFilterByCategory(
             filterReq,
             meta.current,

@@ -21,9 +21,7 @@ const DashboardSideBar = () => {
     const pathname = usePathname();
     const { Sider } = Layout;
     const { collapseMenu } = useContext(DashboardContext)!;
-    const [pathActive, setPathActive] = useState(pathname)
     const items: MenuItem[] = [
-
         {
             key: 'grp',
             label: 'Stiktify',
@@ -82,14 +80,13 @@ const DashboardSideBar = () => {
         },
     ];
 
-
     return (
         <Sider
             collapsed={collapseMenu}
         >
             <Menu
                 mode="inline"
-                defaultSelectedKeys={[pathActive]}
+                defaultSelectedKeys={[pathname]}
                 items={items}
                 style={{ height: '100vh' }}
             />

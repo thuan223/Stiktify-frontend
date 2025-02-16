@@ -1,7 +1,6 @@
 import queryString from "query-string";
 
 export const sendRequest = async <T>(props: IRequest) => {
-  //type
   let {
     url,
     method,
@@ -14,7 +13,6 @@ export const sendRequest = async <T>(props: IRequest) => {
 
   const options: any = {
     method: method,
-    // by default setting the content-type to be json type
     headers: new Headers({ "content-type": "application/json", ...headers }),
     body: body ? JSON.stringify(body) : null,
     ...nextOption,
@@ -42,7 +40,6 @@ export const sendRequest = async <T>(props: IRequest) => {
 };
 
 export const sendRequestFile = async <T>(props: IRequest) => {
-  //type
   let {
     url,
     method,
@@ -55,7 +52,6 @@ export const sendRequestFile = async <T>(props: IRequest) => {
 
   const options: any = {
     method: method,
-    // by default setting the content-type to be json type
     headers: new Headers({ ...headers }),
     body: body ? body : null,
     ...nextOption,
@@ -71,7 +67,6 @@ export const sendRequestFile = async <T>(props: IRequest) => {
       return res.json() as T; //generic
     } else {
       return res.json().then(function (json) {
-        // to be able to access error status when you catch the error
         return {
           statusCode: res.status,
           message: json?.message ?? "",

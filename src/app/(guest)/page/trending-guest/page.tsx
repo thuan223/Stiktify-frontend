@@ -2,7 +2,6 @@
 import { handleSearchShortVideos } from "@/actions/manage.short.video.action";
 import SearchCard from "@/components/page/search/searchCard";
 import Header from "@/components/page/trending/header";
-import InteractSideBar from "@/components/page/trending/interact_sidebar";
 import MainVideo from "@/components/page/trending/main_video";
 import VideoFooter from "@/components/page/trending/video-footer";
 import { sendRequest } from "@/utils/api";
@@ -33,14 +32,13 @@ const TrendingPage = () => {
         }
       }
     } catch (error) {
-      console.error("Failed to fetch trending videos:", error);
+      console.log("Failed to fetch trending videos:", error);
     }
   };
 
   const fetchSearchVideo = async () => {
     setLoading(true);
     const response: any = await handleSearchShortVideos(searchValue, 1, 10);
-    console.log("checkkk searchh", response);
     setVideoDataSearch(response?.data?.result || []);
     setLoading(false);
   };
@@ -69,19 +67,8 @@ const TrendingPage = () => {
   }, []);
 
   useEffect(() => {
-    if (currentVideo) {
-      console.log("Current Video:", currentVideo);
-    }
-  }, [currentVideo]);
-  useEffect(() => {
-    console.log(videoData);
-    console.log(videoData.length);
-    console.log(requestCount);
     if (currentVideo === null) setCurrentVideo(videoData[0] || null);
   }, [videoData]);
-  const handleVideoWatched = async () => {
-    console.log("Watching video");
-  };
 
   return (
     <div onWheel={handleScroll}>
@@ -100,7 +87,6 @@ const TrendingPage = () => {
           {currentVideo ? (
             <MainVideo
               videoUrl={currentVideo.videoUrl}
-              onVideoWatched={handleVideoWatched}
             />
           ) : (
             <p>Loading video...</p>
@@ -111,7 +97,6 @@ const TrendingPage = () => {
             videoTag={currentVideo?.videoTag || []}
             createAt={currentVideo?.createAt.toString() || ""}
           />
-          {/* <InteractSideBar creatorId={currentVideo?.userId.fullname || ""} /> */}
         </>
       )}
     </div>

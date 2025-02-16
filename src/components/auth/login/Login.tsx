@@ -34,6 +34,9 @@ const Login = () => {
   const [userId, setUserId] = useState<string>("");
   const onLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (password.length < 6) {
+      return notification.warning({ message: "Password must be least 6 characters!" })
+    }
     const res = await sendRequest<IBackendRes<any>>({
       url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/login`,
       method: "POST",
@@ -42,7 +45,6 @@ const Login = () => {
         password,
       },
     });
-    console.log("token >>>", res?.data?.access_token);
 
     if (res?.data?.access_token) {
       login?.(res?.data?.access_token);
@@ -97,8 +99,6 @@ const Login = () => {
       });
       setCode("");
     }
-
-    console.log(res);
   };
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-custom-gradient">

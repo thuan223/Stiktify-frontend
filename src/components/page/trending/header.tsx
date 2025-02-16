@@ -26,11 +26,11 @@ const Header: React.FC<HeaderProps> = ({
     <Menu
       onClick={({ key }) => {
         setSelected(key);
-        if (key === "profile") {
-          router.push("/page/profile");
+        if (key === "my-videos") {
+          router.push("/page/my-video");
         }
       }}
-      items={[{ key: "profile", label: "Profile" }]}
+      items={[{ key: "my-videos", label: "My Videos" }]}
     />
   );
 

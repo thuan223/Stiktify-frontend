@@ -73,7 +73,18 @@ const UserDetail = () => {
         <UserInfo label="Email" value={userData.email} icon={<FaRegEnvelope />} />
         <UserInfo label="Account Type" value={userData.accountType} icon={<FaRegUserCircle />} />
         <UserInfo label="Status" value={userData.status} icon={<FaShieldAlt />} />
-
+        <UserInfo
+          label="Is Active"
+          value={userData.isActive ? "✅ Active" : "❌ Inactive"}
+          icon={<FaShieldAlt />}
+          isStatus={true}
+        />
+        <UserInfo
+          label="Is Banned"
+          value={userData.isBan ? "🚫 Banned" : "✅ Not Banned"}
+          icon={<FaShieldAlt />}
+          isStatus={true}
+        />
       </div>
     </div>
   );

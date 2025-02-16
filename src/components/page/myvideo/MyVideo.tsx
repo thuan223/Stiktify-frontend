@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { fetchMyVideos } from "@/actions/videoPosted.video.action";
 import { formatNumber } from "@/utils/utils";
+import VideoCustomize from "@/components/video/video.customize";
 
 const MyVideo = () => {
   const [videos, setVideos] = useState<IShortVideo[]>([]);
@@ -12,8 +13,6 @@ const MyVideo = () => {
     const loadVideos = async () => {
       setLoading(true);
       const response = await fetchMyVideos(1, 20); // Gọi API lấy video
-
-      console.log("Videos from API:", response); // Debug log
       setVideos(response ?? []); // Chắc chắn response không bị undefined
       setLoading(false);
     };
@@ -42,13 +41,10 @@ const MyVideo = () => {
               {videos.map((video) => (
                 <tr key={video._id} className="hover:bg-gray-50">
                   <td className="border px-4 py-2">
-                    <div className="w-[150px] h-[100px] rounded-md shadow-lg overflow-hidden">
-                      <img
-                        src={video.videoThumbnail}
-                        alt="Thumbnail"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
+                    <VideoCustomize
+                      videoThumbnail={video.videoThumbnail}
+                      videoUrl={video.videoUrl}
+                    />
                   </td>
                   <td className="border px-4 py-2 text-gray-700">
                     {formatNumber(video.totalViews ?? 0)}

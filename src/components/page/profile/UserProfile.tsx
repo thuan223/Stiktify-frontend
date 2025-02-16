@@ -9,7 +9,6 @@ import ChangePasswordModal from "./ChangePasswordModal";
 import { useRouter } from "next/navigation";
 import { notification } from "antd";
 
-
 interface UserProfileProps {
   profile?: {
     fullname: string;
@@ -19,13 +18,11 @@ interface UserProfileProps {
     phone: string;
     address: string;
   };
-  existingPhones: string[];
   onUpdateProfile: (updatedProfile: any) => void;
 }
 
 const UserProfile: React.FC<UserProfileProps> = ({
   profile,
-  existingPhones = [],
   onUpdateProfile,
 }) => {
   if (!profile) {
@@ -106,7 +103,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
       setErrorMessage("Phone number must be exactly 10 digits.");
       return false;
     }
-    if (existingPhones?.includes(editProfile.phone)) {
+    if (profile.phone?.includes(editProfile.phone)) {
       setErrorMessage("Phone number already exists.");
       return false;
     }
@@ -127,7 +124,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
     }
 
     if (!validateInputs()) {
-      notification.error({ message: errorMessage })
+      notification.error({ message: errorMessage });
 
       return;
     }
