@@ -17,22 +17,20 @@ const Header: React.FC<HeaderProps> = ({
   searchValue,
   setSearchValue,
   isGuest,
-  onClick
+  onClick,
 }) => {
   const router = useRouter();
   const [selected, setSelected] = useState("");
 
-  const menu = (
-    <Menu
-      onClick={({ key }) => {
-        setSelected(key);
-        if (key === "my-videos") {
-          router.push("/page/my-video");
-        }
-      }}
-      items={[{ key: "my-videos", label: "My Videos" }]}
-    />
-  );
+  const menu = {
+    items: [{ key: "profile", label: "My profile" }],
+    onClick: ({ key }: { key: string }) => {
+      setSelected(key);
+      if (key === "profile") {
+        router.push("/page/profile");
+      }
+    },
+  };
 
   return (
     <header className="flex items-center justify-between p-4 bg-white shadow-md">
@@ -58,10 +56,10 @@ const Header: React.FC<HeaderProps> = ({
           </svg>
         </button>
         {/* Upload Video Button */}
-        <button 
+        <button
           className="ml-4 px-4 py-2 bg-blue-500 text-white rounded-lg flex items-center hover:bg-blue-600 transition-all duration-300"
           onClick={() => router.push("/page/upload")}
-          >
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-5 w-5 mr-2"
@@ -93,7 +91,7 @@ const Header: React.FC<HeaderProps> = ({
           )}
         </div>
 
-        <Dropdown overlay={menu} trigger={["click"]}>
+        <Dropdown menu={menu} trigger={["click"]}>
           <div className="text-xl cursor-pointer">
             <svg
               xmlns="http://www.w3.org/2000/svg"

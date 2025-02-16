@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import ReactSection from "./react_section";
-import { UsergroupAddOutlined } from "@ant-design/icons";
+import { CheckOutlined, PlusOutlined, UserOutlined } from "@ant-design/icons";
 import { getAllFollowing, handleFollow } from "@/actions/manage.follow.action";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "@/context/AuthContext";
@@ -11,6 +11,7 @@ import { notification } from "antd";
 interface InteractSideBarProps {
   userId: string;
   creatorId: string;
+  avatarUrl?: string;
   videoId: string | undefined;
   onCommentClick: () => void;
   numberComment: any;
@@ -25,6 +26,7 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
   videoId,
   numberComment,
   userId,
+  avatarUrl,
   numberReaction,
   onReactionAdded,
   onReactionRemove,
@@ -33,6 +35,8 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
   const { user, listFollow } = useContext(AuthContext) ?? {};
   const [dataFollow, setDataFollow] = useState<string[]>([]);
   const [flag, setFlag] = useState(false);
+  const isFollowing = dataFollow?.includes(userId);
+
   const handleProfileClick = () => {
     router.push(`/page/detail_user/${userId}`);
   };
@@ -41,10 +45,15 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
   };
 
   useEffect(() => {
+    if (!user || !user._id) return;
     (async () => {
-      const res = await getAllFollowing(user._id);
-      if (res?.statusCode === 200) {
-        setDataFollow(res.data!);
+      try {
+        const res = await getAllFollowing(user._id);
+        if (res?.statusCode === 200) {
+          setDataFollow(res.data!);
+        }
+      } catch (error) {
+        console.error("Error fetching followers:", error);
       }
     })();
   }, [user, flag]);
@@ -54,34 +63,57 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
   }, [listFollow, user]);
 
   const handleFollower = async () => {
-    const res = await handleFollow(user._id, userId);
-    if (res?.statusCode === 201) {
-      setFlag(!flag);
-      return notification.success({ message: "success" });
+    if (!user || !user._id) {
+      return notification.error({ message: "Please log in first" });
     }
-    notification.error({ message: "Unsuccess" });
+    try {
+      const res = await handleFollow(user._id, userId);
+      if (res?.statusCode === 201) {
+        setFlag(!flag);
+        return notification.success({ message: "Successfully" });
+      }
+      notification.error({ message: "Follow failed" });
+    } catch (error) {
+      console.error("Error following user:", error);
+      notification.error({ message: "An error occurred" });
+    }
   };
 
   return (
     <div className="w-[15%] bg-white shadow-lg absolute right-0 top-[95px] pt-10 pl-10 h-3/4">
       <nav>
         <ul className="space-y-10">
-          <li className="flex items-end">
+          <li className="flex items-center relative">
             <div
-              className="text-xl cursor-pointer mr-2 hover:text-blue-500 transition"
-              onClick={handleProfileClick}
+              className="relative w-16 h-16 rounded-full overflow-hidden cursor-pointer border-2 border-white shadow-md hover:opacity-80 transition-all flex items-center justify-center bg-gray-200"
+              onClick={handleFollower}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-7 w-7"
-                viewBox="0 0 448 512"
-              >
-                <path d="M224 256c70.7 0 128-57.3 128-128S294.7 0 224 0 96 57.3 96 128s57.3 128 128 128zm89.6 32h-16.7c-22.2 10.2-46.9 16-72.9 16s-50.6-5.8-72.9-16h-16.7C60.2 288 0 348.2 0 422.4V464c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48v-41.6c0-74.2-60.2-134.4-134.4-134.4z" />
-              </svg>
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt="Avatar"
+                  className="w-30 h-full object-cover"
+                />
+              ) : (
+                <UserOutlined className="text-3xl text-gray-500" />
+              )}
+            </div>
+            <div
+              className={`absolute -left-1 -bottom-1 w-6 h-6 flex items-center justify-center rounded-full shadow-md ${
+                isFollowing
+                  ? "bg-green-500 text-white"
+                  : "bg-red-500 text-white"
+              }`}
+            >
+              {isFollowing ? (
+                <CheckOutlined className="text-md" />
+              ) : (
+                <PlusOutlined className="text-md" />
+              )}
             </div>
             <span
-              className="cursor-pointer text-lg font-medium hover:underline hover:text-blue-500 transition"
-              onClick={handleProfileClick}
+              className="ml-4 cursor-pointer text-lg font-medium hover:underline hover:text-blue-500 transition"
+              onClick={() => router.push(`/page/detail_user/${userId}`)}
             >
               {creatorId}
             </span>
@@ -133,19 +165,6 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
               </svg>
             </div>
             Share
-          </li>
-          <li className="flex items-center">
-            <div
-              onClick={() => handleFollower()}
-              className="text-3xl cursor-pointer mr-2"
-            >
-              <UsergroupAddOutlined />
-            </div>
-            {dataFollow?.includes(userId) ? (
-              <div>Following</div>
-            ) : (
-              <div>Follow</div>
-            )}
           </li>
         </ul>
       </nav>
