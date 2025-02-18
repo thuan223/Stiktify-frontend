@@ -6,7 +6,6 @@ import { AuthContext } from "@/context/AuthContext";
 
 const UploadPage = () => {
   const [file, setFile] = useState<File | null>(null);
-  const [videoUrl, setVideoUrl] = useState<string>("");
   const [videoDescription, setVideoDescription] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -67,17 +66,6 @@ const UploadPage = () => {
           id="video"
           type="file"
           onChange={handleFileChange}
-          className="w-full p-4 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </div>
-      <div className="w-full mb-6">
-        <label htmlFor="videoUrl" className="text-lg text-gray-700 mb-2 block">Video URL</label>
-        <input
-          id="videoUrl"
-          type="text"
-          value={videoUrl}
-          onChange={(e) => setVideoUrl(e.target.value)}
-          placeholder="Enter video URL"
           className="w-full p-4 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
