@@ -70,18 +70,6 @@ const SideBar: React.FC<SideBarProps> = ({ isGuest, isHidden }) => {
               </Link>
             </li>
           )}
-          {isGuest ? (
-            ""
-          ) : (
-            <li>
-              <Link
-                href="/page/profile"
-                className={getLinkClass("/page/profile")}
-              >
-                Profile
-              </Link>
-            </li>
-          )}
           <li>
             <Link href="/page/live" className={getLinkClass("/page/live")}>
               Live
@@ -96,6 +84,7 @@ const SideBar: React.FC<SideBarProps> = ({ isGuest, isHidden }) => {
               </Link>
             </li>
           )}
+
           {isGuest ? (
             ""
           ) : (
@@ -111,7 +100,7 @@ const SideBar: React.FC<SideBarProps> = ({ isGuest, isHidden }) => {
         </ul>
       </nav>
       <footer className="mt-[10px] text-center">
-        <small className="text-gray-500">© 2025 Stiktify</small>
+        <small className="text-gray-500">©2025 Stiktify</small>
       </footer>
     </div>
   );

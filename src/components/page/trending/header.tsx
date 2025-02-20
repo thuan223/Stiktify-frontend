@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Dropdown, Menu, MenuProps } from "antd";
+import { Dropdown, Menu } from "antd";
 import { handleSearchShortVideos } from "@/actions/manage.short.video.action";
 import Search from "antd/es/transfer/search";
 
@@ -22,22 +22,15 @@ const Header: React.FC<HeaderProps> = ({
   const router = useRouter();
   const [selected, setSelected] = useState("");
 
-  const items: MenuProps["items"] = [
-    {
-      key: "1",
-      label: (
-        <a
-          target="_blank"
-          rel=""
-          onClick={({}) => {
-            router.push("/page/my-video");
-          }}
-        >
-          My videos
-        </a>
-      ),
+  const menu = {
+    items: [{ key: "profile", label: "My profile" }],
+    onClick: ({ key }: { key: string }) => {
+      setSelected(key);
+      if (key === "profile") {
+        router.push("/page/profile");
+      }
     },
-  ];
+  };
 
   return (
     <header className="flex items-center justify-between p-4 bg-white shadow-md">
@@ -98,7 +91,7 @@ const Header: React.FC<HeaderProps> = ({
           )}
         </div>
 
-        <Dropdown menu={{ items }} trigger={["click"]}>
+        <Dropdown menu={menu} trigger={["click"]}>
           <div className="text-xl cursor-pointer">
             <svg
               xmlns="http://www.w3.org/2000/svg"
