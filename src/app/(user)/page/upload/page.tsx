@@ -5,6 +5,7 @@ import { sendRequest } from "@/utils/api";
 import { AuthContext } from "@/context/AuthContext";
 
 const UploadPage = () => {
+  const [description, setDescription] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [videoDescription, setVideoDescription] = useState<string>("");
   const [loading, setLoading] = useState(false);
@@ -43,7 +44,9 @@ const UploadPage = () => {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
-        body: formData,
+        body: {formData,
+          description}
+        
       }) as { success: boolean; message?: string };
 
       if (res.success) {
