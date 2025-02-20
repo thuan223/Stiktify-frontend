@@ -3,9 +3,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 interface SideBarProps {
   isGuest: Boolean;
+  isHidden?: Boolean;
 }
 
-const SideBar: React.FC<SideBarProps> = ({ isGuest }) => {
+const SideBar: React.FC<SideBarProps> = ({ isGuest, isHidden }) => {
   const pathname = usePathname();
   const getLinkClass = (path: string) => {
     return pathname === path
@@ -14,7 +15,10 @@ const SideBar: React.FC<SideBarProps> = ({ isGuest }) => {
   };
 
   return (
-    <div className="w-[10%] pt-10 h-screen bg-white shadow-lg p-5">
+    <div
+      className="w-[10%] pt-10 h-screen bg-white shadow-lg p-5"
+      style={isHidden && { display: "none" }}
+    >
       <nav>
         <ul className="space-y-4">
           {isGuest ? (
