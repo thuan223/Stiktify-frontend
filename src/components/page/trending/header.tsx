@@ -37,6 +37,20 @@ const Header: React.FC<HeaderProps> = ({
         </a>
       ),
     },
+    {
+      key: "2",
+      label: (
+        <a
+          target="_blank"
+          rel=""
+          onClick={({}) => {
+            router.push("/personal/videohistory");
+          }}
+        >
+          History
+        </a>
+      ),
+    },
   ];
 
   return (
@@ -44,6 +58,12 @@ const Header: React.FC<HeaderProps> = ({
       <div className="flex items-center flex-1 justify-center">
         <input
           type="text"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              if(onClick)
+              onClick();
+            }
+          }}
           placeholder="Search"
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}

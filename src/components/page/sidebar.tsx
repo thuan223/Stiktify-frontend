@@ -36,7 +36,23 @@ const SideBar: React.FC<SideBarProps> = ({ isGuest }) => {
               </Link>
             </li>
           )}
-
+          {isGuest ? (
+            ""
+          ) : (
+            <li>
+              <Link
+                href="/page/following"
+                className={getLinkClass("/page/following")}
+              >
+                Following
+              </Link>
+            </li>
+          )}
+          <li>
+            <Link href="/page/live" className={getLinkClass("/page/live")}>
+              Live
+            </Link>
+          </li>
           <li>
             <Link href="/page/music" className={getLinkClass("/page/music")}>
               Music
@@ -54,18 +70,7 @@ const SideBar: React.FC<SideBarProps> = ({ isGuest }) => {
               </Link>
             </li>
           )}
-          {isGuest ? (
-            ""
-          ) : (
-            <li>
-              <Link
-                href="/page/following"
-                className={getLinkClass("/page/following")}
-              >
-                Following
-              </Link>
-            </li>
-          )}
+
           {isGuest ? (
             ""
           ) : (
@@ -78,29 +83,12 @@ const SideBar: React.FC<SideBarProps> = ({ isGuest }) => {
               </Link>
             </li>
           )}
-          <li>
-            <Link href="/page/live" className={getLinkClass("/page/live")}>
-              Live
-            </Link>
-          </li>
           {isGuest ? (
             ""
           ) : (
             <li>
               <Link href="/page/chat" className={getLinkClass("/page/chat")}>
                 Chat
-              </Link>
-            </li>
-          )}
-          {isGuest ? (
-            ""
-          ) : (
-            <li>
-              <Link
-                href="/page/history"
-                className={getLinkClass("/page/history")}
-              >
-                History
               </Link>
             </li>
           )}

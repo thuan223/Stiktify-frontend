@@ -3,6 +3,7 @@ interface VideoHistoryProps {
   userId: string;
   createdAt: Date;
   updatedAt: Date;
+  _id:string;
 }
 
 interface IVideo {
