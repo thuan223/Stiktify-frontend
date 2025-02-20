@@ -121,7 +121,7 @@ const HistoryList: React.FC<HistoryListProps> = ({
                 )}`}</p>
                 <p>{`Views: ${history?.videoId?.totalViews}`}</p>
                 <p>{`Reactions: ${history?.videoId?.totalReaction}`}</p>
-                <p>{`View At: ${formatDateTimeVn(history?.createdAt + "")}`}</p>
+                <p>{`View At: ${formatDateTimeVn(history?.updatedAt + "")}`}</p>
               </div>
 
               <Dropdown

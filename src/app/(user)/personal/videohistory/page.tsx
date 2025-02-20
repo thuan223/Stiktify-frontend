@@ -26,7 +26,7 @@ const ViewingHistory = () => {
     if (accessToken && user) {
       const filter = JSON.stringify({
         userId: user._id,
-        createdAt: watchedDate,
+        updatedAt: watchedDate,
       });
       const res = await sendRequest<IBackendRes<any>>({
         url: `${
@@ -64,7 +64,7 @@ const ViewingHistory = () => {
     if (watchedDate) {
       filter = JSON.stringify({
         userId: user._id,
-        createdAt: watchedDate,
+        updatedAt: watchedDate,
       });
     } else {
       filter = JSON.stringify({
@@ -118,7 +118,7 @@ const ViewingHistory = () => {
 
       filter = JSON.stringify({
         userId: user._id,
-        createdAt: correctedISODate,
+        updatedAt: correctedISODate,
       });
       console.log(correctedISODate);
     }
