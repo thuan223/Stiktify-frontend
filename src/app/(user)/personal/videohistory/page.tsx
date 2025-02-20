@@ -134,6 +134,7 @@ const ViewingHistory = () => {
         Authorization: `Bearer ${accessToken}`,
       },
     });
+    console.log(accessToken)
     if (res.data.result.length === 0) {
       console.log("setTrue");
       setMaxLength(true);

@@ -29,7 +29,7 @@ const Header: React.FC<HeaderProps> = ({
           target="_blank"
           rel=""
           onClick={({}) => {
-            router.push("/page/my-profile");
+            router.push("/page/profile");
           }}
         >
           My Profile
