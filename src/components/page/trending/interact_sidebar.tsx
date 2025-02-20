@@ -18,6 +18,7 @@ interface InteractSideBarProps {
   numberReaction: any;
   onReactionAdded: () => void;
   onReactionRemove: () => void;
+  isHidden?: Boolean;
 }
 
 const InteractSideBar: React.FC<InteractSideBarProps> = ({
@@ -30,6 +31,7 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
   numberReaction,
   onReactionAdded,
   onReactionRemove,
+  isHidden,
 }) => {
   const router = useRouter();
   const { user, listFollow } = useContext(AuthContext) ?? {};
@@ -80,7 +82,11 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
   };
 
   return (
-    <div className="w-[15%] bg-white shadow-lg absolute right-0 top-[95px] pt-10 pl-10 h-3/4">
+    <div
+      className={`w-[15%] bg-white shadow-lg absolute right-0 top-[95px] pt-10 pl-10 h-3/4 ${
+        isHidden ? "hidden" : ""
+      }`}
+    >
       <nav>
         <ul className="space-y-10">
           <li className="flex items-center relative">

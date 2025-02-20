@@ -1,13 +1,13 @@
+"use client";
 import SideBar from "@/components/page/sidebar";
+import { useShowComment } from "@/context/showCommentContext";
 
-const PageLayout = ({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) => {
+const PageLayout = ({ children }: { children: React.ReactNode }) => {
+  const { showComments } = useShowComment();
+
   return (
     <div className="flex">
-      <SideBar isGuest={false} />
+      {!showComments && <SideBar isGuest={false} />}
       <main className="flex-grow p-5">{children}</main>
     </div>
   );
