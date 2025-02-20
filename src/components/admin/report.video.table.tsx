@@ -20,7 +20,6 @@ interface IProps {
 }
 
 
-
 const ManageReportTable = (props: IProps) => {
     const { dataSource, meta } = props;
     const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(false)

@@ -3,13 +3,14 @@ import { ColumnsType } from "antd/es/table";
 import TableCustomize from "../table/table.dashboard"
 import { ActionManagerUser, FormatDateTime, StyleStatus } from "../table/user.render.table";
 import { Button, MenuProps } from "antd";
-import { FilterOutlined, SearchOutlined, UserAddOutlined } from "@ant-design/icons";
+import { FilterOutlined, MailTwoTone, SearchOutlined, UserAddOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import CreateUserModal from "./create.user.model";
 import UpdateUserModal from "./edit.user.modal";
 import InputCustomize from "../input/input.customize";
 import DropdownCustomize from "../dropdown/dropdown.customize";
 import { handleFilterAndSearchAction } from "@/actions/manage.user.action";
+import SendEmailModal from "./send.email.modal";
 interface IProps {
     dataSource: IUser[];
     meta: {
@@ -23,8 +24,6 @@ interface IProps {
     }
 }
 
-
-
 const ManageUserTable = (props: IProps) => {
     const { dataSource, meta, metaDefault } = props;
     const [dataTable, setDataTable] = useState<IUser[] | []>(dataSource)
@@ -35,6 +34,15 @@ const ManageUserTable = (props: IProps) => {
     const [search, setSearch] = useState("")
     const [filterReq, setFilterReq] = useState("")
 
+    const [isEmailModalOpen, setIsEmailModalOpen] = useState<boolean>(false)
+
+
+
+    const handleMailClick = (record:any) => {
+        setDataUser(record)
+        setIsEmailModalOpen(true)
+    };
+    
     useEffect(() => {
         (async () => {
             if (search.length > 0 || filterReq.length > 0) {
@@ -46,6 +54,8 @@ const ManageUserTable = (props: IProps) => {
                 setDataTable(dataSource)
             }
         })()
+
+        
     }, [search, dataSource, filterReq, meta])
 
     const columns: ColumnsType<IUser> = [
@@ -77,16 +87,30 @@ const ManageUserTable = (props: IProps) => {
             render: (value: string) => StyleStatus({ value })
         },
         {
+            title: 'Send Email',
+            dataIndex: 'mail',
+            key: 'mail',
+            render: (value: boolean, record: IUser, index: number) => (
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    
+                    <MailTwoTone 
+                        style={{ fontSize: 16, color: "#1890ff" }} 
+                        onClick={() => handleMailClick(record)} 
+                    />                </div>
+            )
+        },
+        {
             title: 'Action',
             dataIndex: 'isBan',
             key: 'isBan',
-            render: (
-                value: boolean,
-                record: IUser,
-                index: number,
-
-            ) => ActionManagerUser(value, record, index, setIsUpdateModalOpen, setDataUser)
+            render: (value: boolean, record: IUser, index: number) => (
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    
+                    {ActionManagerUser(value, record, index, setIsUpdateModalOpen, setDataUser)}
+                </div>
+            )
         }
+        
     ];
 
 
@@ -116,6 +140,7 @@ const ManageUserTable = (props: IProps) => {
             <TableCustomize columns={columns} dataSource={dataTable} meta={metaTable} />
             <CreateUserModal isCreateModalOpen={isCreateModalOpen} setIsCreateModalOpen={setIsCreateModalOpen} />
             <UpdateUserModal setDataUser={setDataUser} dataUser={dataUser} isUpdateModalOpen={isUpdateModalOpen} setIsUpdateModalOpen={setIsUpdateModalOpen} />
+            {isEmailModalOpen && <SendEmailModal user={dataUser} onClose={() => setIsEmailModalOpen(false)} />}
         </>
     )
 }

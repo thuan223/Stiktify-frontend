@@ -20,7 +20,6 @@ const Header: React.FC<HeaderProps> = ({
   onClick,
 }) => {
   const router = useRouter();
-  const [selected, setSelected] = useState("");
 
   const items: MenuProps["items"] = [
     {
@@ -118,7 +117,7 @@ const Header: React.FC<HeaderProps> = ({
           )}
         </div>
 
-        <Dropdown menu={{ items }} trigger={["click"]}>
+        <Dropdown menu={{items}} trigger={["click"]}>
           <div className="text-xl cursor-pointer">
             <svg
               xmlns="http://www.w3.org/2000/svg"

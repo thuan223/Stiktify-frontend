@@ -3,9 +3,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 interface SideBarProps {
   isGuest: Boolean;
+  isHidden?: Boolean;
 }
 
-const SideBar: React.FC<SideBarProps> = ({ isGuest }) => {
+const SideBar: React.FC<SideBarProps> = ({ isGuest, isHidden }) => {
   const pathname = usePathname();
   const getLinkClass = (path: string) => {
     return pathname === path
@@ -14,7 +15,10 @@ const SideBar: React.FC<SideBarProps> = ({ isGuest }) => {
   };
 
   return (
-    <div className="w-[10%] pt-10 h-screen bg-white shadow-lg p-5">
+    <div
+      className="w-[10%] pt-10 h-screen bg-white shadow-lg p-5"
+      style={isHidden && { display: "none" }}
+    >
       <nav>
         <ul className="space-y-4">
           {isGuest ? (
@@ -70,19 +74,23 @@ const SideBar: React.FC<SideBarProps> = ({ isGuest }) => {
               </Link>
             </li>
           )}
-
           {isGuest ? (
             ""
           ) : (
             <li>
               <Link
-                href="/page/profile"
-                className={getLinkClass("/page/profile")}
+                href="/page/following"
+                className={getLinkClass("/page/following")}
               >
-                Profile
+                Following
               </Link>
             </li>
           )}
+          <li>
+            <Link href="/page/live" className={getLinkClass("/page/live")}>
+              Live
+            </Link>
+          </li>
           {isGuest ? (
             ""
           ) : (
@@ -95,7 +103,7 @@ const SideBar: React.FC<SideBarProps> = ({ isGuest }) => {
         </ul>
       </nav>
       <footer className="mt-[10px] text-center">
-        <small className="text-gray-500">© 2025 Stiktify</small>
+        <small className="text-gray-500">©2025 Stiktify</small>
       </footer>
     </div>
   );

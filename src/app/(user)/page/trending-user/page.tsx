@@ -8,6 +8,8 @@ import { AuthContext } from "@/context/AuthContext";
 import { sendRequest } from "@/utils/api";
 import React, { useContext, useEffect, useState } from "react";
 import Cookies from "js-cookie";
+import { useShowComment } from "@/context/showCommentContext";
+
 const TrendingPage = () => {
   const [searchValue, setSearchValue] = useState<string>("");
   const [videoData, setVideoData] = useState<IVideo[]>([]);
@@ -16,7 +18,10 @@ const TrendingPage = () => {
   const [requestCount, setRequestCount] = useState<number>(0);
   const { user, accessToken, logout } = useContext(AuthContext) ?? {};
   const [isWatched, setIsWatched] = useState(false);
-  const [showComments, setShowComments] = useState<boolean>(false);
+
+  // const [showComments, setShowComments] = useState<boolean>(false);
+  const { showComments, setShowComments } = useShowComment();
+
   const toggleComments = () => {
     setShowComments((prev) => !prev);
   };
@@ -294,6 +299,7 @@ const TrendingPage = () => {
         numberReaction={currentVideo?.totalReaction}
         onReactionAdded={onReactionAdded}
         onReactionRemove={onReactionRemove}
+        isHidden={showComments}
       />
 
       {showComments && (

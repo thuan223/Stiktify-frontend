@@ -71,7 +71,6 @@ const UserDetail = () => {
       <div className="space-y-6">
         <UserInfo label="Username" value={userData.userName} icon={<FaRegUserCircle />} />
         <UserInfo label="Email" value={userData.email} icon={<FaRegEnvelope />} />
-        <UserInfo label="Role" value={userData.role} icon={<FaRegClipboard />} />
         <UserInfo label="Account Type" value={userData.accountType} icon={<FaRegUserCircle />} />
         <UserInfo label="Status" value={userData.status} icon={<FaShieldAlt />} />
         <UserInfo
@@ -97,9 +96,6 @@ const UserInfo = ({ label, value, icon, isStatus }: { label: string, value: stri
       <div className="text-xl text-gray-600">{icon}</div>
       <p className="text-lg font-semibold text-gray-700">{label}:</p>
     </div>
-    <p className={`text-lg font-medium ${isStatus ? value.includes("❌") ? "text-red-500" : "text-green-500" : "text-gray-800"}`}>
-      {value}
-    </p>
   </div>
 );
 
