@@ -2,6 +2,7 @@
 import { handleSearchShortVideos } from "@/actions/manage.short.video.action";
 import SearchCard from "@/components/page/search/searchCard";
 import Header from "@/components/page/trending/header";
+import InteractSideBar from "@/components/page/trending/interact_sidebar";
 import MainVideo from "@/components/page/trending/main_video";
 import VideoFooter from "@/components/page/trending/video-footer";
 import { sendRequest } from "@/utils/api";
@@ -15,6 +16,7 @@ const TrendingPage = () => {
   const [currentVideoIndex, setCurrentVideoIndex] = useState<number>(0);
   const [currentVideo, setCurrentVideo] = useState<IVideo | null>(null);
   const [requestCount, setRequestCount] = useState<number>(0);
+  const [isWatched, setIsWatched] = useState(false);
   const getVideoData = async () => {
     try {
       const res = await sendRequest<IBackendRes<IVideo[]>>({
@@ -43,6 +45,7 @@ const TrendingPage = () => {
     setLoading(false);
   };
   const handleScroll = (event: React.WheelEvent) => {
+    setIsWatched(false);
     if (event.deltaY > 0) {
       if (currentVideoIndex < videoData.length - 1) {
         const newIndex = currentVideoIndex + 1;
@@ -65,11 +68,67 @@ const TrendingPage = () => {
   useEffect(() => {
     getVideoData();
   }, []);
+  const handleVideoWatched = async () => {
+    if (isWatched) return;
+    setIsWatched(true);
+    const res1 = await sendRequest<IBackendRes<IVideo>>({
+      url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/update-view-by-viewing`,
+      method: "POST",
+      body: {
+        videoId: currentVideo?._id,
+      },
+    });
+    setCurrentVideo((prev) => {
+      if (!prev) return prev;
 
+      return {
+        ...prev,
+        totalViews: res1?.data?.totalViews ?? prev.totalViews,
+      };
+    });
+  };
   useEffect(() => {
     if (currentVideo === null) setCurrentVideo(videoData[0] || null);
   }, [videoData]);
+  const handleArrowKey = async (event: KeyboardEvent) => {
+    setIsWatched(false);
+    if (event.key === "ArrowDown") {
+      if (currentVideoIndex < videoData.length - 1) {
+        const newIndex = currentVideoIndex + 1;
+        setCurrentVideoIndex(newIndex);
+        setCurrentVideo(videoData[newIndex]);
 
+        if (newIndex === requestCount * 10 - 1) {
+          setRequestCount(videoData.length / 10);
+          getVideoData();
+        }
+      }
+    } else if (event.key === "ArrowUp") {
+      if (currentVideoIndex > 0) {
+        const newIndex = currentVideoIndex - 1;
+        setCurrentVideoIndex(newIndex);
+        setCurrentVideo(videoData[newIndex]);
+      }
+    }
+  };
+  const nextVideo = async () => {
+    if (currentVideoIndex < videoData.length - 1) {
+      const newIndex = currentVideoIndex + 1;
+      setCurrentVideoIndex(newIndex);
+      setCurrentVideo(videoData[newIndex]);
+
+      if (newIndex === requestCount * 10 - 1) {
+        setRequestCount(videoData.length / 10);
+        getVideoData();
+      }
+    }
+  };
+  useEffect(() => {
+    window.addEventListener("keydown", handleArrowKey);
+    return () => {
+      window.removeEventListener("keydown", handleArrowKey);
+    };
+  }, [currentVideoIndex, videoData, requestCount]);
   return (
     <div onWheel={handleScroll}>
       <Header
@@ -87,6 +146,8 @@ const TrendingPage = () => {
           {currentVideo ? (
             <MainVideo
               videoUrl={currentVideo.videoUrl}
+              onVideoDone={nextVideo}
+              onVideoWatched={handleVideoWatched}
             />
           ) : (
             <p>Loading video...</p>
@@ -96,6 +157,13 @@ const TrendingPage = () => {
             totalView={currentVideo?.totalViews || 0}
             videoTag={currentVideo?.videoTag || []}
             createAt={currentVideo?.createAt.toString() || ""}
+          />
+          <InteractSideBar
+            creatorId={currentVideo?.userId.fullname || ""}
+            userId={currentVideo?.userId._id || ""}
+            videoId={currentVideo?._id}
+            numberComment={currentVideo?.totalComment}
+            numberReaction={currentVideo?.totalReaction}
           />
         </>
       )}

@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Dropdown, Menu } from "antd";
+import { Dropdown, Menu, MenuProps } from "antd";
 import { handleSearchShortVideos } from "@/actions/manage.short.video.action";
 import Search from "antd/es/transfer/search";
 
@@ -20,23 +20,49 @@ const Header: React.FC<HeaderProps> = ({
   onClick,
 }) => {
   const router = useRouter();
-  const [selected, setSelected] = useState("");
 
-  const menu = {
-    items: [{ key: "profile", label: "My profile" }],
-    onClick: ({ key }: { key: string }) => {
-      setSelected(key);
-      if (key === "profile") {
-        router.push("/page/profile");
-      }
+  const items: MenuProps["items"] = [
+    {
+      key: "1",
+      label: (
+        <a
+          target="_blank"
+          rel=""
+          onClick={({}) => {
+            router.push("/page/profile");
+          }}
+        >
+          My Profile
+        </a>
+      ),
     },
-  };
+    {
+      key: "2",
+      label: (
+        <a
+          target="_blank"
+          rel=""
+          onClick={({}) => {
+            router.push("/personal/videohistory");
+          }}
+        >
+          History
+        </a>
+      ),
+    },
+  ];
 
   return (
     <header className="flex items-center justify-between p-4 bg-white shadow-md">
       <div className="flex items-center flex-1 justify-center">
         <input
           type="text"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              if(onClick)
+              onClick();
+            }
+          }}
           placeholder="Search"
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
@@ -91,7 +117,7 @@ const Header: React.FC<HeaderProps> = ({
           )}
         </div>
 
-        <Dropdown menu={menu} trigger={["click"]}>
+        <Dropdown menu={{items}} trigger={["click"]}>
           <div className="text-xl cursor-pointer">
             <svg
               xmlns="http://www.w3.org/2000/svg"

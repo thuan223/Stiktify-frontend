@@ -7,6 +7,7 @@ import CommentSection from "@/components/page/trending/comment_section";
 import { AuthContext } from "@/context/AuthContext";
 import { sendRequest } from "@/utils/api";
 import React, { useContext, useEffect, useState } from "react";
+import Cookies from "js-cookie";
 import { useShowComment } from "@/context/showCommentContext";
 
 const TrendingPage = () => {
@@ -16,6 +17,7 @@ const TrendingPage = () => {
   const [currentVideo, setCurrentVideo] = useState<IVideo | null>(null);
   const [requestCount, setRequestCount] = useState<number>(0);
   const { user, accessToken, logout } = useContext(AuthContext) ?? {};
+  const [isWatched, setIsWatched] = useState(false);
 
   // const [showComments, setShowComments] = useState<boolean>(false);
   const { showComments, setShowComments } = useShowComment();
@@ -56,12 +58,28 @@ const TrendingPage = () => {
       console.log("Failed to fetch trending videos:", error);
     }
   };
-
-  const handleScroll = (event: React.WheelEvent) => {
+  const storageVideoId = (suggestVideoId: string) => {
+    Cookies.set("suggestVideoId", suggestVideoId + "", { expires: 365 });
+  };
+  const handleScroll = async (event: React.WheelEvent) => {
     if (showComments) {
-      event.preventDefault();
       return;
     }
+    setIsWatched(false);
+    const videoSuggestId = Cookies.get("suggestVideoId");
+    const res = await sendRequest<IBackendRes<IVideo[]>>({
+      url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/wishlist`,
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: {
+        userId: user._id,
+        id: videoSuggestId || currentVideo?._id,
+        triggerAction: "ScrollVideo",
+      },
+    });
+    console.log(res);
     if (event.deltaY > 0) {
       if (currentVideoIndex < videoData.length - 1) {
         const newIndex = currentVideoIndex + 1;
@@ -81,7 +99,53 @@ const TrendingPage = () => {
       }
     }
   };
+  const handleArrowKey = async (event: KeyboardEvent) => {
+    // if (showComments) {
+    //   return;
+    // }
+    setIsWatched(false);
+    const videoSuggestId = Cookies.get("suggestVideoId");
+    if (event.key === "ArrowDown") {
+      if (currentVideoIndex < videoData.length - 1) {
+        const newIndex = currentVideoIndex + 1;
+        setCurrentVideoIndex(newIndex);
+        setCurrentVideo(videoData[newIndex]);
 
+        if (newIndex === requestCount * 10 - 1) {
+          setRequestCount(videoData.length / 10);
+          getVideoData();
+        }
+      }
+    } else if (event.key === "ArrowUp") {
+      if (currentVideoIndex > 0) {
+        const newIndex = currentVideoIndex - 1;
+        setCurrentVideoIndex(newIndex);
+        setCurrentVideo(videoData[newIndex]);
+      }
+    }
+
+    // Gửi request theo hành động
+    const res = await sendRequest<IBackendRes<IVideo[]>>({
+      url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/wishlist`,
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: {
+        userId: user._id,
+        id: videoSuggestId || currentVideo?._id,
+        triggerAction: "ArrowKeyScroll",
+      },
+    });
+    console.log(res);
+  };
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleArrowKey);
+    return () => {
+      window.removeEventListener("keydown", handleArrowKey);
+    };
+  }, [currentVideoIndex, videoData, requestCount, accessToken, showComments]);
   useEffect(() => {
     getVideoData();
   }, []);
@@ -91,21 +155,74 @@ const TrendingPage = () => {
   }, [videoData]);
 
   const handleVideoWatched = async () => {
+    if (isWatched) return;
+    setIsWatched(true);
     try {
       const res = await sendRequest<IBackendRes<IVideo[]>>({
-        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/create-wishlist-videos`,
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/wishlist`,
         method: "POST",
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
         body: {
           userId: user._id,
+          id: currentVideo?._id,
+          triggerAction: "WatchVideo",
+        },
+      });
+      console.log(res);
+      storageVideoId(currentVideo?._id + "");
+      const isPause = Cookies.get("isPause");
+      const res1 = await sendRequest<IBackendRes<IVideo>>({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/update-view-by-viewing`,
+        method: "POST",
+        body: {
           videoId: currentVideo?._id,
         },
       });
+      setCurrentVideo((prev) => {
+        if (!prev) return prev;
+
+        return {
+          ...prev,
+          totalViews: res1?.data?.totalViews ?? prev.totalViews,
+        };
+      });
+
+      if (isPause == "true") return;
       createViewingHistory();
     } catch (error) {
       console.error("Failed to fetch wishlist videos:", error);
+    }
+  };
+  const nextVideo = async () => {
+    if (showComments) {
+      return;
+    }
+    setIsWatched(false);
+    const videoSuggestId = Cookies.get("suggestVideoId");
+    const res = await sendRequest<IBackendRes<IVideo[]>>({
+      url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/wishlist`,
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: {
+        userId: user._id,
+        id: videoSuggestId || currentVideo?._id,
+        triggerAction: "ScrollVideo",
+      },
+    });
+    console.log(res);
+    if (currentVideoIndex < videoData.length - 1) {
+      const newIndex = currentVideoIndex + 1;
+      setCurrentVideoIndex(newIndex);
+      setCurrentVideo(videoData[newIndex]);
+
+      if (newIndex === requestCount * 10 - 1) {
+        setRequestCount(videoData.length / 10);
+        getVideoData();
+      }
     }
   };
 
@@ -161,6 +278,7 @@ const TrendingPage = () => {
         <MainVideo
           videoUrl={currentVideo.videoUrl}
           onVideoWatched={handleVideoWatched}
+          onVideoDone={nextVideo}
         />
       ) : (
         <p>Loading video...</p>
