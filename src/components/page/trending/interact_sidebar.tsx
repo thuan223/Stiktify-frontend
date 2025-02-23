@@ -7,6 +7,7 @@ import { getAllFollowing, handleFollow } from "@/actions/manage.follow.action";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "@/context/AuthContext";
 import { notification } from "antd";
+import { motion } from "framer-motion";
 
 interface InteractSideBarProps {
   userId: string;
@@ -82,21 +83,14 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
   };
 
   return (
-    <div
+    <motion.div
+    initial={{ x: "100%", opacity: 0 }}
+    animate={{ x: !isHidden ? "0%" : "100%", opacity: !isHidden ? 1 : 0 }}
+    transition={{ duration: 0.4, ease: "easeInOut" }}
       className={`w-[15%] bg-white shadow-lg absolute right-0 top-[95px] pt-10 pl-10 h-3/4 ${
         isHidden ? "hidden" : ""
       }`}
     >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 448 512"
-        fill="currentColor"
-      >
-        <path d="M225.3 273l136 136c9.4 9.4 9.4 24.6 0 33.9s-24.6 9.4-33.9 0l-152-152c-9.4-9.4-9.4-24.6 0-33.9l152-152c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9l-136 136zm-192 0l136 136c9.4 9.4 9.4 24.6 0 33.9s-24.6 9.4-33.9 0l-152-152c-9.4-9.4-9.4-24.6 0-33.9l152-152c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9l-136 136z" />
-      </svg>
-
       <nav>
         <ul className="space-y-10">
           <li className="flex items-center relative">
@@ -196,7 +190,7 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
           </li>
         </ul>
       </nav>
-    </div>
+    </motion.div>
   );
 };
 
