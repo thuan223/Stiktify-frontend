@@ -8,6 +8,11 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        poppins: ['Poppins', 'sans-serif'],
+        roboto: ['Roboto', 'sans-serif'],
+        openSans: ['Open Sans', 'sans-serif'],
+      },
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
@@ -19,10 +24,10 @@ export default {
         "midnight-blue": "#213A58",
       },
       backgroundImage: {
-       "custom-gradient": `linear-gradient(to bottom, var(--mint-green), var(--seafoam), var(--tropical-teal), var(--ocean-deep))`
+        "custom-gradient": `linear-gradient(to bottom, var(--mint-green), var(--seafoam), var(--tropical-teal), var(--ocean-deep))`
 
       },
-      
+
     },
   },
   plugins: [],

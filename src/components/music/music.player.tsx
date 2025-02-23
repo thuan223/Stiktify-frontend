@@ -2,13 +2,16 @@
 import { formatTime } from "@/utils/utils";
 import { useState, useRef, useEffect } from "react";
 import ReactHowler from "react-howler";
-import { FaPlay, FaPause, FaStepForward, FaStepBackward, FaVolumeMute, FaVolumeUp } from "react-icons/fa";
+import { FaStepForward, FaStepBackward, FaVolumeMute, FaVolumeUp } from "react-icons/fa";
 import { FaShuffle, FaRepeat } from "react-icons/fa6";
+import ButtonPlayer from "./button.player";
+import { useGlobalContext } from "@/library/global.context";
+import Image from "next/image";
 
 const tracks = [{ title: "Ac Quỷ Nè", src: "/AcQuyNe.mp3" }];
 
 const MusicPlayer = () => {
-    const [isPlaying, setIsPlaying] = useState(false);
+    const { isPlaying, setIsPlaying, trackCurrent } = useGlobalContext()!
     const [currentTrack, setCurrentTrack] = useState(0);
     const [volume, setVolume] = useState(1);
     const playerRef = useRef<ReactHowler | null>(null);
@@ -50,10 +53,13 @@ const MusicPlayer = () => {
     };
 
     return (
-        <div className="w-full h-full bg-gray-900/80 backdrop-blur-md text-white p-4 rounded-2xl shadow-lg">
-            <div className="flex items-center justify-between ">
-                <div>
-                    <span className="ml-4 text-sm font-semibold">{tracks[currentTrack].title}</span>
+        <div className="w-full h-full  bg-gray-900/80 backdrop-blur-md text-white p-4 rounded-2xl shadow-lg">
+            <div className="flex items-center justify-between">
+                <div className="flex gap-1 items-center justify-between">
+                    {trackCurrent && trackCurrent.musicThumbnail &&
+                        <Image className="rounded-lg" src={trackCurrent?.musicThumbnail} alt="thumbnail" width={60} height={60} />
+                    }
+                    <span className="ml-4 text-1xl font-semibold">{trackCurrent?.musicDescription}</span>
                 </div>
                 <div className="flex flex-col gap-2">
                     <div className="flex gap-10 items-center justify-center">
@@ -65,11 +71,7 @@ const MusicPlayer = () => {
                             <FaStepBackward size={20} />
                         </button>
 
-                        <button
-                            onClick={togglePlay}
-                            className="w-12 h-12 flex items-center justify-center bg-green-500 hover:bg-green-400 transition rounded-full shadow-md">
-                            {isPlaying ? <FaPause size={24} /> : <FaPlay className="ms-1" size={24} />}
-                        </button>
+                        <ButtonPlayer current={trackCurrent?._id} isPlaying={isPlaying} togglePlay={togglePlay} />
 
                         <button onClick={nextTrack} className="hover:text-green-400 transition">
                             <FaStepForward size={20} />
@@ -108,13 +110,13 @@ const MusicPlayer = () => {
                     />
                 </div>
                 <div hidden>
-                    <ReactHowler
-                        src={tracks[currentTrack].src}
+                    {trackCurrent && trackCurrent.musicUrl && <ReactHowler
+                        src={trackCurrent.musicUrl}
                         playing={isPlaying}
                         volume={volume}
                         ref={playerRef}
                         onLoad={handleLoad}
-                    />
+                    />}
                 </div>
             </div>
         </div>
