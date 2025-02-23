@@ -124,7 +124,11 @@ const Header: React.FC<HeaderProps> = ({
           )}
         </div>
 
-        <Dropdown menu={{ items }} trigger={["click"]}>
+
+        {isGuest ? (
+          ""
+        ) : (
+               <Dropdown menu={{ items }} trigger={["click"]}>
           <div className="text-xl cursor-pointer">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -135,6 +139,8 @@ const Header: React.FC<HeaderProps> = ({
             </svg>
           </div>
         </Dropdown>
+        )}
+
       </div>
 
       {/* Modal hiển thị form Upload Video */}
