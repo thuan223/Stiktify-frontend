@@ -17,8 +17,17 @@ const OtherVideos: React.FC<OtherVideosProps> = ({
   setIsShowOtherVideos
 }) => {
   useEffect(() => {
-    document.body.style.overflow = isVisible ? "hidden" : "auto";
+    if (isVisible) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+  
+    return () => {
+      document.body.style.overflow = ""; 
+    };
   }, [isVisible]);
+  
 
   const handleChooseVideo = (index: number) => {
     setCurrentVideo(videoData[index]);

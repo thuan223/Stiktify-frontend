@@ -24,14 +24,12 @@ const TrendingPage = () => {
   // const [showComments, setShowComments] = useState<boolean>(false);
   const { showComments, setShowComments } = useShowComment();
   const searchParams = useSearchParams();
-  const [idParam, setIdParam] = useState<string>("");
+  const [isFetchId, setIsFetchId] = useState(true);
   let id = searchParams.get("id");
   const toggleComments = () => {
     setShowComments((prev) => !prev);
   };
-  useEffect(() => {
-    setIdParam(id + "");
-  }, [id]);
+
   useEffect(() => {
     getVideoData();
   }, [accessToken, user]);
@@ -51,10 +49,10 @@ const TrendingPage = () => {
         },
         body: {
           userId: user._id,
-          videoId: idParam || "",
+          videoId: isFetchId ? id || "" : "",
         },
       });
-      setIdParam("");
+      setIsFetchId(false);
       if (res.data && Array.isArray(res.data)) {
         if (requestCount === 0) {
           setVideoData(res.data);
