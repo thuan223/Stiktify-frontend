@@ -11,7 +11,7 @@ export const sendRequest = async <T>(props: IRequest) => {
     nextOption = {},
   } = props;
 
-  const options: any = {
+  const options: any = {  
     method: method,
     headers: new Headers({ "content-type": "application/json", ...headers }),
     body: body ? JSON.stringify(body) : null,

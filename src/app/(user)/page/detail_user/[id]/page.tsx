@@ -29,7 +29,7 @@ const UserDetail = () => {
   const [activeTab, setActiveTab] = useState<"video" | "repost" | "like">(
     "video"
   );
-
+  // So sánh có phải người dùng hiện tại không
   const isCurrent = user?._id === id;
 
   useEffect(() => {

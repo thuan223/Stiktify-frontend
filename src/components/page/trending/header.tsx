@@ -2,8 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useContext } from "react";
-import { Dropdown, Menu, MenuProps } from "antd";
+import { Dropdown, Menu, MenuProps, Modal } from "antd";
 import { AuthContext } from "@/context/AuthContext";
+import UploadVideoPost from "@/components/page/trending/upload_video_post"; // Đường dẫn có thể điều chỉnh theo cấu trúc dự án
 
 interface HeaderProps {
   searchValue: string;
@@ -21,6 +22,9 @@ const Header: React.FC<HeaderProps> = ({
   const router = useRouter();
   const { user } = useContext(AuthContext) ?? {};
   const userId = user?._id;
+
+  // State quản lý modal upload video
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
   const items: MenuProps["items"] = [
     {
@@ -66,7 +70,7 @@ const Header: React.FC<HeaderProps> = ({
           placeholder="Search"
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
-          className={`w-[30%] md:w-[35%] lg:w-[45%] px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none`}
+          className="w-[30%] md:w-[35%] lg:w-[45%] px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none"
         />
         <button
           onClick={onClick}
@@ -84,7 +88,7 @@ const Header: React.FC<HeaderProps> = ({
         {/* Upload Video Button */}
         <button
           className="ml-4 px-4 py-2 bg-blue-500 text-white rounded-lg flex items-center hover:bg-blue-600 transition-all duration-300"
-          onClick={() => router.push("/page/upload")}
+          onClick={() => setIsUploadModalOpen(true)}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -132,6 +136,17 @@ const Header: React.FC<HeaderProps> = ({
           </div>
         </Dropdown>
       </div>
+
+      {/* Modal hiển thị form Upload Video */}
+      <Modal
+        title="Upload Video"
+        visible={isUploadModalOpen}
+        footer={null}
+        onCancel={() => setIsUploadModalOpen(false)}
+        destroyOnClose
+      >
+        <UploadVideoPost />
+      </Modal>
     </header>
   );
 };
