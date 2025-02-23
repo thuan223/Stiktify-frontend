@@ -87,6 +87,16 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
         isHidden ? "hidden" : ""
       }`}
     >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 448 512"
+        fill="currentColor"
+      >
+        <path d="M225.3 273l136 136c9.4 9.4 9.4 24.6 0 33.9s-24.6 9.4-33.9 0l-152-152c-9.4-9.4-9.4-24.6 0-33.9l152-152c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9l-136 136zm-192 0l136 136c9.4 9.4 9.4 24.6 0 33.9s-24.6 9.4-33.9 0l-152-152c-9.4-9.4-9.4-24.6 0-33.9l152-152c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9l-136 136z" />
+      </svg>
+
       <nav>
         <ul className="space-y-10">
           <li className="flex items-center relative">
