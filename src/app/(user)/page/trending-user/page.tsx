@@ -11,7 +11,7 @@ import Cookies from "js-cookie";
 import { useShowComment } from "@/context/showCommentContext";
 import OtherVideos from "@/components/page/trending/otherVideo";
 import { useSearchParams } from "next/navigation";
-import { i } from "framer-motion/client";
+
 
 const TrendingPage = () => {
   const [searchValue, setSearchValue] = useState<string>("");
