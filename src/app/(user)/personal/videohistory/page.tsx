@@ -17,12 +17,7 @@ const ViewingHistory = () => {
   useEffect(() => {
     getViewingHistoryList();
   }, [accessToken, user]);
-  useEffect(() => {
-    console.log("currentPage", currentPage);
-    console.log("maxLength", maxLength);
-  }, [currentPage,maxLength]);
   const getViewingHistoryList = async () => {
-    console.log("aa", currentPage);
     if (accessToken && user) {
       const filter = JSON.stringify({
         userId: user._id,
@@ -42,7 +37,6 @@ const ViewingHistory = () => {
       console.log(res.data);
       setIsFetch(false);
       if (res.data.result.length === 0) {
-        console.log("setTrue");
         setMaxLength(true);
         setCurrentPage((prev) => prev - 1);
       }
@@ -86,7 +80,6 @@ const ViewingHistory = () => {
       },
     });
     if (res.data.result.length === 0) {
-      console.log("setTrue");
       setMaxLength(true);
       setCurrentPage((prev) => prev - 1);
     }
@@ -136,7 +129,6 @@ const ViewingHistory = () => {
     });
     console.log(accessToken)
     if (res.data.result.length === 0) {
-      console.log("setTrue");
       setMaxLength(true);
       setCurrentPage((prev) => prev - 1);
     }

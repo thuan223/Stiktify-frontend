@@ -9,6 +9,9 @@ import { sendRequest } from "@/utils/api";
 import React, { useContext, useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { useShowComment } from "@/context/showCommentContext";
+import OtherVideos from "@/components/page/trending/otherVideo";
+import { useSearchParams } from "next/navigation";
+
 
 const TrendingPage = () => {
   const [searchValue, setSearchValue] = useState<string>("");
@@ -18,21 +21,28 @@ const TrendingPage = () => {
   const [requestCount, setRequestCount] = useState<number>(0);
   const { user, accessToken, logout } = useContext(AuthContext) ?? {};
   const [isWatched, setIsWatched] = useState(false);
-
+  const [isShowOtherVideos, setIsShowOtherVideos] = useState(false);
   // const [showComments, setShowComments] = useState<boolean>(false);
   const { showComments, setShowComments } = useShowComment();
-
+  const searchParams = useSearchParams();
+  const [idParam, setIdParam] = useState<string>("");
+  let id = searchParams.get("id");
   const toggleComments = () => {
     setShowComments((prev) => !prev);
   };
-
+  useEffect(() => {
+    setIdParam(id + "");
+  }, [id]);
   useEffect(() => {
     getVideoData();
   }, [accessToken, user]);
-
+  useEffect(() => {
+    const newIndex = currentVideoIndex + 1;
+    setCurrentVideoIndex(newIndex);
+    setCurrentVideo(videoData[newIndex]);
+  }, [videoData.length]);
   const getVideoData = async () => {
     if (!accessToken || !user) return;
-
     try {
       const res = await sendRequest<IBackendRes<IVideo[]>>({
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/trending-user-videos`,
@@ -42,9 +52,10 @@ const TrendingPage = () => {
         },
         body: {
           userId: user._id,
+          videoId: idParam || "",
         },
       });
-
+      setIdParam("");
       if (res.data && Array.isArray(res.data)) {
         if (requestCount === 0) {
           setVideoData(res.data);
@@ -62,9 +73,10 @@ const TrendingPage = () => {
     Cookies.set("suggestVideoId", suggestVideoId + "", { expires: 365 });
   };
   const handleScroll = async (event: React.WheelEvent) => {
-    if (showComments) {
+    if (showComments || isShowOtherVideos) {
       return;
     }
+
     setIsWatched(false);
     const videoSuggestId = Cookies.get("suggestVideoId");
     const res = await sendRequest<IBackendRes<IVideo[]>>({
@@ -80,16 +92,15 @@ const TrendingPage = () => {
       },
     });
     console.log(res);
+
     if (event.deltaY > 0) {
       if (currentVideoIndex < videoData.length - 1) {
         const newIndex = currentVideoIndex + 1;
         setCurrentVideoIndex(newIndex);
         setCurrentVideo(videoData[newIndex]);
-
-        if (newIndex === requestCount * 10 - 1) {
-          setRequestCount(videoData.length / 10);
-          getVideoData();
-        }
+      } else if (currentVideoIndex == videoData.length - 1) {
+        setRequestCount(videoData.length / 10);
+        getVideoData();
       }
     } else {
       if (currentVideoIndex > 0) {
@@ -110,11 +121,9 @@ const TrendingPage = () => {
         const newIndex = currentVideoIndex + 1;
         setCurrentVideoIndex(newIndex);
         setCurrentVideo(videoData[newIndex]);
-
-        if (newIndex === requestCount * 10 - 1) {
-          setRequestCount(videoData.length / 10);
-          getVideoData();
-        }
+      } else if (currentVideoIndex == videoData.length - 1) {
+        setRequestCount(videoData.length / 10);
+        getVideoData();
       }
     } else if (event.key === "ArrowUp") {
       if (currentVideoIndex > 0) {
@@ -267,6 +276,7 @@ const TrendingPage = () => {
       });
     }
   };
+
   return (
     <div onWheel={handleScroll}>
       <Header
@@ -290,17 +300,41 @@ const TrendingPage = () => {
         videoTag={currentVideo?.videoTag || []}
         createAt={currentVideo?.createAt?.toString() || ""}
       />
-      <InteractSideBar
-        creatorId={currentVideo?.userId.fullname || ""}
-        userId={currentVideo?.userId._id || ""}
-        onCommentClick={toggleComments}
-        videoId={currentVideo?._id}
-        numberComment={currentVideo?.totalComment}
-        numberReaction={currentVideo?.totalReaction}
-        onReactionAdded={onReactionAdded}
-        onReactionRemove={onReactionRemove}
-        isHidden={showComments}
-      />
+      {isShowOtherVideos ? (
+        <OtherVideos
+          isVisible={isShowOtherVideos}
+          videoData={videoData}
+          setCurrentVideo={setCurrentVideo}
+          setIsShowOtherVideos={setIsShowOtherVideos}
+          setCurrentVideoIndex={setCurrentVideoIndex}
+        />
+      ) : (
+        <InteractSideBar
+          creatorId={currentVideo?.userId.fullname || ""}
+          userId={currentVideo?.userId._id || ""}
+          onCommentClick={toggleComments}
+          videoId={currentVideo?._id}
+          numberComment={currentVideo?.totalComment}
+          numberReaction={currentVideo?.totalReaction}
+          onReactionAdded={onReactionAdded}
+          onReactionRemove={onReactionRemove}
+          isHidden={showComments}
+        />
+      )}
+      {!isShowOtherVideos ? (
+        <svg
+          onClick={() => setIsShowOtherVideos(true)}
+          xmlns="http://www.w3.org/2000/svg"
+          className={`fixed right-[13%]
+            bottom-1/2 transform -translate-y-1/2 cursor-pointer w-6 h-6 text-gray-600 hover:text-gray-800`}
+          viewBox="0 0 448 512"
+          fill="currentColor"
+        >
+          <path d="M207 273L71 409c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l152-152c9.4-9.4 9.4-24.6 0-33.9L104.9 105c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l136 136zm192 0L263 409c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l152-152c9.4-9.4 9.4-24.6 0-33.9L295.9 105c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l136 136z" />
+        </svg>
+      ) : (
+        ""
+      )}
 
       {showComments && (
         <CommentSection
