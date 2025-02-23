@@ -7,7 +7,9 @@ import { getAllFollowing, handleFollow } from "@/actions/manage.follow.action";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "@/context/AuthContext";
 import { notification } from "antd";
+import ReportModal from "@/components/page/trending/report_video";
 import { motion } from "framer-motion";
+
 
 interface InteractSideBarProps {
   userId: string;
@@ -39,7 +41,14 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
   const [dataFollow, setDataFollow] = useState<string[]>([]);
   const [flag, setFlag] = useState(false);
   const isFollowing = dataFollow?.includes(userId);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const handleReport = () => {
+    setIsModalOpen(true);
+  };
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
   const handleProfileClick = () => {
     router.push(`/page/detail_user/${userId}`);
   };
@@ -93,7 +102,10 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
     >
       <nav>
         <ul className="space-y-10">
-          <li className="flex items-center relative">
+          <li
+            className="flex items-center relative"
+            onClick={handleProfileClick}
+          >
             <div
               className="relative w-16 h-16 rounded-full overflow-hidden cursor-pointer border-2 border-white shadow-md hover:opacity-80 transition-all flex items-center justify-center bg-gray-200"
               onClick={handleFollower}
@@ -188,10 +200,33 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
             </div>
             Share
           </li>
+          <li className="flex items-center">
+            <div
+              className="text-xl cursor-pointer mr-2 hover:text-red-500 transition"
+              onClick={handleReport}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-7 w-7"
+                viewBox="0 0 512 512"
+              >
+                <path d="M64 32c0-17.7 14.3-32 32-32h352c17.7 0 32 14.3 32 32v352c0 17.7-14.3 32-32 32H96v64H64V32zm32 32v320h320V64H96z" />
+                <path d="M128 128h256v64H128v-64zm0 96h192v64H128v-64z" />
+              </svg>
+            </div>
+            <span
+              className="cursor-pointer text-lg font-medium hover:underline hover:text-red-500 transition"
+              onClick={handleReport}
+            >
+              Report
+            </span>
+          </li>
+          {isModalOpen && (
+            <ReportModal onClose={handleCloseModal} videoId={videoId} />
+          )}
         </ul>
       </nav>
     </motion.div>
   );
 };
-
 export default InteractSideBar;
