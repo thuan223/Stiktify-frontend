@@ -97,7 +97,10 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
     >
       <nav>
         <ul className="space-y-10">
-          <li className="flex items-center relative">
+          <li
+            className="flex items-center relative"
+            onClick={handleProfileClick}
+          >
             <div
               className="relative w-16 h-16 rounded-full overflow-hidden cursor-pointer border-2 border-white shadow-md hover:opacity-80 transition-all flex items-center justify-center bg-gray-200"
               onClick={handleFollower}

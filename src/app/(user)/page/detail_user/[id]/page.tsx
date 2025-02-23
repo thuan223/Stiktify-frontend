@@ -22,13 +22,15 @@ interface User {
 
 const UserDetail = () => {
   const { id } = useParams();
-  const { accessToken } = useContext(AuthContext) ?? {};
+  const { accessToken, user } = useContext(AuthContext) ?? {};
   const [userData, setUserData] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState<"video" | "repost" | "like">(
     "video"
   );
+
+  const isCurrent = user?._id === id;
 
   useEffect(() => {
     if (id && accessToken) fetchUserDetail();
@@ -70,7 +72,7 @@ const UserDetail = () => {
         </div>
         <div>
           <h1 className="text-4xl font-bold text-gray-800">
-            {userData.fullname}
+            {userData.fullname} {isCurrent && "(You)"}
           </h1>
           <p className="flex items-center text-lg font-medium mt-1">
             <span
@@ -84,27 +86,29 @@ const UserDetail = () => {
             <FaRegEnvelope className="text-gray-500" />{" "}
             <span>{userData.email}</span>
           </p>
-          <div className="flex space-x-4 mt-3">
-            <Button
-              icon={<FiUserPlus />}
-              text="Follow"
-              className="bg-blue-500 hover:bg-blue-600 text-white"
-            />
-            <Button
-              icon={<FiMessageSquare />}
-              text="Message"
-              className="bg-gray-200 hover:bg-gray-300 text-gray-700"
-            />
-            <Button
-              icon={<FiShare2 />}
-              text="Share"
-              className="bg-gray-200 hover:bg-gray-300 text-gray-700"
-            />
-            <Button
-              icon={<FaEllipsisH />}
-              className="bg-gray-200 hover:bg-gray-300 text-gray-700"
-            />
-          </div>
+          {!isCurrent && (
+            <div className="flex space-x-4 mt-3">
+              <Button
+                icon={<FiUserPlus />}
+                text="Follow"
+                className="bg-blue-500 hover:bg-blue-600 text-white"
+              />
+              <Button
+                icon={<FiMessageSquare />}
+                text="Message"
+                className="bg-gray-200 hover:bg-gray-300 text-gray-700"
+              />
+              <Button
+                icon={<FiShare2 />}
+                text="Share"
+                className="bg-gray-200 hover:bg-gray-300 text-gray-700"
+              />
+              <Button
+                icon={<FaEllipsisH />}
+                className="bg-gray-200 hover:bg-gray-300 text-gray-700"
+              />
+            </div>
+          )}
         </div>
       </div>
 
@@ -160,14 +164,12 @@ const VideoTab = () => (
     <p className="text-gray-600">Danh sách video người dùng đăng.</p>
   </div>
 );
-
 const RepostTab = () => (
   <div>
     <h2 className="text-xl font-bold mb-4">Reposts</h2>
     <p className="text-gray-600">Danh sách video người dùng đã chia sẻ.</p>
   </div>
 );
-
 const LikeTab = () => (
   <div>
     <h2 className="text-xl font-bold mb-4">Liked Videos</h2>
