@@ -7,7 +7,7 @@ import { AuthContext, AuthProvider } from "@/context/AuthContext";
 import { useContext, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { getAllFollowing } from "@/actions/manage.follow.action";
-import { ShowCommentProvider } from "@/context/showCommentContext";
+import { ShowCommentProvider } from "@/context/ShowCommentContext";
 
 const inter = Inter({ subsets: ["latin"] });
 

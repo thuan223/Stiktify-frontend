@@ -1,6 +1,6 @@
 "use client";
 import SideBar from "@/components/page/sidebar";
-import { useShowComment } from "@/context/showCommentContext";
+import { useShowComment } from "@/context/ShowCommentContext";
 
 const PageLayout = ({ children }: { children: React.ReactNode }) => {
   const { showComments } = useShowComment();
