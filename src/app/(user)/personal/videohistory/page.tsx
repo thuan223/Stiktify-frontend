@@ -17,16 +17,11 @@ const ViewingHistory = () => {
   useEffect(() => {
     getViewingHistoryList();
   }, [accessToken, user]);
-  useEffect(() => {
-    console.log("currentPage", currentPage);
-    console.log("maxLength", maxLength);
-  }, [currentPage,maxLength]);
   const getViewingHistoryList = async () => {
-    console.log("aa", currentPage);
     if (accessToken && user) {
       const filter = JSON.stringify({
         userId: user._id,
-        createdAt: watchedDate,
+        updatedAt: watchedDate,
       });
       const res = await sendRequest<IBackendRes<any>>({
         url: `${
@@ -42,7 +37,6 @@ const ViewingHistory = () => {
       console.log(res.data);
       setIsFetch(false);
       if (res.data.result.length === 0) {
-        console.log("setTrue");
         setMaxLength(true);
         setCurrentPage((prev) => prev - 1);
       }
@@ -64,7 +58,7 @@ const ViewingHistory = () => {
     if (watchedDate) {
       filter = JSON.stringify({
         userId: user._id,
-        createdAt: watchedDate,
+        updatedAt: watchedDate,
       });
     } else {
       filter = JSON.stringify({
@@ -86,7 +80,6 @@ const ViewingHistory = () => {
       },
     });
     if (res.data.result.length === 0) {
-      console.log("setTrue");
       setMaxLength(true);
       setCurrentPage((prev) => prev - 1);
     }
@@ -118,7 +111,7 @@ const ViewingHistory = () => {
 
       filter = JSON.stringify({
         userId: user._id,
-        createdAt: correctedISODate,
+        updatedAt: correctedISODate,
       });
       console.log(correctedISODate);
     }
@@ -136,7 +129,6 @@ const ViewingHistory = () => {
     });
     console.log(accessToken)
     if (res.data.result.length === 0) {
-      console.log("setTrue");
       setMaxLength(true);
       setCurrentPage((prev) => prev - 1);
     }

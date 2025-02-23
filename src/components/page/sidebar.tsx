@@ -58,9 +58,15 @@ const SideBar: React.FC<SideBarProps> = ({ isGuest, isHidden }) => {
             </Link>
           </li>
           <li>
-            <Link href="/page/music" className={getLinkClass("/page/music")}>
-              Music
-            </Link>
+            {isGuest ?
+              <Link href="/page/music-guest" className={getLinkClass("/page/music-guest")}>
+                Music
+              </Link>
+              :
+              <Link href="/page/music" className={getLinkClass("/page/music")}>
+                Music
+              </Link>
+            }
           </li>
           {isGuest ? (
             ""

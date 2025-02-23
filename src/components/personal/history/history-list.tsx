@@ -1,8 +1,12 @@
+'use client'
 import { AuthContext } from "@/context/AuthContext";
 import { sendRequest } from "@/utils/api";
 import { formatDateTimeVn } from "@/utils/utils";
 import { Dropdown, MenuProps } from "antd";
 import throttle from "lodash.throttle";
+import { useRouter } from "next/navigation";
+
+
 import React, {
   Dispatch,
   SetStateAction,
@@ -13,7 +17,7 @@ import React, {
 
 interface HistoryListProps {
   videoList: VideoHistoryProps[];
-  maxLength: Boolean; 
+  maxLength: Boolean;
   currentPage: number;
   setIsFetch: Dispatch<SetStateAction<boolean>>;
   setCurrentPage: Dispatch<SetStateAction<number>>;
@@ -32,7 +36,8 @@ const HistoryList: React.FC<HistoryListProps> = ({
 }) => {
   const { user, accessToken, logout } = useContext(AuthContext) ?? {};
   const lastVideoRef = useRef<HTMLDivElement | null>(null);
-
+  const router = useRouter();
+ 
   useEffect(() => {
     const handleScroll = throttle(() => {
       if (maxLength) return;
@@ -102,6 +107,9 @@ const HistoryList: React.FC<HistoryListProps> = ({
 
           return (
             <div
+              onClick={() => {
+                router.push(`/page/trending-user?id=${history.videoId._id}`);
+              }}
               key={history._id}
               className="mb-[10px] p-[10px] pl-[20px] border-b flex gap-4 cursor-pointer"
               ref={index === videoList?.length - 1 ? lastVideoRef : null}
@@ -121,7 +129,7 @@ const HistoryList: React.FC<HistoryListProps> = ({
                 )}`}</p>
                 <p>{`Views: ${history?.videoId?.totalViews}`}</p>
                 <p>{`Reactions: ${history?.videoId?.totalReaction}`}</p>
-                <p>{`View At: ${formatDateTimeVn(history?.createdAt + "")}`}</p>
+                <p>{`View At: ${formatDateTimeVn(history?.updatedAt + "")}`}</p>
               </div>
 
               <Dropdown
