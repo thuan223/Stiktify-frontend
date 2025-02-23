@@ -3,15 +3,14 @@ import Header from "@/components/page/trending/header";
 import InteractSideBar from "@/components/page/trending/interact_sidebar";
 import MainVideo from "@/components/page/trending/main_video";
 import VideoFooter from "@/components/page/trending/video-footer";
-import CommentSection from "@/components/page/trending/comment_section";
+import CommentSection from "@/components/page/trending/comments/comment_section";
 import { AuthContext } from "@/context/AuthContext";
 import { sendRequest } from "@/utils/api";
 import React, { useContext, useEffect, useState } from "react";
 import Cookies from "js-cookie";
-import { useShowComment } from "@/context/showCommentContext";
+import { useShowComment } from "@/context/ShowCommentContext";
 import OtherVideos from "@/components/page/trending/otherVideo";
 import { useSearchParams } from "next/navigation";
-
 
 const TrendingPage = () => {
   const [searchValue, setSearchValue] = useState<string>("");
