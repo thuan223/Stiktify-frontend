@@ -8,7 +8,7 @@ const MusicGuestLayout = ({
     return (
         <div className="flex flex-col min-h-screen">
             <div className="flex-auto">{children}</div>
-            <div className="w-full flex-none h-24 border-gray-200 border bg-[#f1f1f1] rounded-lg shadow-gray-400/50"><MusicPlayer /></div>
+            <div className="w-full flex-none h-24 bg-gray-900/80 rounded-lg shadow-gray-400/50"><MusicPlayer /></div>
         </div>
     );
 };
