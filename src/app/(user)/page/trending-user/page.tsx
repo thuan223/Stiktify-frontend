@@ -10,6 +10,8 @@ import React, { useContext, useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { useShowComment } from "@/context/showCommentContext";
 import OtherVideos from "@/components/page/trending/otherVideo";
+import { useSearchParams } from "next/navigation";
+import { i } from "framer-motion/client";
 
 const TrendingPage = () => {
   const [searchValue, setSearchValue] = useState<string>("");
@@ -22,11 +24,15 @@ const TrendingPage = () => {
   const [isShowOtherVideos, setIsShowOtherVideos] = useState(false);
   // const [showComments, setShowComments] = useState<boolean>(false);
   const { showComments, setShowComments } = useShowComment();
-
+  const searchParams = useSearchParams();
+  const [idParam, setIdParam] = useState<string>("");
+  let id = searchParams.get("id");
   const toggleComments = () => {
     setShowComments((prev) => !prev);
   };
-
+  useEffect(() => {
+    setIdParam(id + "");
+  }, [id]);
   useEffect(() => {
     getVideoData();
   }, [accessToken, user]);
@@ -46,9 +52,10 @@ const TrendingPage = () => {
         },
         body: {
           userId: user._id,
+          videoId: idParam || "",
         },
       });
-
+      setIdParam("");
       if (res.data && Array.isArray(res.data)) {
         if (requestCount === 0) {
           setVideoData(res.data);
@@ -269,9 +276,7 @@ const TrendingPage = () => {
       });
     }
   };
-  useEffect(() => {
-    console.log(isShowOtherVideos + "aaa");
-  }, [isShowOtherVideos]);
+
   return (
     <div onWheel={handleScroll}>
       <Header
