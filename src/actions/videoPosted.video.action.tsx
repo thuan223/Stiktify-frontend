@@ -5,9 +5,13 @@ import { cookies } from "next/headers";
 const cookieStore = cookies();
 const token = cookieStore.get("token")?.value;
 
-export const fetchMyVideos = async (current: number, pageSize: number) => {
+export const fetchMyVideos = async (
+  userId: string,
+  current: number,
+  pageSize: number
+) => {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/my-videos?current=${current}&pageSize=${pageSize}`,
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/my-videos/${userId}?current=${current}&pageSize=${pageSize}`,
     {
       method: "GET",
       headers: {

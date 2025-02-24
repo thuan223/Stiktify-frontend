@@ -1,24 +1,30 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { fetchMyVideos } from "@/actions/videoPosted.video.action";
 import { formatNumber } from "@/utils/utils";
 import VideoCustomize from "@/components/video/video.customize";
+import { AuthContext } from "@/context/AuthContext";
 
 const MyVideo = () => {
   const [videos, setVideos] = useState<IShortVideo[]>([]);
   const [loading, setLoading] = useState(true);
-
+  const context = useContext(AuthContext);
+  const user = context?.user;
   useEffect(() => {
     const loadVideos = async () => {
+      if (!user?.id) {
+        console.error("User ID is missing.");
+        return;
+      }
       setLoading(true);
-      const response = await fetchMyVideos(1, 20); // Gọi API lấy video
-      setVideos(response ?? []); // Chắc chắn response không bị undefined
+      const response = await fetchMyVideos(user.id, 1, 20);
+      setVideos(response ?? []);
       setLoading(false);
     };
 
     loadVideos();
-  }, []);
+  }, [user]);
 
   return (
     <div className="p-6 bg-white shadow-md rounded-lg mb-40 mt-[-22px]">
