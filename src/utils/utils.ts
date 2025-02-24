@@ -26,6 +26,7 @@ export const formatDateTimeVn = (isoString: string) => {
 };
 
 export const formatNumber = (value: number) => {
+    if (!value) value = 0
     if (value >= 1_000_000) return (value / 1_000_000) + 'M';
     if (value >= 1_000) return (value / 1_000) + 'K';
     return value.toString();
@@ -36,3 +37,7 @@ export const formatTime = (seconds: number): string => {
     const secs = Math.floor(seconds % 60);
     return `${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
 };
+
+export const capitalizeWords = (value: string) => {
+    return value.replace(/\b\w/g, char => char.toUpperCase());
+}

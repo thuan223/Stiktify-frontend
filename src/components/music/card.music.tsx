@@ -4,6 +4,7 @@ import Image from "next/image"
 import ButtonPlayer from "./button.player"
 import { useState } from "react"
 import image from "@/assets/images/gratisography-augmented-reality-800x525.jpg"
+import { useRouter } from "next/navigation"
 interface IProps {
     handlePlayer: (v: any) => void
     isPlaying: boolean,
@@ -13,15 +14,20 @@ interface IProps {
 const CardMusic = (props: IProps) => {
     const { handlePlayer, isPlaying, item } = props
     const [hoverPlayer, setHoverPlayer] = useState(false)
-
+    const router = useRouter()
     const handleItem = (track: IMusic) => {
         handlePlayer(track)
     }
+
+    const handleNavigate = (id: string) => {
+        router.push(`music-guest/${id}`)
+    }
     return (
         <div
+            onClick={() => handleNavigate(item._id)}
             onMouseLeave={() => setHoverPlayer(false)}
             onMouseEnter={() => setHoverPlayer(true)}
-            className="rounded-lg px-1 py-2 shadow-lg hover:bg-slate-100 relative"
+            className="rounded-lg px-1 py-2 shadow-lg hover:bg-slate-100 relative cursor-pointer"
         >
             <Image alt="thumbnail" className="rounded-lg" width={200} height={200} src={item ? item.musicThumbnail : image} />
             <div className="mt-2 text-[20px] font-semibold font-roboto">{item.musicDescription}</div>

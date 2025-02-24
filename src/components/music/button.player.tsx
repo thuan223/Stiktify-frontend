@@ -16,7 +16,10 @@ const ButtonPlayer = (props: IProps) => {
 
     return (
         <button
-            onClick={togglePlay}
+            onClick={(e) => {
+                e.stopPropagation()
+                togglePlay(e)
+            }}
             className={`w-12 h-12 flex items-center justify-center bg-green-500 hover:bg-green-400 transition rounded-full shadow-md ${className}`}>
             {isPlaying && (trackCurrent?._id === current) ? <FaPause size={24} /> : <FaPlay className="ms-1" size={24} />}
         </button>
