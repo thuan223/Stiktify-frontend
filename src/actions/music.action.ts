@@ -22,3 +22,21 @@ export const handleGetAllMusic = async (current: string, pageSize: string) => {
         return null
     }
 }
+
+export const handleFilterSearchMusic = async (current: string, pageSize: string) => {
+    try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/filter-search?current=${current}&pageSize=${pageSize}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            next: { tags: ["filter-search-music"] }
+        });
+        const result: IBackendRes<any> = await res.json();
+        return result;
+    } catch (error) {
+        return null;
+    }
+};
+
