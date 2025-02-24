@@ -2,7 +2,7 @@
 import { formatTime } from "@/utils/utils";
 import { useState, useRef, useEffect } from "react";
 import ReactHowler from "react-howler";
-import { FaStepForward, FaStepBackward, FaVolumeMute, FaVolumeUp } from "react-icons/fa";
+import { FaStepForward, FaStepBackward, FaVolumeMute, FaVolumeUp, FaHeartbeat } from "react-icons/fa";
 import { FaShuffle, FaRepeat } from "react-icons/fa6";
 import ButtonPlayer from "./button.player";
 import { useGlobalContext } from "@/library/global.context";
@@ -88,11 +88,24 @@ const MusicPlayer = () => {
     return (
         <div className="w-full h-full  bg-gray-900/80 backdrop-blur-md text-white p-4 rounded-2xl shadow-lg">
             <div className="flex items-center justify-between">
-                <div className="flex gap-1 items-center justify-between">
-                    {trackCurrent && trackCurrent.musicThumbnail &&
-                        <Image className="rounded-lg" src={trackCurrent?.musicThumbnail} alt="thumbnail" width={60} height={60} />
-                    }
-                    <span className="ml-4 text-1xl font-semibold">{trackCurrent?.musicDescription}</span>
+                <div className="flex gap-5 items-center justify-between">
+                    <div className="flex gap-1 items-center justify-between">
+                        {trackCurrent && trackCurrent.musicThumbnail && (
+                            <Image
+                                className="rounded-lg"
+                                src={trackCurrent?.musicThumbnail}
+                                alt="thumbnail"
+                                width={60}
+                                height={60}
+                            />
+                        )}
+                        <span className="ml-4 text-1xl font-semibold">
+                            {trackCurrent?.musicDescription}
+                        </span>
+                    </div>
+                    <div>
+                        <FaHeartbeat size={20} />
+                    </div>
                 </div>
                 <div className="flex flex-col gap-2">
                     <div className="flex gap-10 items-center justify-center">
