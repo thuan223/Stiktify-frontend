@@ -62,7 +62,7 @@ const ListMusic = (props: IProps) => {
     return setIsPlaying(!isPlaying);
   };
   return (
-    <div className="flex flex-wrap justify-start gap-5 my-3 mx-3">
+    <div>
       <div className="ml-[200px] flex justify-start gap-2">
         <div className="w-[700px]">
           <InputCustomize
@@ -80,18 +80,20 @@ const ListMusic = (props: IProps) => {
           />
         </div>
       </div>
-      {filteredData.length > 0 ? (
-        filteredData.map((item) => (
-          <CardMusic
-            key={item._id}
-            handlePlayer={handlePlayer}
-            isPlaying={isPlaying}
-            item={item}
-          />
-        ))
-      ) : (
-        <p className="text-gray-500 ml-[200px]">Không tìm thấy bài hát nào.</p>
-      )}
+      <div className="flex flex-wrap justify-start gap-5 my-3 mx-20">
+        {filteredData.length > 0 ? (
+          filteredData.map((item) => (
+            <CardMusic
+              key={item._id}
+              handlePlayer={handlePlayer}
+              isPlaying={isPlaying}
+              item={item}
+            />
+          ))
+        ) : (
+          <p className="text-gray-500 ml-[200px]">Not found!</p>
+        )}
+      </div>
     </div>
   );
 };
