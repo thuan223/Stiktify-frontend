@@ -40,3 +40,41 @@ export const handleFilterSearchMusic = async (current: string, pageSize: string)
     }
 };
 
+export const createFavoriteMusic = async (musicId: string) => {
+    try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/music-favorite/create-favorite`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({ musicId }) 
+        });
+
+        const result: IBackendRes<any> = await res.json();
+        return result;
+    } catch (error) {
+        return null;
+    }
+};
+
+export const handleGetAllFavoriteMusic = async (userId: string, current: string, pageSize: string) => {
+    try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/music-favorite/list-favorite-music/${userId}?current=${current}&pageSize=${pageSize}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            next: { tags: ["list-favorite-music"] }
+        })
+        const result: IBackendRes<any> = await res.json();
+        return result;
+    } catch (error) {
+        return null;
+    }
+};
+
+
+
+
