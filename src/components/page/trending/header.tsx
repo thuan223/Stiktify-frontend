@@ -124,7 +124,6 @@ const Header: React.FC<HeaderProps> = ({
           )}
         </div>
 
-
         {isGuest ? (
           ""
         ) : (
