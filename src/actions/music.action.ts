@@ -31,7 +31,7 @@ export const handleDisPlayMusicAction = async (id: string) => {
             headers: {
                 "Content-Type": "application/json",
             },
-            // next: { tags: ["list-music"] }
+            next: { tags: ["display-music"] }
         })
         const result: IBackendRes<any> = await res.json();
         return result
@@ -39,3 +39,22 @@ export const handleDisPlayMusicAction = async (id: string) => {
         return null
     }
 }
+
+export const handleUpdateListenerAction = async (id: string) => {
+    try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/update-listener/${id}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        })
+        const result: IBackendRes<any> = await res.json();
+        if (result.statusCode === 200) {
+            revalidateTag("display-music")
+        }
+        return result
+    } catch (error) {
+        return null
+    }
+}
+

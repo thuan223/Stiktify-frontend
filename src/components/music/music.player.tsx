@@ -7,6 +7,7 @@ import { FaShuffle, FaRepeat } from "react-icons/fa6";
 import ButtonPlayer from "./button.player";
 import { useGlobalContext } from "@/library/global.context";
 import Image from "next/image";
+import { handleUpdateListenerAction } from "@/actions/music.action";
 
 const tracks = [{ title: "Ac Quỷ Nè", src: "/AcQuyNe.mp3" }];
 
@@ -18,12 +19,37 @@ const MusicPlayer = () => {
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
     const [seek, setSeek] = useState(0);
     const [duration, setDuration] = useState(0);
+    const [count, setCount] = useState(0)
+    const [second, setSecond] = useState(0)
+    const [flag, setFlag] = useState(false)
 
-    const togglePlay = () => setIsPlaying(!isPlaying);
+    const togglePlay = () => {
+        setIsPlaying(!isPlaying);
+    }
     const toggleMute = () => setVolume(volume > 0 ? 0 : 1);
     const nextTrack = () => setCurrentTrack((prev) => (prev + 1) % tracks.length);
     const prevTrack = () => setCurrentTrack((prev) => (prev - 1 + tracks.length) % tracks.length);
 
+    useEffect(() => {
+        (async () => {
+            setCount(count + 1)
+            if (count === +seek.toFixed(0)) {
+                setSecond(second + 1)
+                if (second === 15) {
+                    if (!flag) {
+                        await handleUpdateListenerAction(trackCurrent?._id!)
+                        setFlag(true)
+                    }
+                    setSecond(0)
+                }
+            }
+
+            if (+seek.toFixed(0) !== count) {
+                setCount(+seek.toFixed(0) + 1)
+                setSecond(0)
+            }
+        })()
+    }, [seek])
 
     useEffect(() => {
         if (isPlaying) {
@@ -33,7 +59,9 @@ const MusicPlayer = () => {
                 }
             }, 1000);
         } else {
-            if (intervalRef.current) clearInterval(intervalRef.current);
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+            }
         }
         return () => {
             if (intervalRef.current) clearInterval(intervalRef.current);
@@ -50,6 +78,11 @@ const MusicPlayer = () => {
         const newSeek = parseFloat(e.target.value);
         setSeek(newSeek);
         playerRef.current?.seek(newSeek);
+    };
+
+    const handleEndMusic = () => {
+        setSecond(0);
+        setFlag(false);
     };
 
     return (
@@ -116,6 +149,7 @@ const MusicPlayer = () => {
                         volume={volume}
                         ref={playerRef}
                         onLoad={handleLoad}
+                        onEnd={handleEndMusic}
                     />}
                 </div>
             </div>
