@@ -10,7 +10,6 @@ import { notification } from "antd";
 import ReportModal from "@/components/page/trending/report_video";
 import { motion } from "framer-motion";
 
-
 interface InteractSideBarProps {
   userId: string;
   creatorId: string;
@@ -93,9 +92,9 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
 
   return (
     <motion.div
-    initial={{ x: "100%", opacity: 0 }}
-    animate={{ x: !isHidden ? "0%" : "100%", opacity: !isHidden ? 1 : 0 }}
-    transition={{ duration: 0.4, ease: "easeInOut" }}
+      initial={{ x: "100%", opacity: 0 }}
+      animate={{ x: !isHidden ? "0%" : "100%", opacity: !isHidden ? 1 : 0 }}
+      transition={{ duration: 0.4, ease: "easeInOut" }}
       className={`w-[15%] bg-white shadow-lg absolute right-0 top-[95px] pt-10 pl-10 h-3/4 ${
         isHidden ? "hidden" : ""
       }`}

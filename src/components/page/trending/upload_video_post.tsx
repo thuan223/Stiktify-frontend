@@ -1,9 +1,12 @@
 "use client";
 
 import React, { useState, useContext, useEffect } from "react";
-import { notification } from "antd";
+import { useRouter } from "next/navigation";
+import { notification, Select } from "antd";
 import { AuthContext } from "@/context/AuthContext";
 import { sendRequestFile, sendRequest } from "@/utils/api";
+
+const { Option } = Select;
 
 interface IUploadResponse {
   statusCode: number;
@@ -13,25 +16,28 @@ interface IUploadResponse {
 
 interface ICategory {
   _id: string;
-  name: string;
+  categoryName: string;
 }
 
 const UploadVideoPost: React.FC = () => {
   const { accessToken, user } = useContext(AuthContext) ?? {};
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
+  const router = useRouter();
+  const [videoDescription, setVideoDescription] = useState("");
   const [videoFile, setVideoFile] = useState<File | null>(null);
-  const [categories, setCategories] = useState<string[]>([]); // danh sách id category đã chọn
-  const [allCategories, setAllCategories] = useState<ICategory[]>([]); // danh sách category từ API
+  // Lưu tên của Category được chọn
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [allCategories, setAllCategories] = useState<ICategory[]>([]);
   const [loading, setLoading] = useState(false);
+  // State mới để lưu hashtag nhập từ người dùng
+  const [hashtagsInput, setHashtagsInput] = useState("");
 
-  // Lấy danh sách categories từ database khi component mount
+  // Lấy danh sách categories
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const res = await sendRequest<{
           statusCode: number;
-          data: ICategory[];
+          data: any;
           message: string;
         }>({
           url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/categories`,
@@ -41,7 +47,12 @@ const UploadVideoPost: React.FC = () => {
           },
         });
         if (res.statusCode === 200) {
-          setAllCategories(res.data);
+          const categoriesArray = Array.isArray(res.data)
+            ? res.data
+            : Array.isArray(res.data.categories)
+            ? res.data.categories
+            : [];
+          setAllCategories(categoriesArray);
         } else {
           notification.error({
             message: res.message || "Lấy danh sách categories thất bại.",
@@ -82,9 +93,14 @@ const UploadVideoPost: React.FC = () => {
       return;
     }
 
+    if (!selectedCategory) {
+      notification.error({ message: "Bạn chưa chọn Category Video." });
+      return;
+    }
+
     setLoading(true);
     try {
-      // 1. Upload file video
+      // 1. Upload file video từ local
       const formDataUpload = new FormData();
       formDataUpload.append("file", videoFile);
 
@@ -99,24 +115,39 @@ const UploadVideoPost: React.FC = () => {
 
       if (uploadRes.statusCode !== 201) {
         notification.error({
-          message: uploadRes.message || "Upload thất bại.",
+          message: uploadRes.message || "Upload failed.",
         });
         setLoading(false);
         return;
       }
 
-      notification.success({ message: "Upload thành công!" });
-      const videoUrl = uploadRes.data?.url;
+      notification.success({ message: "Upload video local successfully!" });
+
+      // Lấy video URL theo cấu trúc đúng của API
+      const videoUrl = uploadRes.data?.data?.data?.downloadURL;
+
+      if (!videoUrl || typeof videoUrl !== "string") {
+        notification.error({
+          message: "Video URL không hợp lệ. Vui lòng kiểm tra lại file upload.",
+        });
+        setLoading(false);
+        return;
+      }
 
       // 2. Tạo bài post video với thông tin bổ sung
+      const videoTag = hashtagsInput
+        ? hashtagsInput
+            .split(" ")
+            .map((tag) => tag.trim())
+            .filter((tag) => tag)
+        : [];
+
       const postData = {
-        title,
-        description,
+        videoDescription,
         videoUrl,
-        userId: user._id,
-        uploadAt: new Date().toISOString(),
-        hashtags: generateHashtags(title),
-        categories, // danh sách id category đã chọn
+        userId: typeof user._id === "string" ? user._id : String(user._id),
+        videoTag,
+        categories: [selectedCategory],
       };
 
       const postRes = await sendRequest<IUploadResponse>({
@@ -124,17 +155,20 @@ const UploadVideoPost: React.FC = () => {
         method: "POST",
         headers: {
           Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
         },
         body: postData,
       });
 
       if (postRes.statusCode === 201) {
         notification.success({ message: "Tạo bài post thành công!" });
-        setTitle("");
-        setDescription("");
+        // Reset form
+        setVideoDescription("");
         setVideoFile(null);
-        setCategories([]);
+        setSelectedCategory("");
+        setHashtagsInput("");
+
+        // Sau khi upload thành công, chuyển hướng đến trang user detail
+        router.push(`/page/detail_user/${user._id}`);
       } else {
         notification.error({
           message: postRes.message || "Tạo bài post thất bại.",
@@ -147,12 +181,6 @@ const UploadVideoPost: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  // Hàm tạo hashtag đơn giản từ tiêu đề
-  const generateHashtags = (title: string): string[] => {
-    if (!title) return [];
-    return title.split(" ").map((word) => "#" + word.trim());
   };
 
   return (
@@ -170,42 +198,39 @@ const UploadVideoPost: React.FC = () => {
       </div>
 
       <div className="mb-4">
-        <label className="block font-medium mb-1">Title</label>
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="w-full border p-2 rounded"
-        />
-      </div>
-
-      <div className="mb-4">
         <label className="block font-medium mb-1">Description</label>
         <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          value={videoDescription}
+          onChange={(e) => setVideoDescription(e.target.value)}
           className="w-full border p-2 rounded"
         />
       </div>
 
       <div className="mb-4">
-        <label className="block font-medium mb-1">Chọn Category Video</label>
-        <select
-          multiple
-          value={categories}
-          onChange={(e) =>
-            setCategories(
-              Array.from(e.target.selectedOptions, (option) => option.value)
-            )
-          }
+        <label className="block font-medium mb-1">Hashtags</label>
+        <input
+          type="text"
+          value={hashtagsInput}
+          onChange={(e) => setHashtagsInput(e.target.value)}
           className="w-full border p-2 rounded"
+          placeholder="Example: fun, travel, music"
+        />
+      </div>
+
+      <div className="mb-4">
+        <label className="block font-medium mb-1">Choose Category Video</label>
+        <Select
+          placeholder="Choose Category Video"
+          style={{ width: "100%" }}
+          value={selectedCategory || undefined}
+          onChange={(value) => setSelectedCategory(value)}
         >
           {allCategories.map((category) => (
-            <option key={category._id} value={category._id}>
-              {category.name}
-            </option>
+            <Option key={category._id} value={category._id}>
+              {category.categoryName}
+            </Option>
           ))}
-        </select>
+        </Select>
       </div>
 
       <button
@@ -217,7 +242,7 @@ const UploadVideoPost: React.FC = () => {
             : "bg-blue-600 hover:bg-blue-700"
         }`}
       >
-        {loading ? "Đang Upload..." : "Upload Video"}
+        {loading ? "Uploading..." : "Upload Video"}
       </button>
     </div>
   );
