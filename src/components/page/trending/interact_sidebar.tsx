@@ -96,9 +96,8 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
     initial={{ x: "100%", opacity: 0 }}
     animate={{ x: !isHidden ? "0%" : "100%", opacity: !isHidden ? 1 : 0 }}
     transition={{ duration: 0.4, ease: "easeInOut" }}
-      className={`w-[15%] bg-white shadow-lg absolute right-0 top-[95px] pt-10 pl-10 h-3/4 ${
-        isHidden ? "hidden" : ""
-      }`}
+    style={{ display: isHidden ? "none" : "block" }} 
+    className="w-[15%] max-w-full bg-white shadow-lg fixed right-0 top-[95px] pt-10 pl-10 h-3/4"
     >
       <nav>
         <ul className="space-y-10">
