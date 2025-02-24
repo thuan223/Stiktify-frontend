@@ -9,11 +9,11 @@ const MusicFavoritePage = () => {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-center my-5">🎵 Nhạc yêu thích của bạn 🎵</h1>
+      <h1 className="text-2xl font-bold text-center my-5">🎵 My favorite music 🎵</h1>
       {user ? (
         <ListFavoriteMusic userId={user._id} />
       ) : (
-        <p className="text-center text-gray-500">Vui lòng đăng nhập để xem nhạc yêu thích.</p>
+        <p className="text-center text-gray-500">Please, you must login!</p>
       )}
     </div>
   );

@@ -50,7 +50,6 @@ export const createFavoriteMusic = async (musicId: string) => {
             },
             body: JSON.stringify({ musicId }) 
         });
-
         const result: IBackendRes<any> = await res.json();
         return result;
     } catch (error) {
@@ -74,6 +73,25 @@ export const handleGetAllFavoriteMusic = async (userId: string, current: string,
         return null;
     }
 };
+
+export const handleGetMyMusic = async (userId: string, current: string, pageSize: string) => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/my-musics?userId=${userId}&current=${current}&pageSize=${pageSize}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        },
+      });
+      const result: IBackendRes<any> = await res.json();
+      return result;
+    } catch (error) {
+      console.error('Error fetching user\'s music:', error);
+      return null;
+    }
+  };
+  
+  
 
 
 
