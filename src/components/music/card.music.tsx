@@ -22,7 +22,7 @@ const CardMusic = (props: IProps) => {
     }
 
     const handleNavigate = (id: string) => {
-        router.push(`music-guest/${id}`)
+        router.push(`music/${id}`)
     }
 
     useEffect(() => {
