@@ -4,26 +4,27 @@ import { cookies } from "next/headers";
 
 const cookieStore = cookies();
 const token = cookieStore.get("token")?.value;
-
-export const fetchMyVideos = async (current: number, pageSize: number) => {
+export const fetchMyVideos = async (
+  userId: string,
+  current: number,
+  pageSize: number
+) => {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/my-videos?current=${current}&pageSize=${pageSize}`,
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/videos/my-videos?current=${current}&pageSize=${pageSize}`,
     {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${userId}`,
       },
-      next: { tags: ["my-videos"] },
     }
   );
 
   if (!res.ok) {
     console.error("Error fetching videos:", res.statusText);
-    return { data: { result: [] } };
+    return [];
   }
 
-  const result: IBackendRes<any> = await res.json();
-
-  return result.data.result;
+  const data = await res.json();
+  return data.data.result;
 };
