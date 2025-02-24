@@ -7,7 +7,7 @@ const PageLayout = ({
 }>) => {
   return (
     <div className="flex">
-      <SideBar isGuest={true} />
+      <SideBar />
       <main className="flex-grow">{children}</main>
     </div>
   );

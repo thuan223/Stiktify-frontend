@@ -60,7 +60,7 @@ const DisplayMusicDetail = (props: IProps) => {
                         <div className="flex flex-col gap-2">
                             <div className="flex items-center">
                                 {item.musicTag && item.musicTag.length > 0 && item.musicTag.map((i, index) => (
-                                    <div className="text-white flex items-center">
+                                    <div key={index} className="text-white flex items-center">
                                         {index !== 0 && <LuDot size={40} />}
                                         <span>{capitalizeWords(i)}</span>
                                     </div>
