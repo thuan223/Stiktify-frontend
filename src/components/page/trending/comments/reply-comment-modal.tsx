@@ -47,14 +47,14 @@ const ReplyCommentForm: React.FC<ReplyCommentFormProps> = ({
         notification.success({ message: "Reply successfully" });
         setReplyText("");
         onReplySuccess({
-          _id: res.data._id, // ID mới từ API
+          _id: res.data._id,
           username: user?.name || "Unknown",
-          avatar: userAvatar, // Avatar của user hiện tại
+          avatar: userAvatar,
           parentId: parentId,
           CommentDescription: replyText,
           totalOfChildComments: 0,
         });
-        onCancel();
+        // onCancel();
       }
     } catch (error) {
       console.error("Error replying to comment:", error);
