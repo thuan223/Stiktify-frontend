@@ -24,7 +24,7 @@ interface Reaction {
 }
 
 interface ReactionSectionProp {
-  videoId: string | undefined;
+  commentId: string | undefined;
   onReactionAdded: () => void;
   onReactionRemove: () => void;
 }
@@ -90,7 +90,7 @@ const reactions: Reaction[] = [
           alt="Like GIF"
           width={30}
           height={30}
-          className="absolute inset-0 opacity-0 transition-opacity duration-300 hover:opacity-100"
+          className=" absolute inset-0 opacity-0 transition-opacity duration-300 hover:opacity-100"
           style={{ scale: 1.5 }}
         />
       </div>
@@ -165,7 +165,7 @@ const reactions: Reaction[] = [
 ];
 
 const ReactSection: React.FC<ReactionSectionProp> = ({
-  videoId,
+  commentId,
   onReactionAdded,
   onReactionRemove,
 }) => {
@@ -179,17 +179,17 @@ const ReactSection: React.FC<ReactionSectionProp> = ({
   useEffect(() => {
     setSelectedReaction(null);
     setLoading(true);
-  }, [videoId]);
+  }, [commentId]);
 
   useEffect(() => {
     const fetchUserReaction = async () => {
-      if (!videoId || !accessToken) return;
+      if (!commentId || !accessToken) return;
 
       try {
         const res = await sendRequest<IBackendRes<any>>({
-          url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/video-reactions/getReactByUser`,
+          url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/comment-reactions/getReactByUser`,
           method: "POST",
-          body: { videoId },
+          body: { commentId },
           headers: { Authorization: `Bearer ${accessToken}` },
         });
 
@@ -207,19 +207,19 @@ const ReactSection: React.FC<ReactionSectionProp> = ({
     };
 
     fetchUserReaction();
-  }, [videoId, accessToken]);
+  }, [commentId, accessToken]);
 
   const handleAddReaction = async (reaction: Reaction) => {
-    if (!videoId || !accessToken) return;
+    if (!commentId || !accessToken) return;
     const oldSelectedReaction = selectedReaction;
     setSelectedReaction(reaction);
     setShowReactions(false);
 
     try {
       const res = await sendRequest<IBackendRes<any>>({
-        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/video-reactions/react`,
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/comment-reactions/react`,
         method: "POST",
-        body: { videoId, reactionTypeId: reaction._id },
+        body: { commentId, reactionTypeId: reaction._id },
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       oldSelectedReaction! ? "" : onReactionAdded();
@@ -229,15 +229,15 @@ const ReactSection: React.FC<ReactionSectionProp> = ({
   };
 
   const handleRemoveReaction = async () => {
-    if (!videoId || !accessToken) return;
+    if (!commentId || !accessToken) return;
 
     setSelectedReaction(null);
     setShowReactions(false);
     try {
       const res = await sendRequest<IBackendRes<any>>({
-        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/video-reactions/unreact`,
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/comment-reactions/unreact`,
         method: "POST",
-        body: { videoId },
+        body: { commentId },
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       onReactionRemove();
@@ -254,7 +254,7 @@ const ReactSection: React.FC<ReactionSectionProp> = ({
         <>
           {showReactions && (
             <div
-              className="absolute bottom-full left-1/2 transform -translate-x-1/2 -translate-y-2 bg-white border p-2 rounded-md shadow-md flex gap-2"
+              className="absolute z-50 bottom-full left-1/2 transform -translate-x-1/2 -translate-y-2 bg-white border p-2 rounded-md shadow-md flex gap-2"
               onMouseEnter={() => setShowReactions(true)}
               onMouseLeave={() => setShowReactions(false)}
             >

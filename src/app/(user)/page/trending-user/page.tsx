@@ -259,6 +259,15 @@ const TrendingPage = () => {
       });
     }
   };
+
+  const onCommentRemove = () => {
+    if (currentVideo) {
+      setCurrentVideo({
+        ...currentVideo,
+        totalComment: (currentVideo.totalComment || 0) - 1,
+      });
+    }
+  };
   const onReactionAdded = () => {
     if (currentVideo) {
       setCurrentVideo({
@@ -341,6 +350,7 @@ const TrendingPage = () => {
           videoId={currentVideo?._id}
           showComments={showComments}
           onCommentAdded={onCommentAdded}
+          onCommentRemove={onCommentRemove}
         />
       )}
     </div>
