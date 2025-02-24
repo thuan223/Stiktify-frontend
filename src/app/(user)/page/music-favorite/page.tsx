@@ -1,11 +1,11 @@
 "use client";
 
 import { useContext } from "react";
-import { AuthContext } from "@/context/AuthContext";  // Lấy user từ AuthContext
+import { AuthContext } from "@/context/AuthContext";  
 import ListFavoriteMusic from "@/components/music/music-favorite/list.favorite";
 
 const MusicFavoritePage = () => {
-  const { user } = useContext(AuthContext) ?? {};  // Lấy thông tin người dùng
+  const { user } = useContext(AuthContext) ?? {}; 
 
   return (
     <div>

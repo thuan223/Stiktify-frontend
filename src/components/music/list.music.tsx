@@ -4,9 +4,9 @@ import { useGlobalContext } from "@/library/global.context";
 import CardMusic from "./card.music";
 import InputCustomize from "../input/input.customize";
 import { FilterOutlined, SearchOutlined } from "@ant-design/icons";
-import DropdownCustomizeFilterVideo from "../dropdown/dropdownFilterVide";
 import { useEffect, useState } from "react";
 import { handleFilterSearchMusic } from "@/actions/music.action";
+import DropdownCustomizeFilterMusic from "../dropdown/dropdownFilterMusic";
 
 interface IProps {
   data: IMusic[];
@@ -72,7 +72,7 @@ const ListMusic = (props: IProps) => {
           />
         </div>
         <div>
-          <DropdownCustomizeFilterVideo
+          <DropdownCustomizeFilterMusic
             title="Filter"
             selected={filterReq}
             setSelect={(value: any) => setFilterReq(value)}
