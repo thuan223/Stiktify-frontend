@@ -10,15 +10,17 @@ interface CommentSectionProps {
   onCommentClick: () => void;
   showComments: boolean;
   onCommentAdded?: () => void;
+  onCommentRemove: () => void;
 }
 
 interface Comment {
   _id: string;
   username: string;
   avatar?: string;
-  parentId: string | null;
+  parentId: any;
   CommentDescription: string;
   totalOfChildComments: number;
+  totalReactions: number;
   user?: any;
 }
 
@@ -27,6 +29,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
   onCommentClick,
   showComments,
   onCommentAdded,
+  onCommentRemove,
 }) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [childComments, setChildComments] = useState<Map<string, Comment[]>>(
@@ -65,6 +68,31 @@ const CommentSection: React.FC<CommentSectionProps> = ({
     if (videoId) fetchComments();
   }, [videoId]);
 
+  const handleRemoveComment = (commentId: string, parentId: string | null) => {
+    if (parentId) {
+      console.log("hello");
+
+      // Nếu comment có parentId, xóa nó khỏi danh sách childComments của parent
+      setChildComments((prev) => {
+        const updatedMap = new Map(prev);
+        const parentCommentReplies = updatedMap.get(parentId);
+        if (parentCommentReplies) {
+          updatedMap.set(
+            parentId,
+            parentCommentReplies.filter((c) => c._id !== commentId)
+          );
+        }
+        return updatedMap;
+      });
+    } else {
+      // Nếu comment không có parentId, xóa nó khỏi danh sách comments chính
+      setComments((prev) => prev.filter((c) => c._id !== commentId));
+    }
+
+    // Gọi hàm onCommentRemove từ props (nếu có)
+    onCommentRemove();
+  };
+
   const handlePostComment = async () => {
     if (newComment.trim() === "") return;
     try {
@@ -86,6 +114,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
             parentId: null,
             CommentDescription: res.data.CommentDescription,
             totalOfChildComments: 0,
+            totalReactions: 0,
             user: {
               _id: user._id,
             },
@@ -151,6 +180,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
                 key={comment._id}
                 videoId={videoId}
                 setChildComments={setChildComments}
+                onDeleteComment={handleRemoveComment}
               />
             ))
           ) : (

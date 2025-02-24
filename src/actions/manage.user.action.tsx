@@ -113,7 +113,7 @@ export const handleFilterAndSearchAction = async (current: number, pageSize: num
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${token}`
             },
-            next: { tags: ["list-user"] }
+            next: { tags: ["list-user"] }   
         })
         const result: IBackendRes<any> = await res.json();
         return result
@@ -121,3 +121,5 @@ export const handleFilterAndSearchAction = async (current: number, pageSize: num
         return null
     }
 }
+
+

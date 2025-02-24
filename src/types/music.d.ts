@@ -2,6 +2,7 @@ interface IMusic {
     _id: string,
     musicUrl: string,
     totalFavorite: number,
+    totalShare: number
     userId: {
         _id: string,
         userName: string,

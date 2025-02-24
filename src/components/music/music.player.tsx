@@ -2,11 +2,12 @@
 import { formatTime } from "@/utils/utils";
 import { useState, useRef, useEffect } from "react";
 import ReactHowler from "react-howler";
-import { FaStepForward, FaStepBackward, FaVolumeMute, FaVolumeUp } from "react-icons/fa";
+import { FaStepForward, FaStepBackward, FaVolumeMute, FaVolumeUp, FaHeartbeat } from "react-icons/fa";
 import { FaShuffle, FaRepeat } from "react-icons/fa6";
 import ButtonPlayer from "./button.player";
 import { useGlobalContext } from "@/library/global.context";
 import Image from "next/image";
+import { handleUpdateListenerAction } from "@/actions/music.action";
 
 const tracks = [{ title: "Ac Quỷ Nè", src: "/AcQuyNe.mp3" }];
 
@@ -18,12 +19,37 @@ const MusicPlayer = () => {
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
     const [seek, setSeek] = useState(0);
     const [duration, setDuration] = useState(0);
+    const [count, setCount] = useState(0)
+    const [second, setSecond] = useState(0)
+    const [flag, setFlag] = useState(false)
 
-    const togglePlay = () => setIsPlaying(!isPlaying);
+    const togglePlay = () => {
+        setIsPlaying(!isPlaying);
+    }
     const toggleMute = () => setVolume(volume > 0 ? 0 : 1);
     const nextTrack = () => setCurrentTrack((prev) => (prev + 1) % tracks.length);
     const prevTrack = () => setCurrentTrack((prev) => (prev - 1 + tracks.length) % tracks.length);
 
+    useEffect(() => {
+        (async () => {
+            setCount(count + 1)
+            if (count === +seek.toFixed(0)) {
+                setSecond(second + 1)
+                if (second === 15) {
+                    if (!flag) {
+                        await handleUpdateListenerAction(trackCurrent?._id!)
+                        setFlag(true)
+                    }
+                    setSecond(0)
+                }
+            }
+
+            if (+seek.toFixed(0) !== count) {
+                setCount(+seek.toFixed(0) + 1)
+                setSecond(0)
+            }
+        })()
+    }, [seek])
 
     useEffect(() => {
         if (isPlaying) {
@@ -33,7 +59,9 @@ const MusicPlayer = () => {
                 }
             }, 1000);
         } else {
-            if (intervalRef.current) clearInterval(intervalRef.current);
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+            }
         }
         return () => {
             if (intervalRef.current) clearInterval(intervalRef.current);
@@ -52,14 +80,32 @@ const MusicPlayer = () => {
         playerRef.current?.seek(newSeek);
     };
 
+    const handleEndMusic = () => {
+        setSecond(0);
+        setFlag(false);
+    };
+
     return (
         <div className="w-full h-full  bg-gray-900/80 backdrop-blur-md text-white p-4 rounded-2xl shadow-lg">
             <div className="flex items-center justify-between">
-                <div className="flex gap-1 items-center justify-between">
-                    {trackCurrent && trackCurrent.musicThumbnail &&
-                        <Image className="rounded-lg" src={trackCurrent?.musicThumbnail} alt="thumbnail" width={60} height={60} />
-                    }
-                    <span className="ml-4 text-1xl font-semibold">{trackCurrent?.musicDescription}</span>
+                <div className="flex gap-5 items-center justify-between">
+                    <div className="flex gap-1 items-center justify-between">
+                        {trackCurrent && trackCurrent.musicThumbnail && (
+                            <Image
+                                className="rounded-lg"
+                                src={trackCurrent?.musicThumbnail}
+                                alt="thumbnail"
+                                width={60}
+                                height={60}
+                            />
+                        )}
+                        <span className="ml-4 text-1xl font-semibold">
+                            {trackCurrent?.musicDescription}
+                        </span>
+                    </div>
+                    <div>
+                        <FaHeartbeat size={20} />
+                    </div>
                 </div>
                 <div className="flex flex-col gap-2">
                     <div className="flex gap-10 items-center justify-center">
@@ -116,6 +162,7 @@ const MusicPlayer = () => {
                         volume={volume}
                         ref={playerRef}
                         onLoad={handleLoad}
+                        onEnd={handleEndMusic}
                     />}
                 </div>
             </div>
