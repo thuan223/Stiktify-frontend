@@ -49,11 +49,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
     logout();
     router.replace("/auth/login");
   };
-
-  const handleNavigateToMyMusic = () => {
-    router.push("/page/my-music");
-  };
-
+  
   const [editProfile, setEditProfile] = useState({
     image: profile.image,
     fullname: profile.fullname || "",
@@ -66,7 +62,6 @@ const UserProfile: React.FC<UserProfileProps> = ({
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  // Xử lý khi chọn ngày mới
   const handleDateChange = (date: Date | null) => {
     setEditProfile({
       ...editProfile,
@@ -127,15 +122,12 @@ const UserProfile: React.FC<UserProfileProps> = ({
       return;
     }
 
-    // Chỉ kiểm tra số điện thoại nếu người dùng thực sự thay đổi
     if (editProfile.phone !== profile.phone) {
       if (!/^\d{10}$/.test(editProfile.phone)) {
         setErrorMessage("Phone number must be exactly 10 digits.");
         notification.error({ message: errorMessage });
         return;
       }
-
-      // Kiểm tra xem số điện thoại đã tồn tại chưa
       if (profile.phone?.includes(editProfile.phone)) {
         setErrorMessage("Phone number already exists.");
         notification.error({ message: errorMessage });
@@ -143,10 +135,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
       }
     }
 
-    // Tạo một đối tượng chứa chỉ các trường đã thay đổi
     const updateFields: any = {};
-
-    // Chỉ thêm những trường nào đã thay đổi
     if (editProfile.fullname !== profile.fullname) {
       updateFields.fullname = editProfile.fullname;
     }
@@ -338,12 +327,6 @@ const UserProfile: React.FC<UserProfileProps> = ({
               className="bg-green-500 text-white px-4 py-2 rounded"
             >
               Save Profile
-            </button>
-            <button
-              onClick={handleNavigateToMyMusic}
-              className="bg-indigo-500 text-white ml-4 px-4 py-2 rounded"
-            >
-              My Music
             </button>
           </div>
         </div>
