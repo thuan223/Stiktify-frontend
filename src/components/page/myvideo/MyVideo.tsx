@@ -1,24 +1,41 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { fetchMyVideos } from "@/actions/videoPosted.video.action";
 import { formatNumber } from "@/utils/utils";
 import VideoCustomize from "@/components/video/video.customize";
+import { AuthContext } from "@/context/AuthContext";
 
 const MyVideo = () => {
   const [videos, setVideos] = useState<IShortVideo[]>([]);
   const [loading, setLoading] = useState(true);
+  const context = useContext(AuthContext);
+  const user = context?.user;
 
   useEffect(() => {
     const loadVideos = async () => {
+      if (!user?._id) {
+        return;
+      }
       setLoading(true);
-      const response = await fetchMyVideos(1, 20); // Gọi API lấy video
-      setVideos(response ?? []); // Chắc chắn response không bị undefined
+      try {
+        const response = await fetchMyVideos(user._id, 1, 30);
+        console.log("checkkAPI", response);
+        if (response && response.data && response.data.result) {
+          console.log("Videos data:", response.data.result);
+          setVideos(response.data.result);
+        } else {
+          console.error("No video data found");
+        }
+      } catch (error) {
+        console.error("Error fetching videos:", error);
+      }
       setLoading(false);
     };
-
-    loadVideos();
-  }, []);
+    if (user?._id) {
+      loadVideos();
+    }
+  }, [user]);
 
   return (
     <div className="p-6 bg-white shadow-md rounded-lg mb-40 mt-[-22px]">
@@ -56,9 +73,7 @@ const MyVideo = () => {
                     {formatNumber(video.totalComment ?? 0)}
                   </td>
                   <td className="border px-4 py-2 text-gray-700">
-                    {video.videoDescription
-                      ? video.videoDescription
-                      : "No description"}
+                    {video.videoDescription || "No description"}
                   </td>
                 </tr>
               ))}
