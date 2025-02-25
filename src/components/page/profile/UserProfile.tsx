@@ -7,10 +7,12 @@ import "react-datepicker/dist/react-datepicker.css";
 import { parseISO, format } from "date-fns";
 import ChangePasswordModal from "./ChangePasswordModal";
 import { useRouter } from "next/navigation";
-import { notification } from "antd";
+import { Button, Modal, notification } from "antd";
+import { handleUploadImage } from "@/actions/manage.user.action";
 
 interface UserProfileProps {
   profile?: {
+    image: string;
     fullname: string;
     dob: string;
     email: string;
@@ -39,10 +41,13 @@ const UserProfile: React.FC<UserProfileProps> = ({
 
   const { user, logout } = context;
   const router = useRouter();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false); // Modal for image upload
+  const [file, setFile] = useState(null);
 
   const handleLogout = () => {
-    logout(), router.replace("/auth/login");
+    logout();
+    router.replace("/auth/login");
   };
 
   const handleNavigateToMyMusic = () => {
@@ -50,6 +55,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
   };
 
   const [editProfile, setEditProfile] = useState({
+    image: profile.image,
     fullname: profile.fullname || "",
     dob: profile.dob ? parseISO(profile.dob) : null,
     email: profile.email || "",
@@ -78,16 +84,12 @@ const UserProfile: React.FC<UserProfileProps> = ({
 
   const validateInputs = () => {
     setErrorMessage("");
-
-    // Kiểm tra ngày sinh
     if (!editProfile.dob) {
       setErrorMessage("Date of Birth cannot be empty.");
       return false;
     }
-
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Xóa giờ để so sánh chính xác
-
+    today.setHours(0, 0, 0, 0);
     const year = editProfile.dob.getFullYear();
     if (year < 1900) {
       setErrorMessage("Date of Birth must be after the year 1900.");
@@ -98,7 +100,6 @@ const UserProfile: React.FC<UserProfileProps> = ({
       return false;
     }
 
-    // Kiểm tra số điện thoại
     if (!editProfile.phone) {
       setErrorMessage("Phone number cannot be empty.");
       return false;
@@ -112,7 +113,6 @@ const UserProfile: React.FC<UserProfileProps> = ({
       return false;
     }
 
-    // Kiểm tra địa chỉ (tối đa 150 từ)
     if (editProfile.address.split(" ").length > 150) {
       setErrorMessage("Address cannot exceed 150 words.");
       return false;
@@ -127,36 +127,136 @@ const UserProfile: React.FC<UserProfileProps> = ({
       return;
     }
 
-    if (!validateInputs()) {
-      notification.error({ message: errorMessage });
+    // Chỉ kiểm tra số điện thoại nếu người dùng thực sự thay đổi
+    if (editProfile.phone !== profile.phone) {
+      if (!/^\d{10}$/.test(editProfile.phone)) {
+        setErrorMessage("Phone number must be exactly 10 digits.");
+        notification.error({ message: errorMessage });
+        return;
+      }
 
-      return;
+      // Kiểm tra xem số điện thoại đã tồn tại chưa
+      if (profile.phone?.includes(editProfile.phone)) {
+        setErrorMessage("Phone number already exists.");
+        notification.error({ message: errorMessage });
+        return;
+      }
     }
 
-    const { email, ...profileWithoutEmail } = editProfile;
-    const profileWithId = {
-      ...profileWithoutEmail,
-      _id: user._id,
-      dob: editProfile.dob ? format(editProfile.dob, "yyyy-MM-dd") : null, // Format lại để lưu vào database
-    };
+    // Tạo một đối tượng chứa chỉ các trường đã thay đổi
+    const updateFields: any = {};
 
-    onUpdateProfile(profileWithId);
-    setSuccessMessage("Profile updated successfully!");
+    // Chỉ thêm những trường nào đã thay đổi
+    if (editProfile.fullname !== profile.fullname) {
+      updateFields.fullname = editProfile.fullname;
+    }
+    if (
+      editProfile.dob &&
+      profile.dob &&
+      editProfile.dob.getTime() !== new Date(profile.dob).getTime()
+    ) {
+      updateFields.dob = format(editProfile.dob, "yyyy-MM-dd");
+    }
+    if (editProfile.phone !== profile.phone) {
+      updateFields.phone = editProfile.phone;
+    }
+    if (editProfile.address !== profile.address) {
+      updateFields.address = editProfile.address;
+    }
+    if (editProfile.image !== profile.image) {
+      updateFields.image = editProfile.image;
+    }
+
+    // Gửi yêu cầu chỉ với các trường đã thay đổi
+    if (Object.keys(updateFields).length > 0) {
+      const profileWithId = {
+        ...updateFields,
+        _id: user._id,
+      };
+      onUpdateProfile(profileWithId);
+      setSuccessMessage("Profile updated successfully!");
+    } else {
+      notification.info({
+        message: "No changes detected.",
+      });
+    }
   };
 
-  const handleOpenModal = () => setIsModalOpen(true);
-  const handleCloseModal = () => setIsModalOpen(false);
+  const handleOpenImageModal = () => setIsImageModalOpen(true);
+  const handleCloseImageModal = () => setIsImageModalOpen(false);
+
+  const handleOpenPasswordModal = () => setIsPasswordModalOpen(true);
+  const handleClosePasswordModal = () => setIsPasswordModalOpen(false);
+
+  const handleFileChange = (e: any) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+    }
+  };
+
+  const handleUpImage = async () => {
+    if (file) {
+      try {
+        const folder = "avatars";
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("folder", folder);
+        const result = await handleUploadImage(formData);
+        const downloadUrl = result?.data?.data?.data?.data?.downloadURL;
+        if (downloadUrl) {
+          setEditProfile((prevState) => ({
+            ...prevState,
+            image: downloadUrl,
+          }));
+          notification.success({
+            message: "Image uploaded successfully!",
+          });
+          setIsImageModalOpen(false);
+        } else {
+          notification.error({
+            message: "No download URL returned from the upload.",
+          });
+        }
+      } catch (error) {
+        notification.error({
+          message: "Error uploading image.",
+        });
+      }
+    }
+  };
 
   return (
     <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-2xl">
       <div className="flex flex-col items-center">
-        <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center mb-4">
-          <span className="text-2xl font-bold text-gray-600">
-            {editProfile.fullname ? editProfile.fullname.charAt(0) : "?"}
-          </span>
+        <div
+          className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center mb-4 cursor-pointer"
+          onClick={handleOpenImageModal}
+        >
+          {profile.image ? (
+            <img
+              src={profile.image}
+              alt="Profile"
+              className="w-24 h-24 rounded-full object-cover"
+            />
+          ) : (
+            <span className="text-xl text-gray-500">Choose</span>
+          )}
         </div>
         <p className="text-gray-500">@{profile.userName || "No username"}</p>
       </div>
+
+      <Modal
+        title="Upload Image"
+        open={isImageModalOpen}
+        onCancel={handleCloseImageModal}
+        footer={null}
+      >
+        <input type="file" onChange={handleFileChange} className="mb-4" />
+        <Button onClick={handleUpImage} disabled={!file}>
+          Upload Image
+        </Button>
+      </Modal>
 
       <div className="mt-6 space-y-4">
         <div className="flex items-center gap-2">
@@ -182,7 +282,6 @@ const UserProfile: React.FC<UserProfileProps> = ({
           />
         </div>
 
-        {/* Date Picker */}
         <div className="flex items-center gap-2">
           <span className="text-gray-600">Date of Birth:</span>
           <DatePicker
@@ -219,7 +318,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
         <div className="mt-6 flex justify-between">
           <div className="mt-6 flex justify-start">
             <button
-              onClick={handleOpenModal}
+              onClick={handleOpenPasswordModal}
               className="bg-blue-500 text-white mr-4 px-4 py-2 rounded"
             >
               Change Password
@@ -240,8 +339,6 @@ const UserProfile: React.FC<UserProfileProps> = ({
             >
               Save Profile
             </button>
-
-            {/* Add the "My Music" button here */}
             <button
               onClick={handleNavigateToMyMusic}
               className="bg-indigo-500 text-white ml-4 px-4 py-2 rounded"
@@ -251,14 +348,16 @@ const UserProfile: React.FC<UserProfileProps> = ({
           </div>
         </div>
 
-        {/* Success Message */}
         {successMessage && (
           <div className="mt-4 text-center text-green-500">
             {successMessage}
           </div>
         )}
       </div>
-      {isModalOpen && <ChangePasswordModal onClose={handleCloseModal} />}
+
+      {isPasswordModalOpen && (
+        <ChangePasswordModal onClose={handleClosePasswordModal} />
+      )}
     </div>
   );
 };
