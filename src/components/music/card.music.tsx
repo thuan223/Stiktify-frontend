@@ -8,7 +8,6 @@ import { useRouter } from "next/navigation"
 import { useGlobalContext } from "@/library/global.context"
 import { FaBarsStaggered } from "react-icons/fa6";
 import { Dropdown, MenuProps, notification } from "antd"
-import imageSong from "@/assets/images/liked-songs-300.jpg"
 import noImagePlaylist from "@/assets/images/playlist-no-image.jpg"
 import { RiPlayListLine } from "react-icons/ri";
 import { MdOutlinePlaylistAdd } from "react-icons/md";

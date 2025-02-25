@@ -7,3 +7,9 @@ interface IPlaylist {
     createdAt: string,
     updatedAt: string,
 }
+
+interface IMusicInPlaylist {
+    _id: string,
+    playlist: IPlaylist
+    music: IMusic[]
+}

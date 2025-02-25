@@ -39,7 +39,7 @@ export const handleAddMusicInPlaylistAction = async (playlistId: string, musicId
                 },
             })
         const result: IBackendRes<any> = await res.json();
-        revalidateTag("list-playlist")
+        revalidateTag("list-music-playlist")
         return result
     } catch (error) {
         return null
@@ -62,6 +62,27 @@ export const handleAddPlaylistAction = async (userId: string, name: string, desc
             })
         const result: IBackendRes<any> = await res.json();
         revalidateTag("list-playlist")
+        return result
+    } catch (error) {
+        return null
+    }
+}
+
+export const handleGetMusicInPlaylistAction = async (playlistId: string) => {
+    try {
+        const cookieStore = cookies()
+        const token = cookieStore.get("token")?.value
+        const res = await fetch(`
+            ${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/store-playlist/list-music-playlist/${playlistId}`,
+            {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                next: { tags: ["list-music-playlist"] }
+            })
+        const result: IBackendRes<any> = await res.json();
         return result
     } catch (error) {
         return null

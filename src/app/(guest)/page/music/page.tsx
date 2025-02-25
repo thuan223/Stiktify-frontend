@@ -1,6 +1,6 @@
 import { handleGetAllMusic } from "@/actions/music.action"
 import ListMusic from "@/components/music/list.music";
-
+import SideBarPlaylist from "@/components/playlist/sidebar.playlist";
 const MusicGuestPage = async ({ searchParams }: any) => {
     const { current, pageSize } = await searchParams
     const result = current ? current : 1;
@@ -10,8 +10,13 @@ const MusicGuestPage = async ({ searchParams }: any) => {
     const data = res?.data
 
     return (
-        <div className="h-[86vh] overflow-y-auto border p-4">
-            <ListMusic data={data ? data.result : []} />
+        <div className="h-[86vh] overflow-y-auto border p-4 flex">
+            <div >
+                <ListMusic data={data ? data.result : []} />
+            </div>
+            <div className="bg-gray-100 h-[80vh] fixed right-5 w-[4vw] rounded-md flex justify-center">
+                <SideBarPlaylist />
+            </div>
         </div>
     )
 }
