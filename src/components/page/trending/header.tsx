@@ -20,8 +20,13 @@ const Header: React.FC<HeaderProps> = ({
   onClick,
 }) => {
   const router = useRouter();
-  const { user } = useContext(AuthContext) ?? {};
+  const { user, logout } = useContext(AuthContext) ?? {};
   const userId = user?._id;
+
+  const handleLogout = () => {
+    logout!();
+    router.replace("/page/trending-guest");
+  };
 
   // State quản lý modal upload video
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
@@ -52,6 +57,14 @@ const Header: React.FC<HeaderProps> = ({
           }}
         >
           History
+        </a>
+      ),
+    },
+    {
+      key: "3",
+      label: (
+        <a target="_blank" rel="" onClick={handleLogout}>
+          <p className=" text-red-500 hover:text-red-600">Logout</p>
         </a>
       ),
     },
@@ -127,19 +140,18 @@ const Header: React.FC<HeaderProps> = ({
         {isGuest ? (
           ""
         ) : (
-               <Dropdown menu={{ items }} trigger={["click"]}>
-          <div className="text-xl cursor-pointer">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-7 w-7"
-              viewBox="0 0 448 512"
-            >
-              <path d="M16 132h416c8.8 0 16-7.2 16-16V76c0-8.8-7.2-16-16-16H16C7.2 60 0 67.2 0 76v40c0 8.8 7.2 16 16 16zm0 160h416c8.8 0 16-7.2 16-16v-40c0-8.8-7.2-16-16-16H16c-8.8 0-16 7.2-16 16v40c0 8.8 7.2 16 16 16zm0 160h416c8.8 0 16-7.2 16-16v-40c0-8.8-7.2-16-16-16H16c-8.8 0-16 7.2-16 16v40c0 8.8 7.2 16 16 16z" />
-            </svg>
-          </div>
-        </Dropdown>
+          <Dropdown menu={{ items }} trigger={["click"]}>
+            <div className="text-xl cursor-pointer">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-7 w-7"
+                viewBox="0 0 448 512"
+              >
+                <path d="M16 132h416c8.8 0 16-7.2 16-16V76c0-8.8-7.2-16-16-16H16C7.2 60 0 67.2 0 76v40c0 8.8 7.2 16 16 16zm0 160h416c8.8 0 16-7.2 16-16v-40c0-8.8-7.2-16-16-16H16c-8.8 0-16 7.2-16 16v40c0 8.8 7.2 16 16 16zm0 160h416c8.8 0 16-7.2 16-16v-40c0-8.8-7.2-16-16-16H16c-8.8 0-16 7.2-16 16v40c0 8.8 7.2 16 16 16z" />
+              </svg>
+            </div>
+          </Dropdown>
         )}
-
       </div>
 
       {/* Modal hiển thị form Upload Video */}
