@@ -1,4 +1,4 @@
-export {};
+export { };
 // https://bobbyhadz.com/blog/typescript-make-types-global#declare-global-types-in-typescript
 
 declare global {
@@ -36,16 +36,5 @@ declare global {
     };
     access_token: string;
   }
-
-  interface IBackendRes<T> {
-  meta: {
-    current: number;
-    pageSize: number;
-    totalItems: number;
-    totalPages: number;
-  };
-  result: T[];  // Array of user objects
-  message?: string;  // Optional message field
-}
 
 }

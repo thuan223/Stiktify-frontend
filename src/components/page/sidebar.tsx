@@ -1,13 +1,23 @@
 "use client";
+import { AuthContext } from "@/context/AuthContext";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useContext, useEffect, useState } from "react";
 interface SideBarProps {
-  isGuest: Boolean;
   isHidden?: Boolean;
 }
 
-const SideBar: React.FC<SideBarProps> = ({ isGuest, isHidden }) => {
+const SideBar: React.FC<SideBarProps> = ({ isHidden }) => {
   const pathname = usePathname();
+  const { user } = useContext(AuthContext) ?? {};
+  const [isGuest, setIsGuest] = useState(true)
+
+  useEffect(() => {
+    if (user && user._id) {
+      setIsGuest(false)
+    }
+  }, [user])
+
   const getLinkClass = (path: string) => {
     return pathname === path
       ? "text-lg font-bold text-red-500"
@@ -58,15 +68,9 @@ const SideBar: React.FC<SideBarProps> = ({ isGuest, isHidden }) => {
             </Link>
           </li>
           <li>
-            {isGuest ?
-              <Link href="/page/music-guest" className={getLinkClass("/page/music-guest")}>
-                Music
-              </Link>
-              :
-              <Link href="/page/music" className={getLinkClass("/page/music")}>
-                Music
-              </Link>
-            }
+            <Link href="/page/music" className={getLinkClass("/page/music")}>
+              Music
+            </Link>
           </li>
           {isGuest ? (
             ""

@@ -9,11 +9,8 @@ import { useGlobalContext } from "@/library/global.context";
 import Image from "next/image";
 import { handleUpdateListenerAction } from "@/actions/music.action";
 
-const tracks = [{ title: "Ac Quỷ Nè", src: "/AcQuyNe.mp3" }];
-
 const MusicPlayer = () => {
-    const { isPlaying, setIsPlaying, trackCurrent } = useGlobalContext()!
-    const [currentTrack, setCurrentTrack] = useState(0);
+    const { isPlaying, setIsPlaying, trackCurrent, listPlaylist, setTrackCurrent } = useGlobalContext()!
     const [volume, setVolume] = useState(1);
     const playerRef = useRef<ReactHowler | null>(null);
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -22,13 +19,14 @@ const MusicPlayer = () => {
     const [count, setCount] = useState(0)
     const [second, setSecond] = useState(0)
     const [flag, setFlag] = useState(false)
+    const [countTrack, setCountTrack] = useState(0)
 
     const togglePlay = () => {
         setIsPlaying(!isPlaying);
     }
     const toggleMute = () => setVolume(volume > 0 ? 0 : 1);
-    const nextTrack = () => setCurrentTrack((prev) => (prev + 1) % tracks.length);
-    const prevTrack = () => setCurrentTrack((prev) => (prev - 1 + tracks.length) % tracks.length);
+    const nextTrack = () => setCountTrack((prev) => (prev + 1) % listPlaylist.length);
+    const prevTrack = () => setCountTrack((prev) => (prev - 1 + listPlaylist.length) % listPlaylist.length);
 
     useEffect(() => {
         (async () => {
@@ -74,6 +72,13 @@ const MusicPlayer = () => {
         }
     };
 
+    useEffect(() => {
+        if (listPlaylist && listPlaylist.length > 0) {
+            localStorage.setItem("trackCurrent", JSON.stringify(listPlaylist[countTrack].musicId));
+            setTrackCurrent(listPlaylist[countTrack].musicId)
+        }
+    }, [listPlaylist, countTrack])
+
     const handleSeekChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newSeek = parseFloat(e.target.value);
         setSeek(newSeek);
@@ -83,6 +88,14 @@ const MusicPlayer = () => {
     const handleEndMusic = () => {
         setSecond(0);
         setFlag(false);
+        if (listPlaylist && listPlaylist.length > 0) {
+
+            if (+listPlaylist.length - 1 === countTrack) {
+                setCountTrack(0)
+                return;
+            }
+            setCountTrack((prev) => prev + 1);
+        }
     };
 
     return (

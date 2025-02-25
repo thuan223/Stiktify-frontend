@@ -4,21 +4,35 @@ import { useGlobalContext } from "@/library/global.context";
 import CardMusic from "./card.music";
 import InputCustomize from "../input/input.customize";
 import { FilterOutlined, SearchOutlined } from "@ant-design/icons";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { handleFilterSearchMusic } from "@/actions/music.action";
 import DropdownCustomizeFilterMusic from "../dropdown/dropdownFilterMusic";
+import { handleGetPlaylistAction } from "@/actions/playlist.action";
+import { AuthContext } from "@/context/AuthContext";
 
 interface IProps {
   data: IMusic[];
 }
 
 const ListMusic = (props: IProps) => {
-  const { setTrackCurrent, trackCurrent, isPlaying, setIsPlaying } =
+  const { setTrackCurrent, trackCurrent, isPlaying, setIsPlaying, playlist, setPlaylist, refreshPlaylist, listPlaylist, setListPlayList } =
     useGlobalContext()!;
   const { data } = props;
   const [search, setSearch] = useState<string>("");
   const [filterReq, setFilterReq] = useState<string>("");
   const [filteredData, setFilteredData] = useState<IMusic[]>(data);
+  const { user } = useContext(AuthContext)!
+
+  useEffect(() => {
+    (async () => {
+      if (user) {
+        const res = await handleGetPlaylistAction(user._id)
+        if (res?.statusCode === 200) {
+          setPlaylist(res.data.result)
+        }
+      }
+    })()
+  }, [user, refreshPlaylist])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -56,11 +70,15 @@ const ListMusic = (props: IProps) => {
         musicUrl: track.musicUrl,
       };
       setTrackCurrent(data);
+      if (listPlaylist && listPlaylist.length > 0) {
+        setListPlayList([])
+      }
       localStorage.setItem("trackCurrent", JSON.stringify(data));
       return setIsPlaying(isPlaying ? true : !isPlaying);
     }
     return setIsPlaying(!isPlaying);
   };
+
   return (
     <div>
       <div className="ml-[200px] flex justify-start gap-2">

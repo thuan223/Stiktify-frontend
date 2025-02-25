@@ -41,3 +41,25 @@ export const formatTime = (seconds: number): string => {
 export const capitalizeWords = (value: string) => {
     return value.replace(/\b\w/g, char => char.toUpperCase());
 }
+
+export const timeAgo = (dateString: string): string => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+    const secondsInMinute = 60;
+    const secondsInHour = 60 * secondsInMinute;
+    const secondsInDay = 24 * secondsInHour;
+    const secondsInWeek = 7 * secondsInDay;
+    const secondsInMonth = 30 * secondsInDay;
+    const secondsInYear = 365 * secondsInDay;
+
+    if (diffInSeconds < secondsInMinute) return `${diffInSeconds} seconds ago`;
+    if (diffInSeconds < secondsInHour) return `${Math.floor(diffInSeconds / secondsInMinute)} minutes ago`;
+    if (diffInSeconds < secondsInDay) return `${Math.floor(diffInSeconds / secondsInHour)} hours ago`;
+    if (diffInSeconds < secondsInWeek) return `${Math.floor(diffInSeconds / secondsInDay)} days ago`;
+    if (diffInSeconds < secondsInMonth) return `${Math.floor(diffInSeconds / secondsInWeek)} weeks ago`;
+    if (diffInSeconds < secondsInYear) return `${Math.floor(diffInSeconds / secondsInMonth)} months ago`;
+
+    return `${Math.floor(diffInSeconds / secondsInYear)} years ago`;
+};
