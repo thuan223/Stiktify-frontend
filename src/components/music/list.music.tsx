@@ -15,7 +15,7 @@ interface IProps {
 }
 
 const ListMusic = (props: IProps) => {
-  const { setTrackCurrent, trackCurrent, isPlaying, setIsPlaying, playlist, setPlaylist, refreshPlaylist } =
+  const { setTrackCurrent, trackCurrent, isPlaying, setIsPlaying, playlist, setPlaylist, refreshPlaylist, listPlaylist, setListPlayList } =
     useGlobalContext()!;
   const { data } = props;
   const [search, setSearch] = useState<string>("");
@@ -70,6 +70,9 @@ const ListMusic = (props: IProps) => {
         musicUrl: track.musicUrl,
       };
       setTrackCurrent(data);
+      if (listPlaylist && listPlaylist.length > 0) {
+        setListPlayList([])
+      }
       localStorage.setItem("trackCurrent", JSON.stringify(data));
       return setIsPlaying(isPlaying ? true : !isPlaying);
     }

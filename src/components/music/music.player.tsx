@@ -77,6 +77,7 @@ const MusicPlayer = () => {
 
     useEffect(() => {
         if (listPlaylist && listPlaylist.length > 0) {
+            localStorage.setItem("trackCurrent", JSON.stringify(listPlaylist[countTrack].musicId));
             setTrackCurrent(listPlaylist[countTrack].musicId)
         }
     }, [listPlaylist, countTrack])
