@@ -73,6 +73,11 @@ const AddMusicModal = (props: IProps) => {
             }
         },
     };
+
+    useEffect(() => {
+        form.setFieldValue("category", listCate)
+
+    }, [isCreateModalOpen, listCate])
     return (
         <div>
             <Modal
@@ -98,17 +103,43 @@ const AddMusicModal = (props: IProps) => {
                     layout="vertical"
                     form={form}
                 >
-                    <Form.Item hasFeedback name="cate_id" label="Category" rules={[{ required: true, message: "Please choose category" }]}>
-                        <Select
-                            placeholder="Choose category for product"
-                            allowClear>
-                            {
-                                listCate && listCate.length > 0 && listCate.map((item, index) => (
-                                    <Option key={item._id + index} value={item._id}>{item.cate_name}</Option>
-                                ))
-                            }
-                        </Select>
-                    </Form.Item>
+                    <Form.List name="category" initialValue={[""]}>
+                        {(fields, { add, remove }) => (
+                            <div>
+                                <Form.Item>
+                                    <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />}>Add tag</Button>
+                                </Form.Item>
+                                <Space style={{ display: 'flex', flexWrap: 'wrap' }}>
+                                    {fields.map((field) => (
+                                        <Form.Item
+                                            key={field.key}
+                                        >
+                                            <Space
+                                                style={{ position: "relative" }}>
+                                                <Form.Item
+                                                    hasFeedback
+                                                    {...field}
+                                                    validateTrigger={['onChange', 'onBlur']}
+                                                    rules={[{ required: true, message: 'Please input your music tag!' }]}
+                                                    noStyle
+                                                >
+                                                    <Input style={{ width: 100 }} placeholder="Enter tag" type='text' />
+                                                </Form.Item>
+                                                {fields.length > 1 && <MinusCircleOutlined
+                                                    style={{
+                                                        position: "absolute",
+                                                        top: -5,
+                                                        right: 0,
+                                                        color: "#2d3436"
+                                                    }}
+                                                    onClick={() => remove(field.name)} />}
+                                            </Space>
+                                        </Form.Item>
+                                    ))}
+                                </Space>
+                            </div>
+                        )}
+                    </Form.List>
                     <Row>
                         <Form.List name="musicTag" initialValue={[""]}>
                             {(fields, { add, remove }) => (
