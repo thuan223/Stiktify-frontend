@@ -37,7 +37,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
     return <div>Error: AuthContext is not available</div>;
   }
 
-  const { user, logout } = context; // Lấy user từ context
+  const { user, logout } = context;
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -45,9 +45,13 @@ const UserProfile: React.FC<UserProfileProps> = ({
     logout(), router.replace("/auth/login");
   };
 
+  const handleNavigateToMyMusic = () => {
+    router.push("/page/my-music");
+  };
+
   const [editProfile, setEditProfile] = useState({
     fullname: profile.fullname || "",
-    dob: profile.dob ? parseISO(profile.dob) : null, // Chuyển đổi từ string thành Date object
+    dob: profile.dob ? parseISO(profile.dob) : null,
     email: profile.email || "",
     phone: profile.phone || "",
     address: profile.address || "",
@@ -235,6 +239,14 @@ const UserProfile: React.FC<UserProfileProps> = ({
               className="bg-green-500 text-white px-4 py-2 rounded"
             >
               Save Profile
+            </button>
+
+            {/* Add the "My Music" button here */}
+            <button
+              onClick={handleNavigateToMyMusic}
+              className="bg-indigo-500 text-white ml-4 px-4 py-2 rounded"
+            >
+              My Music
             </button>
           </div>
         </div>

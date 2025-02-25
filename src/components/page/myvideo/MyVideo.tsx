@@ -14,20 +14,16 @@ const MyVideo = () => {
 
   useEffect(() => {
     const loadVideos = async () => {
-      if (!user?.id) {
-        console.error("User ID is missing.");
+      if (!user?._id) {
         return;
       }
       setLoading(true);
-
       try {
-        console.log("Fetching videos for user ID:", user.id); 
-        const response = await fetchMyVideos(user.id, 1, 30);  
-        console.log("API response:", response); 
-
+        const response = await fetchMyVideos(user._id, 1, 30);
+        console.log("checkkAPI", response);
         if (response && response.data && response.data.result) {
-          console.log("Videos data:", response.data.result);  
-          setVideos(response.data.result); 
+          console.log("Videos data:", response.data.result);
+          setVideos(response.data.result);
         } else {
           console.error("No video data found");
         }
@@ -36,15 +32,10 @@ const MyVideo = () => {
       }
       setLoading(false);
     };
-    if (user?.id) {
-      loadVideos();  
+    if (user?._id) {
+      loadVideos();
     }
   }, [user]);
-
-
-  useEffect(() => {
-    console.log("Videos state:", videos); 
-  }, [videos]);
 
   return (
     <div className="p-6 bg-white shadow-md rounded-lg mb-40 mt-[-22px]">

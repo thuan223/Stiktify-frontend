@@ -72,7 +72,7 @@ const ProfilePage = () => {
       ) : profileData ? (
         <UserProfile
             profile={profileData}
-            onUpdateProfile={handleUpdateProfile} existingPhones={[]}        />
+            onUpdateProfile={handleUpdateProfile}/>
       ) : (
         <p className="text-red-500">User profile not found</p>
       )}
