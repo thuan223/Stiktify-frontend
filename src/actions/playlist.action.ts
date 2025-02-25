@@ -88,3 +88,25 @@ export const handleGetMusicInPlaylistAction = async (playlistId: string) => {
         return null
     }
 }
+
+export const handleRemoveMusicInPlaylistAction = async (musicId: string) => {
+    try {
+        const cookieStore = cookies()
+        const token = cookieStore.get("token")?.value
+        const res = await fetch(`
+            ${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/store-playlist/delete-music-playlist/${musicId}`,
+            {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+            })
+        revalidateTag("list-music-playlist")
+
+        const result: IBackendRes<any> = await res.json();
+        return result
+    } catch (error) {
+        return null
+    }
+}

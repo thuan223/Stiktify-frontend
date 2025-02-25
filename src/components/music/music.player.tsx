@@ -9,11 +9,8 @@ import { useGlobalContext } from "@/library/global.context";
 import Image from "next/image";
 import { handleUpdateListenerAction } from "@/actions/music.action";
 
-const tracks = [{ title: "Ac Quỷ Nè", src: "/AcQuyNe.mp3" }];
-
 const MusicPlayer = () => {
     const { isPlaying, setIsPlaying, trackCurrent, listPlaylist, setTrackCurrent } = useGlobalContext()!
-    const [currentTrack, setCurrentTrack] = useState(0);
     const [volume, setVolume] = useState(1);
     const playerRef = useRef<ReactHowler | null>(null);
     const intervalRef = useRef<NodeJS.Timeout | null>(null);

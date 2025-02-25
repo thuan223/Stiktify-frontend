@@ -23,7 +23,7 @@ interface IProps {
 
 const CardMusic = (props: IProps) => {
     const { handlePlayer, isPlaying, item } = props
-    const { trackCurrent, playlist } = useGlobalContext()!
+    const { trackCurrent, playlist, listPlaylist } = useGlobalContext()!
     const { user } = useContext(AuthContext)!
     const [hoverPlayer, setHoverPlayer] = useState(false)
     const router = useRouter()
@@ -86,6 +86,9 @@ const CardMusic = (props: IProps) => {
             if (playlistId.length >= 10) {
                 const res = await handleAddMusicInPlaylistAction(playlistId, item._id)
                 if (res?.statusCode === 201) {
+                    if (listPlaylist && listPlaylist.length > 0) {
+
+                    }
                     return notification.success({ message: res.message })
                 }
                 return notification.warning({ message: res?.message })
