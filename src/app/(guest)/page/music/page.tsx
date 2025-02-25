@@ -14,7 +14,7 @@ const MusicGuestPage = async ({ searchParams }: any) => {
             <div >
                 <ListMusic data={data ? data.result : []} />
             </div>
-            <div className="bg-gray-100 h-[80vh] fixed right-5 w-[4vw] rounded-md flex justify-center">
+            <div className="bg-gray-100 h-[80vh] fixed right-5 w-[4vw] rounded-md flex justify-center overflow-y-auto">
                 <SideBarPlaylist />
             </div>
         </div>
