@@ -15,7 +15,7 @@ export const fetchMyVideos = async (
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${userId}`,
+        Authorization: `Bearer ${token}`, 
       },
     }
   );
