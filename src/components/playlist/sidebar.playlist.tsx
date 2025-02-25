@@ -14,7 +14,7 @@ const SideBarPlaylist = () => {
     const router = useRouter()
 
     const handleNavigate = (playlistId: string) => {
-        router.push(`playlist?playlistId=${playlistId}`)
+        router.push(`music/playlist?playlistId=${playlistId}`)
     }
     return (
         <div className="flex flex-col gap-2 shadow-sm">

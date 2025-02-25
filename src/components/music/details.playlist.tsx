@@ -8,9 +8,10 @@ import { HiOutlineCalendarDateRange } from "react-icons/hi2";
 import { capitalizeWords, formatDateTimeVn, formatNumber } from "@/utils/utils";
 import { IoIosMusicalNotes } from "react-icons/io";
 import ButtonPlayer from "./button.player";
+import { Tooltip } from "antd";
 
 interface IProps {
-    item: IMusicInPlaylist
+    item: IMusicInPlaylist[] | []
 }
 const DisplayPlaylistDetail = (props: IProps) => {
     const { setTrackCurrent, trackCurrent, isPlaying, setIsPlaying, listPlaylist, setListPlayList } = useGlobalContext()!
@@ -21,7 +22,7 @@ const DisplayPlaylistDetail = (props: IProps) => {
         router.back()
     }
 
-    const handlePlayer = (trackList: IMusic[]) => {
+    const handlePlayer = (trackList: IMusicInPlaylist[]) => {
         if (trackList && trackList.length > 0) {
             setListPlayList(trackList)
             return setIsPlaying(!isPlaying)
@@ -53,30 +54,32 @@ const DisplayPlaylistDetail = (props: IProps) => {
                 <div className="flex gap-5 items-center justify-around">
                     <Image
                         alt="thumbnail"
-                        src={item.playlist?.image}
+                        src={item[0].playlistId.image}
                         width={200}
                         height={100}
                         className="rounded-md" />
                     <div className="">
-                        <div className="text-white text-[100px] font-roboto font-bold">{item.playlist?.name}</div>
+                        <div className="text-white text-[100px] font-roboto font-bold">{item[0].playlistId?.name}</div>
                         <div className="flex flex-col gap-2">
                             <div className="flex gap-5">
                                 <div className="flex gap-2 items-center cursor-pointer">
                                     <IoIosMusicalNotes size={20} className="text-gray-400" />
-                                    <span className="text-gray-400">{item.music.length}</span>
+                                    <span className="text-gray-400">{item.length}</span>
                                 </div>
                             </div>
                             <div className="flex gap-5">
                                 <div className="flex gap-2 items-center cursor-pointer">
                                     <HiOutlineCalendarDateRange size={20} className="text-gray-400" />
-                                    <span className="text-gray-400">{formatDateTimeVn(item.playlist.createdAt)}</span>
+                                    <span className="text-gray-400">{formatDateTimeVn(item[0].playlistId.createdAt)}</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div>
-                    <ButtonPlayer className="w-16 h-16" current={item._id} isPlaying={isPlaying} togglePlay={() => handlePlayer(item.music)} />
+                    <Tooltip title={"Random"}>
+                        <ButtonPlayer current={trackCurrent?._id} className="w-16 h-16" isPlaying={isPlaying} togglePlay={() => handlePlayer(item)} />
+                    </Tooltip>
                 </div>
             </div>
         </div>

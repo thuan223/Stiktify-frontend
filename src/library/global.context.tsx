@@ -10,7 +10,7 @@ interface IGlobalContext {
     setPlaylist: (v: IPlaylist[]) => void
     refreshPlaylist: boolean,
     setRefreshPlaylist: (v: boolean) => void,
-    listPlaylist: IMusic[] | [],
+    listPlaylist: IMusicInPlaylist[] | [],
     setListPlayList: (v: any) => void
 }
 
@@ -21,7 +21,7 @@ export const GlobalContextProvider = ({ children }: { children: React.ReactNode 
     const [trackCurrent, setTrackCurrent] = useState<IMusic | null>(null);
     const [playlist, setPlaylist] = useState<IPlaylist[] | []>([])
     const [refreshPlaylist, setRefreshPlaylist] = useState(false);
-    const [listPlaylist, setListPlayList] = useState<IMusic[] | []>([])
+    const [listPlaylist, setListPlayList] = useState<IMusicInPlaylist[] | []>([])
 
     useEffect(() => {
         if (typeof window !== "undefined") {
