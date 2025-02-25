@@ -110,3 +110,22 @@ export const handleRemoveMusicInPlaylistAction = async (musicId: string) => {
         return null
     }
 }
+
+export const handleFilterSearchPlaylist = async (current: string, pageSize: string) => {
+    try {
+        const cookieStore = cookies()
+        const token = cookieStore.get("token")?.value
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/store-playlist/filter-search?current=${current}&pageSize=${pageSize}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            next: { tags: ["filter-search-playlist"] }
+        });
+        const result: IBackendRes<any> = await res.json();
+        return result;
+    } catch (error) {
+        return null;
+    }
+};
