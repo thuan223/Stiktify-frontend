@@ -10,7 +10,7 @@ const ReportModal: React.FC<{
   videoId: string | undefined;
 }> = ({ onClose, videoId }) => {
   const [reason, setReason] = useState("");
-  const { accessToken, user } = useContext(AuthContext) ?? {}; // Lấy user từ context
+  const { accessToken, user } = useContext(AuthContext) ?? {};
   const [loading, setLoading] = useState(false);
 
   const handleReport = async () => {

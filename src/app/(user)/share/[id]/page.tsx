@@ -10,33 +10,30 @@ interface Video {
 }
 
 const ShareVideo = () => {
-  const { id } = useParams();
+  const { id } = useParams(); // Lấy id từ URL
   const { accessToken } = useContext(AuthContext) ?? {};
   const [videoData, setVideoData] = useState<Video | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (id && accessToken) {
+    if (id) {
       fetchVideoShare();
     } else {
-      setError("Missing video ID or access token");
+      setError("Invalid video ID");
       setLoading(false);
     }
-  }, [id, accessToken]);
+  }, [id]);
 
   const fetchVideoShare = async () => {
     try {
-      const res = await sendRequest<{ videoUrl: string }>({
+      const res = await sendRequest<any>({
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/share/${id}`,
         method: "GET",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
       });
 
-      if (res && res.videoUrl) {
-        setVideoData({ videoUrl: res.videoUrl });
+      if (res?.data?.videoUrl) {
+        setVideoData({ videoUrl: res.data.videoUrl });
       } else {
         setError("Video not found");
       }
@@ -57,16 +54,10 @@ const ShareVideo = () => {
     <div className="p-6 max-w-lg mx-auto border rounded-lg shadow-md">
       <h1 className="text-2xl font-bold mb-4">Video Player</h1>
 
-      {/* Video Player */}
       <video className="w-full rounded-lg" controls>
         <source src={videoData.videoUrl} type="video/mp4" />
         Your browser does not support the video tag.
       </video>
-
-      {/* Display Video URL */}
-      <p className="mt-4 text-sm text-gray-600">
-        <strong>Video URL:</strong> {videoData.videoUrl}
-      </p>
     </div>
   );
 };

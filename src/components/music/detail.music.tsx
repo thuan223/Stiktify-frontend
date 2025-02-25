@@ -49,6 +49,9 @@ const DisplayMusicDetail = ({ item }: IProps) => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
   };
+  const handleShareClick = () => {
+    router.push(`/page/shareMusic/${item._id}`);
+  };
 
   return (
     <div className="h-[40vh] w-full bg-gray-900 rounded-sm shadow-gray-400/50 flex items-center px-16 relative">
@@ -97,7 +100,10 @@ const DisplayMusicDetail = ({ item }: IProps) => {
                     {formatNumber(item.totalComment)}
                   </span>
                 </div>
-                <div className="flex gap-2 items-center cursor-pointer">
+                <div
+                  className="flex gap-2 items-center cursor-pointer"
+                  onClick={handleShareClick}
+                >
                   <RiShareForwardLine size={20} className="text-gray-400" />
                   <span className="text-gray-400">
                     {formatNumber(item.totalShare)}
