@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, useContext } from "react";
 import { Dropdown, Menu, MenuProps, Modal } from "antd";
 import { AuthContext } from "@/context/AuthContext";
-import UploadVideoPost from "@/components/page/trending/upload_video_post"; // Đường dẫn có thể điều chỉnh theo cấu trúc dự án
+import UploadVideoPost from "@/components/page/trending/upload_video_post";
 
 interface HeaderProps {
   searchValue: string;
@@ -86,20 +86,22 @@ const Header: React.FC<HeaderProps> = ({
           </svg>
         </button>
         {/* Upload Video Button */}
-        <button
-          className="ml-4 px-4 py-2 bg-blue-500 text-white rounded-lg flex items-center hover:bg-blue-600 transition-all duration-300"
-          onClick={() => setIsUploadModalOpen(true)}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5 mr-2"
-            viewBox="0 0 24 24"
-            fill="currentColor"
+        {!isGuest && (
+          <button
+            className="ml-4 px-4 py-2 bg-blue-500 text-white rounded-lg flex items-center hover:bg-blue-600 transition-all duration-300"
+            onClick={() => setIsUploadModalOpen(true)}
           >
-            <path d="M12 3l4 4h-3v4h-2V7H8l4-4zm0 18c-4.97 0-9-4.03-9-9h2c0 3.86 3.14 7 7 7s7-3.14 7-7h2c0 4.97-4.03 9-9 9z" />
-          </svg>
-          Upload
-        </button>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5 mr-2"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path d="M12 3l4 4h-3v4h-2V7H8l4-4zm0 18c-4.97 0-9-4.03-9-9h2c0 3.86 3.14 7 7 7s7-3.14 7-7h2c0 4.97-4.03 9-9 9z" />
+            </svg>
+            Upload
+          </button>
+        )}
       </div>
       <div className="flex items-center space-x-4">
         <div className="text-xl cursor-pointer">
@@ -127,19 +129,18 @@ const Header: React.FC<HeaderProps> = ({
         {isGuest ? (
           ""
         ) : (
-               <Dropdown menu={{ items }} trigger={["click"]}>
-          <div className="text-xl cursor-pointer">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-7 w-7"
-              viewBox="0 0 448 512"
-            >
-              <path d="M16 132h416c8.8 0 16-7.2 16-16V76c0-8.8-7.2-16-16-16H16C7.2 60 0 67.2 0 76v40c0 8.8 7.2 16 16 16zm0 160h416c8.8 0 16-7.2 16-16v-40c0-8.8-7.2-16-16-16H16c-8.8 0-16 7.2-16 16v40c0 8.8 7.2 16 16 16zm0 160h416c8.8 0 16-7.2 16-16v-40c0-8.8-7.2-16-16-16H16c-8.8 0-16 7.2-16 16v40c0 8.8 7.2 16 16 16z" />
-            </svg>
-          </div>
-        </Dropdown>
+          <Dropdown menu={{ items }} trigger={["click"]}>
+            <div className="text-xl cursor-pointer">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-7 w-7"
+                viewBox="0 0 448 512"
+              >
+                <path d="M16 132h416c8.8 0 16-7.2 16-16V76c0-8.8-7.2-16-16-16H16C7.2 60 0 67.2 0 76v40c0 8.8 7.2 16 16 16zm0 160h416c8.8 0 16-7.2 16-16v-40c0-8.8-7.2-16-16-16H16c-8.8 0-16 7.2-16 16v40c0 8.8 7.2 16 16 16zm0 160h416c8.8 0 16-7.2 16-16v-40c0-8.8-7.2-16-16-16H16c-8.8 0-16 7.2-16 16v40c0 8.8 7.2 16 16 16z" />
+              </svg>
+            </div>
+          </Dropdown>
         )}
-
       </div>
 
       {/* Modal hiển thị form Upload Video */}
