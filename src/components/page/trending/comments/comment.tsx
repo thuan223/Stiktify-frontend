@@ -24,6 +24,7 @@ interface CommentProps {
   childComments: Map<string, any[]>;
   videoId: string | undefined;
   setChildComments: any;
+  onCommentAdded: () => void;
   onDeleteComment: (commentId: string, parentId: string | null) => void;
 }
 
@@ -37,6 +38,7 @@ const Comment: React.FC<CommentProps> = ({
   videoId,
   setChildComments,
   onDeleteComment,
+  onCommentAdded,
 }) => {
   const { accessToken } = useContext(AuthContext) ?? {};
 
@@ -119,6 +121,7 @@ const Comment: React.FC<CommentProps> = ({
         ...prevState,
         totalOfChildComments: prevState.totalOfChildComments + 0.5,
       }));
+      onCommentAdded!();
       return updatedMap;
     });
   };

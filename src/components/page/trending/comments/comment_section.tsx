@@ -9,7 +9,7 @@ interface CommentSectionProps {
   videoId: string | undefined;
   onCommentClick: () => void;
   showComments: boolean;
-  onCommentAdded?: () => void;
+  onCommentAdded: () => void;
   onCommentRemove: () => void;
 }
 
@@ -181,6 +181,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
                 videoId={videoId}
                 setChildComments={setChildComments}
                 onDeleteComment={handleRemoveComment}
+                onCommentAdded={onCommentAdded}
               />
             ))
           ) : (

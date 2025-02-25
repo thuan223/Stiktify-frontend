@@ -42,7 +42,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleLogout = () => {
-    logout(), router.replace("/auth/login");
+    logout(), router.replace("/page/trending-guest");
   };
 
   const [editProfile, setEditProfile] = useState({

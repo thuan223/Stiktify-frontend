@@ -138,7 +138,7 @@ const TrendingPage = () => {
         Authorization: `Bearer ${accessToken}`,
       },
       body: {
-        userId: user._id,
+        userId: user?._id,
         id: videoSuggestId || currentVideo?._id,
         triggerAction: "ArrowKeyScroll",
       },

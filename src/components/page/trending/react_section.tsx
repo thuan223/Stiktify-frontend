@@ -21,17 +21,107 @@ import Image from "next/image";
 interface Reaction {
   _id: string;
   icon: JSX.Element;
+  type?: string;
 }
 
 interface ReactionSectionProp {
   videoId: string | undefined;
   onReactionAdded: () => void;
   onReactionRemove: () => void;
+  numberReaction: string;
 }
+
+const lastReactions: Reaction[] = [
+  {
+    _id: "6741b8a5342097607f012a76",
+    icon: (
+      <div className="relative w-4 h-4">
+        <Image
+          src={like_img}
+          alt="Like GIF"
+          width={30}
+          height={30}
+          className="absolute inset-0 transition-opacity duration-300"
+        />
+      </div>
+    ),
+  },
+  {
+    _id: "6741b8a5342097607f012a77",
+    icon: (
+      <div className="relative w-4 h-4">
+        <Image
+          src={in_love_img}
+          alt="Like GIF"
+          width={30}
+          height={30}
+          className="absolute inset-0 transition-opacity duration-300"
+        />
+      </div>
+    ),
+  },
+  {
+    _id: "6741b8a5342097607f012a7b",
+    icon: (
+      <div className="relative w-4 h-4">
+        <Image
+          src={happy_img}
+          alt="Like GIF"
+          width={30}
+          height={30}
+          className="absolute inset-0 transition-opacity duration-300"
+        />
+      </div>
+    ),
+  },
+  {
+    _id: "6741b8a5342097607f012a78",
+    icon: (
+      <div className="relative w-4 h-4">
+        <Image
+          src={surprised_img}
+          alt="Like GIF"
+          width={30}
+          height={30}
+          className="absolute inset-0 transition-opacity duration-300"
+        />
+      </div>
+    ),
+  },
+  {
+    _id: "6741b8a5342097607f012a79",
+    icon: (
+      <div className="relative w-4 h-4">
+        <Image
+          src={sad_img}
+          alt="Like GIF"
+          width={30}
+          height={30}
+          className="absolute inset-0 transition-opacity duration-300"
+        />
+      </div>
+    ),
+  },
+  {
+    _id: "6741b8a5342097607f012a7a",
+    icon: (
+      <div className="relative w-4 h-4">
+        <Image
+          src={angry_img}
+          alt="Like GIF"
+          width={30}
+          height={30}
+          className="absolute inset-0 transition-opacity duration-300"
+        />
+      </div>
+    ),
+  },
+];
 
 const reactions: Reaction[] = [
   {
     _id: "6741b8a5342097607f012a76",
+    type: "Like",
     icon: (
       <div className="relative w-8 h-8">
         <Image
@@ -42,6 +132,7 @@ const reactions: Reaction[] = [
           className="absolute inset-0 transition-opacity duration-300 hover:opacity-0"
         />
         <Image
+          unoptimized
           src={like_gif}
           alt="Like GIF"
           width={30}
@@ -54,6 +145,7 @@ const reactions: Reaction[] = [
   },
   {
     _id: "6741b8a5342097607f012a77",
+    type: "Love",
     icon: (
       <div className="relative w-8 h-8">
         <Image
@@ -64,6 +156,7 @@ const reactions: Reaction[] = [
           className="absolute inset-0 transition-opacity duration-300 hover:opacity-0"
         />
         <Image
+          unoptimized
           src={in_love_gif}
           alt="Like GIF"
           width={30}
@@ -76,6 +169,7 @@ const reactions: Reaction[] = [
   },
   {
     _id: "6741b8a5342097607f012a7b",
+    type: "Haha",
     icon: (
       <div className="relative w-8 h-8">
         <Image
@@ -86,6 +180,7 @@ const reactions: Reaction[] = [
           className="absolute inset-0 transition-opacity duration-300 hover:opacity-0"
         />
         <Image
+          unoptimized
           src={happy_gif}
           alt="Like GIF"
           width={30}
@@ -98,6 +193,7 @@ const reactions: Reaction[] = [
   },
   {
     _id: "6741b8a5342097607f012a78",
+    type: "Wow",
     icon: (
       <div className="relative w-8 h-8">
         <Image
@@ -108,6 +204,7 @@ const reactions: Reaction[] = [
           className="absolute inset-0 transition-opacity duration-300 hover:opacity-0"
         />
         <Image
+          unoptimized
           src={surprised_gif}
           alt="Like GIF"
           width={30}
@@ -120,6 +217,7 @@ const reactions: Reaction[] = [
   },
   {
     _id: "6741b8a5342097607f012a79",
+    type: "Sad",
     icon: (
       <div className="relative w-8 h-8">
         <Image
@@ -130,6 +228,7 @@ const reactions: Reaction[] = [
           className="absolute inset-0 transition-opacity duration-300 hover:opacity-0"
         />
         <Image
+          unoptimized
           src={sad_gif}
           alt="Like GIF"
           width={30}
@@ -142,6 +241,7 @@ const reactions: Reaction[] = [
   },
   {
     _id: "6741b8a5342097607f012a7a",
+    type: "Hungry",
     icon: (
       <div className="relative w-8 h-8">
         <Image
@@ -152,6 +252,7 @@ const reactions: Reaction[] = [
           className="absolute inset-0 transition-opacity duration-300 hover:opacity-0"
         />
         <Image
+          unoptimized
           src={angry_gif}
           alt="Like GIF"
           width={30}
@@ -168,6 +269,7 @@ const ReactSection: React.FC<ReactionSectionProp> = ({
   videoId,
   onReactionAdded,
   onReactionRemove,
+  numberReaction,
 }) => {
   const { accessToken } = useContext(AuthContext) ?? {};
   const [selectedReaction, setSelectedReaction] = useState<Reaction | null>(
@@ -175,6 +277,36 @@ const ReactSection: React.FC<ReactionSectionProp> = ({
   );
   const [showReactions, setShowReactions] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  const [thisReactions, setThisReactions] = useState<Reaction[]>([]);
+  const [thisFirstReactions, setFirstThisReactions] = useState<Reaction[]>([]);
+
+  useEffect(() => {
+    if (!videoId) return;
+
+    const fetchReactions = async () => {
+      try {
+        const res = await sendRequest<any>({
+          url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/video-reactions/${videoId}/reactions`,
+          method: "GET",
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+
+        if (res.statusCode === 200) {
+          // Lọc các reaction có trong dữ liệu trả về
+          const fetchedReactions = lastReactions.filter((reaction) =>
+            res.data.includes(reaction._id)
+          );
+          setThisReactions(fetchedReactions);
+          setFirstThisReactions(fetchedReactions);
+        }
+      } catch (error) {
+        console.error("Error fetching reactions:", error);
+      }
+    };
+
+    fetchReactions();
+  }, [videoId]);
 
   useEffect(() => {
     setSelectedReaction(null);
@@ -212,6 +344,8 @@ const ReactSection: React.FC<ReactionSectionProp> = ({
   const handleAddReaction = async (reaction: Reaction) => {
     if (!videoId || !accessToken) return;
     const oldSelectedReaction = selectedReaction;
+    // Tìm reaction trong lastReactions
+
     setSelectedReaction(reaction);
     setShowReactions(false);
 
@@ -223,6 +357,38 @@ const ReactSection: React.FC<ReactionSectionProp> = ({
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       oldSelectedReaction! ? "" : onReactionAdded();
+      const reactionToAdd = lastReactions.find((r) => r._id === reaction._id);
+
+      if (reactionToAdd) {
+        setThisReactions((prevReactions) => {
+          // Kiểm tra xem oldSelectedReaction có trong thisReactions nhưng không có trong thisFirstReactions không
+          const isInThisReactions = prevReactions.some(
+            (r) => r._id === oldSelectedReaction!?._id
+          );
+          const isNotInFirstReactions = !thisFirstReactions.some(
+            (r) => r._id === oldSelectedReaction!?._id
+          );
+          console.log("CHECK >>>: ", isInThisReactions, isNotInFirstReactions);
+
+          // Nếu thỏa điều kiện, mới xóa nó khỏi mảng
+          if (isInThisReactions && isNotInFirstReactions) {
+            return prevReactions.filter((r) => r._id !== selectedReaction!._id);
+          }
+
+          // Nếu không thỏa điều kiện, giữ nguyên mảng
+          return prevReactions;
+        });
+        // Thêm reaction vào mảng thisReactions nếu chưa tồn tại
+        setThisReactions((prevReactions) => {
+          const isReactionExists = prevReactions.some(
+            (r) => r._id === reactionToAdd._id
+          );
+          if (!isReactionExists) {
+            return [...prevReactions, reactionToAdd];
+          }
+          return prevReactions;
+        });
+      }
     } catch (error) {
       console.error("Error updating reaction:", error);
     }
@@ -230,6 +396,11 @@ const ReactSection: React.FC<ReactionSectionProp> = ({
 
   const handleRemoveReaction = async () => {
     if (!videoId || !accessToken) return;
+
+    // Xóa reaction khỏi mảng thisReactions
+    setThisReactions((prevReactions) =>
+      prevReactions.filter((r) => r._id !== selectedReaction!._id)
+    );
 
     setSelectedReaction(null);
     setShowReactions(false);
@@ -254,7 +425,7 @@ const ReactSection: React.FC<ReactionSectionProp> = ({
         <>
           {showReactions && (
             <div
-              className="absolute bottom-full left-1/2 transform -translate-x-1/2 -translate-y-2 bg-white border p-2 rounded-md shadow-md flex gap-2"
+              className="absolute bottom-full left-1/3 transform -translate-x-1/2 -translate-y-2 bg-white border p-2 rounded-md shadow-md flex gap-2"
               onMouseEnter={() => setShowReactions(true)}
               onMouseLeave={() => setShowReactions(false)}
             >
@@ -276,11 +447,34 @@ const ReactSection: React.FC<ReactionSectionProp> = ({
             onClick={() => handleRemoveReaction}
           >
             {selectedReaction ? (
-              <div onClick={handleRemoveReaction}>{selectedReaction.icon}</div>
+              <div onClick={handleRemoveReaction} className="flex items-center">
+                {selectedReaction.icon}{" "}
+                <p className="ml-1">{selectedReaction.type}</p>
+              </div>
             ) : (
-              <FaThumbsUp className="text-gray-400 scale-[2] ml-2" size={15} />
+              <div className="flex items-center box-border">
+                <div className="relative w-8 h-8">
+                  <FaThumbsUp
+                    className="text-gray-400 scale-[2] ml-2 mb-5"
+                    size={15}
+                  />
+                </div>
+                <p className="ml-1 mb-2">Like</p>
+              </div>
             )}
           </div>
+          {thisReactions.length > 0 && (
+            <div className="flex items-center mt-1">
+              <div className="flex items-center mr-2">
+                {thisReactions.slice(-3).map((reaction) => (
+                  <div key={reaction._id} className="ml-1">
+                    {reaction.icon}
+                  </div>
+                ))}
+              </div>
+              {numberReaction}
+            </div>
+          )}
         </>
       )}
     </div>
