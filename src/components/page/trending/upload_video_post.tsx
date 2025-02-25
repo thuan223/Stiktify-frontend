@@ -55,12 +55,12 @@ const UploadVideoPost: React.FC = () => {
           setAllCategories(categoriesArray);
         } else {
           notification.error({
-            message: res.message || "Lấy danh sách categories thất bại.",
+            message: res.message || "Get list of categories failed.",
           });
         }
       } catch (error) {
         notification.error({
-          message: "Đã có lỗi xảy ra khi lấy danh sách categories.",
+          message: "An error occurred while retrieving the categories list.",
         });
       }
     };
@@ -79,22 +79,24 @@ const UploadVideoPost: React.FC = () => {
 
   const handleUpload = async () => {
     if (!accessToken) {
-      notification.error({ message: "Bạn chưa đăng nhập. Hãy đăng nhập lại." });
+      notification.error({
+        message: "You are not logged in. Please log in again.",
+      });
       return;
     }
 
     if (!user || !user._id) {
-      notification.error({ message: "Không xác định được thông tin user." });
+      notification.error({ message: "User information not identified." });
       return;
     }
 
     if (!videoFile) {
-      notification.error({ message: "Bạn chưa chọn file video." });
+      notification.error({ message: "You have not selected a video file." });
       return;
     }
 
     if (!selectedCategory) {
-      notification.error({ message: "Bạn chưa chọn Category Video." });
+      notification.error({ message: "You have not selected Video Category." });
       return;
     }
 
@@ -121,14 +123,12 @@ const UploadVideoPost: React.FC = () => {
         return;
       }
 
-      notification.success({ message: "Upload video local successfully!" });
-
       // Lấy video URL theo cấu trúc đúng của API
       const videoUrl = uploadRes.data?.data?.data?.downloadURL;
 
       if (!videoUrl || typeof videoUrl !== "string") {
         notification.error({
-          message: "Video URL không hợp lệ. Vui lòng kiểm tra lại file upload.",
+          message: "Video URL is invalid. Please check your upload file again.",
         });
         setLoading(false);
         return;
@@ -160,7 +160,7 @@ const UploadVideoPost: React.FC = () => {
       });
 
       if (postRes.statusCode === 201) {
-        notification.success({ message: "Tạo bài post thành công!" });
+        notification.success({ message: "Post created successfully!" });
         // Reset form
         setVideoDescription("");
         setVideoFile(null);
@@ -171,12 +171,12 @@ const UploadVideoPost: React.FC = () => {
         router.push(`/page/detail_user/${user._id}`);
       } else {
         notification.error({
-          message: postRes.message || "Tạo bài post thất bại.",
+          message: postRes.message || "Post creation failed.",
         });
       }
     } catch (error) {
       notification.error({
-        message: "Đã có lỗi xảy ra trong quá trình upload.",
+        message: "An error occurred during upload.",
       });
     } finally {
       setLoading(false);
