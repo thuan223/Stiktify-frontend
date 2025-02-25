@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useContext } from "react";
 import { useParams } from "next/navigation";
-import { AuthContext } from "@/context/AuthContext";
 import { sendRequest } from "@/utils/api";
 
 interface Music {
