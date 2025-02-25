@@ -86,9 +86,6 @@ const CardMusic = (props: IProps) => {
             if (playlistId.length >= 10) {
                 const res = await handleAddMusicInPlaylistAction(playlistId, item._id)
                 if (res?.statusCode === 201) {
-                    if (listPlaylist && listPlaylist.length > 0) {
-
-                    }
                     return notification.success({ message: res.message })
                 }
                 return notification.warning({ message: res?.message })
