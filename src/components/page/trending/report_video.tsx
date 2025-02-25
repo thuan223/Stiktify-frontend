@@ -5,10 +5,10 @@ import { notification } from "antd";
 import { AuthContext } from "@/context/AuthContext";
 import { sendRequest } from "@/utils/api";
 
-const ReportModal: React.FC<{ onClose: () => void; videoId: string | undefined }> = ({
-  onClose,
-  videoId,
-}) => {
+const ReportModal: React.FC<{
+  onClose: () => void;
+  videoId: string | undefined;
+}> = ({ onClose, videoId }) => {
   const [reason, setReason] = useState("");
   const { accessToken, user } = useContext(AuthContext) ?? {}; // Lấy user từ context
   const [loading, setLoading] = useState(false);
@@ -32,16 +32,16 @@ const ReportModal: React.FC<{ onClose: () => void; videoId: string | undefined }
     setLoading(true);
     try {
       const response = await sendRequest<IBackendRes<any>>({
-        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/report`,
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/report/report-video`,
         method: "POST",
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
-        body: { 
-          videoId, 
-          userId: user._id, 
+        body: {
+          videoId,
+          userId: user._id,
           reasons: reason,
-        }, 
+        },
       });
 
       if (response.statusCode === 201) {
@@ -49,10 +49,14 @@ const ReportModal: React.FC<{ onClose: () => void; videoId: string | undefined }
         setReason("");
         onClose();
       } else {
-        notification.error({ message: response.message || "Failed to submit report." });
+        notification.error({
+          message: response.message || "Failed to submit report.",
+        });
       }
     } catch (error) {
-      notification.error({ message: "An error occurred while submitting the report." });
+      notification.error({
+        message: "An error occurred while submitting the report.",
+      });
     } finally {
       setLoading(false);
     }
@@ -77,14 +81,19 @@ const ReportModal: React.FC<{ onClose: () => void; videoId: string | undefined }
             onClick={handleReport}
             disabled={loading}
             className={`w-full p-2 mt-4 rounded-md ${
-              loading ? "bg-gray-400 cursor-not-allowed" : "bg-red-500 text-white"
+              loading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-red-500 text-white"
             }`}
           >
             {loading ? "Submitting..." : "Submit Report"}
           </button>
         </div>
 
-        <button onClick={onClose} className="w-full bg-gray-500 text-white p-2 mt-4 rounded-md">
+        <button
+          onClick={onClose}
+          className="w-full bg-gray-500 text-white p-2 mt-4 rounded-md"
+        >
           Close
         </button>
       </div>
