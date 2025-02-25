@@ -5,43 +5,43 @@ import { useParams } from "next/navigation";
 import { AuthContext } from "@/context/AuthContext";
 import { sendRequest } from "@/utils/api";
 
-interface Video {
-  videoUrl: string | undefined;
+interface Music {
+  MusicUrl: string | undefined;
 }
 
-const ShareVideo = () => {
+const ShareMusic = () => {
   const { id } = useParams();
   const { accessToken } = useContext(AuthContext) ?? {};
-  const [videoData, setVideoData] = useState<Video | null>(null);
+  const [musicData, setMusicData] = useState<Music | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
     if (id && accessToken) {
-      fetchVideoShare();
+      fetchMusicShare();
     } else {
-      setError("Missing video ID or access token");
+      setError("Missing music ID or access token");
       setLoading(false);
     }
   }, [id, accessToken]);
 
-  const fetchVideoShare = async () => {
+  const fetchMusicShare = async () => {
     try {
-      const res = await sendRequest<{ videoUrl: string }>({
-        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/share/${id}`,
+      const res = await sendRequest<{ musicUrl: string }>({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/share/${id}`,
         method: "GET",
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
       });
 
-      if (res && res.videoUrl) {
-        setVideoData({ videoUrl: res.videoUrl });
+      if (res && res.musicUrl) {
+        setMusicData({ MusicUrl: res.musicUrl });
       } else {
-        setError("Video not found");
+        setError("Music not found");
       }
     } catch (err) {
-      setError("Failed to fetch video");
+      setError("Failed to fetch music");
       console.error(err);
     } finally {
       setLoading(false);
@@ -50,25 +50,25 @@ const ShareVideo = () => {
 
   if (loading) return <p className="text-center text-gray-600">Loading...</p>;
   if (error) return <p className="text-center text-red-600">{error}</p>;
-  if (!videoData)
-    return <p className="text-center text-gray-600">No video data</p>;
+  if (!musicData)
+    return <p className="text-center text-gray-600">No music data</p>;
 
   return (
     <div className="p-6 max-w-lg mx-auto border rounded-lg shadow-md">
-      <h1 className="text-2xl font-bold mb-4">Video Player</h1>
+      <h1 className="text-2xl font-bold mb-4">Music Player</h1>
 
-      {/* Video Player */}
-      <video className="w-full rounded-lg" controls>
-        <source src={videoData.videoUrl} type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
+      {/* Music Player */}
+      <audio className="w-full mt-4" controls>
+        <source src={musicData.MusicUrl} type="audio/mp3" />
+        Your browser does not support the audio tag.
+      </audio>
 
-      {/* Display Video URL */}
+      {/* Display Music URL */}
       <p className="mt-4 text-sm text-gray-600">
-        <strong>Video URL:</strong> {videoData.videoUrl}
+        <strong>Music URL:</strong> {musicData.MusicUrl}
       </p>
     </div>
   );
 };
 
-export default ShareVideo;
+export default ShareMusic;
