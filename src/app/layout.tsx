@@ -19,11 +19,15 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const userRole = user?.role ?? "GUEST"; // Nếu chưa đăng nhập, mặc định là GUEST
-      const allowedRoutes = roleRoutes[userRole] || []; // Lấy danh sách route của role
+      const userRole = user?.role ?? "GUEST";
+      const allowedRoutes = roleRoutes[userRole] || [];
 
-      if (!allowedRoutes.includes(pathname)) {
-        // Nếu không có quyền, chuyển hướng về default route
+      // Kiểm tra route
+      const isAllowed = allowedRoutes.some((route) =>
+        route instanceof RegExp ? route.test(pathname) : route === pathname
+      );
+
+      if (!isAllowed) {
         router.replace(defaultRoutes[userRole] || "/page/trending-guest");
       }
     }
