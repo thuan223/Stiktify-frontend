@@ -1,22 +1,26 @@
-const roleRoutes: Record<string, string[]> = {
+const roleRoutes: Record<string, (string | RegExp)[]> = {
   USERS: [
     "/page/trending-user",
-    "/page/detail_user/",
+    /^\/page\/detail_user\/[\w-]+$/, // Chấp nhận chữ cái, số và dấu -
     "/page/music-favorite",
     "/page/my-music",
     "/page/my-video",
     "/page/profile",
     "/page/search-user",
     "/personal/videohistory",
-    "/page/share/",
+    /^\/page\/share\/[\w-]+$/,
+    /^\/page\/music\/[\w-]+$/,
+    "/page/playlist",
+    "/page/music",
   ],
   GUEST: [
     "/page/trending-guest",
     "/auth/login",
     "/auth/forgotpassword",
     "/auth/register",
-    "page/music-guest",
-    "/verify/",
+    "/page/music",
+    /^\/verify\/[\w-]+$/,
+    /^\/page\/music\/\d+$/,
   ],
   ADMIN: ["/dashboard/user", "/dashboard/report", "/dashboard/short-video"],
 };
