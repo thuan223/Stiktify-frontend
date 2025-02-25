@@ -123,3 +123,26 @@ export const handleFilterAndSearchAction = async (current: number, pageSize: num
 }
 
 
+export const handleUploadImage = async (formData: FormData) => {
+    try {
+      const cookieStore = cookies();
+      const token = cookieStore.get("token")?.value;
+      if (!formData) {
+        throw new Error("FormData is required.");
+      }
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/upload/upload-image`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+        body: formData, 
+      });
+      const result: IBackendRes<any> = await res.json();
+      return result;
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      return null;
+    }
+  };
+  
+
