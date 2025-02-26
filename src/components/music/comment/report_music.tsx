@@ -7,8 +7,8 @@ import { sendRequest } from "@/utils/api";
 
 const ReportModal: React.FC<{
   onClose: () => void;
-  videoId: string | undefined;
-}> = ({ onClose, videoId }) => {
+  musicId: string | undefined;
+}> = ({ onClose, musicId }) => {
   const [reason, setReason] = useState("");
   const { accessToken, user } = useContext(AuthContext) ?? {};
   const [loading, setLoading] = useState(false);
@@ -24,21 +24,21 @@ const ReportModal: React.FC<{
       return;
     }
 
-    if (!videoId) {
-      notification.error({ message: "Invalid video ID." });
+    if (!musicId) {
+      notification.error({ message: "Invalid music ID." });
       return;
     }
 
     setLoading(true);
     try {
       const response = await sendRequest<IBackendRes<any>>({
-        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/report/report-video`,
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/report/report-music`,
         method: "POST",
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
         body: {
-          videoId,
+          musicId,
           userId: user._id,
           reasons: reason,
         },
@@ -65,7 +65,7 @@ const ReportModal: React.FC<{
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
       <div className="bg-white rounded-lg p-6 w-1/3">
-        <h2 className="text-xl font-bold mb-4 text-center">Report Video</h2>
+        <h2 className="text-xl font-bold mb-4 text-center">Report Music</h2>
 
         <div>
           <label className="block mb-2">Reason for reporting:</label>

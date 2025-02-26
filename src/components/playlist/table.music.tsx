@@ -9,7 +9,7 @@ import { MdOutlineMusicOff } from "react-icons/md";
 import { handleRemoveMusicInPlaylistAction } from "@/actions/playlist.action";
 
 interface IProps {
-    playlist: IMusicInPlaylist[] | []
+    playlist: IMusicInPlaylist[] | [],
 }
 
 const TableListMusicInPlaylist = (props: IProps) => {

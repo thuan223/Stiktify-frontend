@@ -9,6 +9,7 @@ const roleRoutes: Record<string, (string | RegExp)[]> = {
     "/page/search-user",
     "/personal/videohistory",
     /^\/page\/share\/[\w-]+$/,
+    /^\/page\/shareMusic\/[\w-]+$/,
     /^\/page\/music\/[\w-]+$/,
     "/page/playlist",
     "/page/music",
@@ -21,6 +22,9 @@ const roleRoutes: Record<string, (string | RegExp)[]> = {
     "/page/music",
     /^\/verify\/[\w-]+$/,
     /^\/page\/music\/\d+$/,
+    /^\/page\/share\/[\w-]+$/,
+    /^\/page\/shareMusic\/[\w-]+$/,
+
   ],
   ADMIN: ["/dashboard/user", "/dashboard/report", "/dashboard/short-video"],
 };
