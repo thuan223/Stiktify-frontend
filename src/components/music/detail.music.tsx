@@ -14,6 +14,8 @@ import { useContext, useEffect, useState } from "react";
 import ReportModal from "./comment/report_music";
 import { AuthContext } from "@/context/AuthContext";
 import { sendRequest } from "@/utils/api";
+import { revalidateTag } from "next/cache";
+import { handleLikeMusicAction } from "@/actions/music.action";
 
 interface IProps {
   item: IMusic;
@@ -47,12 +49,7 @@ const DisplayMusicDetail = ({ item }: IProps) => {
 
   const handleLike = async () => {
     try {
-      const res = await sendRequest<any>({
-        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/music-favorite/favorite/${item._id}`,
-        method: "POST",
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-
+      const res = await handleLikeMusicAction(item._id)
       setIsLiked(!isLiked);
       setTotalFavorite(isLiked ? totalFavorite - 1 : totalFavorite + 1);
     } catch (error) {

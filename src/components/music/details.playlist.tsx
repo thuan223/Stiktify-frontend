@@ -12,14 +12,14 @@ import { Tooltip } from "antd";
 import noImagePlaylist from "@/assets/images/playlist-no-image.jpg"
 interface IProps {
 
-    item: IMusicInPlaylist[] | []
-    playlist: IPlaylist
+  item: IMusicInPlaylist[] | []
+  playlist: IPlaylist
 }
 const DisplayPlaylistDetail = (props: IProps) => {
-    const { setTrackCurrent, trackCurrent, isPlaying, setIsPlaying, listPlaylist, setListPlayList } = useGlobalContext()!
-    const router = useRouter()
-    const { item, playlist } = props
-    console.log(playlist);
+  const { setTrackCurrent, trackCurrent, isPlaying, setIsPlaying, listPlaylist, setListPlayList } = useGlobalContext()!
+  const router = useRouter()
+  const { item, playlist } = props
+  console.log(playlist);
 
   const handleNavigate = () => {
     router.back();
@@ -66,56 +66,55 @@ const DisplayPlaylistDetail = (props: IProps) => {
             </div>
 
             <div className="flex w-full justify-between items-end">
-                <div className="flex gap-5 items-center justify-around">
-                    <Image
-                        alt="thumbnail"
-                        src={playlist && playlist.image !== "" ? playlist.image : noImagePlaylist}
-                        width={200}
-                        height={100}
-                        className="rounded-md" />
-                    <div className="">
-                        <div className="text-white text-[100px] font-roboto font-bold">{playlist?.name}</div>
-                        <div className="flex flex-col gap-2">
-                            <div className="flex gap-5">
-                                <div className="flex gap-2 items-center cursor-pointer">
-                                    <IoIosMusicalNotes size={20} className="text-gray-400" />
-                                    <span className="text-gray-400">{item.length}</span>
-                                </div>
-                            </div>
-                            <div className="flex gap-5">
-                                <div className="flex gap-2 items-center cursor-pointer">
-                                    <HiOutlineCalendarDateRange size={20} className="text-gray-400" />
-                                    <span className="text-gray-400">{formatDateTimeVn(playlist?.createdAt)}</span>
-                                </div>
-                            </div>
-                        </div>
+              <div className="flex gap-5 items-center justify-around">
+                <Image
+                  alt="thumbnail"
+                  src={playlist && playlist.image !== "" ? playlist.image : noImagePlaylist}
+                  width={200}
+                  height={100}
+                  className="rounded-md" />
+                <div className="">
+                  <div className="text-white text-[100px] font-roboto font-bold">{playlist?.name}</div>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex gap-5">
+                      <div className="flex gap-2 items-center cursor-pointer">
+                        <IoIosMusicalNotes size={20} className="text-gray-400" />
+                        <span className="text-gray-400">{item.length}</span>
+                      </div>
                     </div>
+                    <div className="flex gap-5">
+                      <div className="flex gap-2 items-center cursor-pointer">
+                        <HiOutlineCalendarDateRange size={20} className="text-gray-400" />
+                        <span className="text-gray-400">{formatDateTimeVn(playlist?.createdAt)}</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div className="flex gap-5">
-                <div className="flex gap-2 items-center cursor-pointer">
-                  <HiOutlineCalendarDateRange
-                    size={20}
-                    className="text-gray-400"
-                  />
-                  <span className="text-gray-400">
-                    {formatDateTimeVn(item[0].playlistId.createdAt)}
-                  </span>
-                </div>
+            </div>
+            <div className="flex gap-5">
+              <div className="flex gap-2 items-center cursor-pointer">
+                <HiOutlineCalendarDateRange
+                  size={20}
+                  className="text-gray-400"
+                />
+                <span className="text-gray-400">
+                  {formatDateTimeVn(item[0].playlistId.createdAt)}
+                </span>
               </div>
             </div>
           </div>
         </div>
-        <div>
-          <Tooltip title={"Random"}>
-            <ButtonPlayer
-              current={trackCurrent?._id}
-              className="w-16 h-16"
-              isPlaying={isPlaying}
-              togglePlay={() => handlePlayer(item)}
-            />
-          </Tooltip>
-        </div>
+      </div>
+      <div>
+        <Tooltip title={"Random"}>
+          <ButtonPlayer
+            current={trackCurrent?._id}
+            className="w-16 h-16"
+            isPlaying={isPlaying}
+            togglePlay={() => handlePlayer(item)}
+          />
+        </Tooltip>
       </div>
     </div>
   );

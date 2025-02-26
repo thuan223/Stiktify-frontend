@@ -1,5 +1,6 @@
 "use server";
 
+import { sendRequest } from "@/utils/api";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 
@@ -31,17 +32,10 @@ export const handleDisPlayMusicAction = async (id: string) => {
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/display-music/${id}`,
       {
         method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
         next: { tags: ["display-music"] },
       }
     );
-    console.log(res);
-
     const result: IBackendRes<any> = await res.json();
-    console.log(result);
-
     return result;
   } catch (error) {
     return null;
@@ -166,3 +160,36 @@ export const handleGetMyMusic = async (
     return null;
   }
 };
+
+export const handleLikeMusicAction = async (id: string) => {
+  try {
+    const cookieStore = cookies();
+    const token = cookieStore.get("token")?.value;
+    const res = await sendRequest<any>({
+      url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/music-favorite/favorite/${id}`,
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    revalidateTag("display-music");
+    return res
+  } catch (error) {
+    return null
+  }
+}
+
+export const handleCreateCommentAction = async (musicId: string, newComment: string) => {
+  try {
+    const cookieStore = cookies();
+    const token = cookieStore.get("token")?.value;
+    const res = await sendRequest<any>({
+      url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/comments/create-music-comment`,
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: { musicId, CommentDescription: newComment },
+    });
+    revalidateTag("display-music");
+    return res
+  } catch (error) {
+    return null
+  }
+}

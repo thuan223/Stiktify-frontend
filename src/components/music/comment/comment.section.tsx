@@ -3,6 +3,7 @@
 import { useContext, useEffect, useState } from "react";
 import { sendRequest } from "@/utils/api";
 import { AuthContext } from "@/context/AuthContext";
+import { handleCreateCommentAction } from "@/actions/music.action";
 
 interface Comment {
   _id: string;
@@ -22,6 +23,13 @@ const CommentSection = ({
   const { user, accessToken } = useContext(AuthContext) || {};
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit();
+    }
+  };
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -47,12 +55,7 @@ const CommentSection = ({
     if (!newComment.trim()) return;
 
     try {
-      const res = await sendRequest<any>({
-        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/comments/create-music-comment`,
-        method: "POST",
-        headers: { Authorization: `Bearer ${accessToken}` },
-        body: { musicId, CommentDescription: newComment },
-      });
+      const res = await handleCreateCommentAction(musicId, newComment)
 
       if (res) {
         setComments([
@@ -97,6 +100,7 @@ const CommentSection = ({
           placeholder="Viết bình luận..."
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
+          onKeyDown={handleKeyDown}
         />
         <button
           onClick={handleSubmit}
