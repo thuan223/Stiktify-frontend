@@ -5,13 +5,15 @@ import { LuDot } from "react-icons/lu";
 import { useRouter } from "next/navigation";
 import ButtonPlayer from "./button.player";
 import { useGlobalContext } from "@/library/global.context";
-import { MdFavoriteBorder } from "react-icons/md";
+import { MdFavorite, MdFavoriteBorder } from "react-icons/md";
 import { FaRegComment } from "react-icons/fa";
 import { RiShareForwardLine } from "react-icons/ri";
 import { BiFlag } from "react-icons/bi";
 import { capitalizeWords, formatNumber } from "@/utils/utils";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import ReportModal from "./comment/report_music";
+import { AuthContext } from "@/context/AuthContext";
+import { sendRequest } from "@/utils/api";
 
 interface IProps {
   item: IMusic;
@@ -22,6 +24,41 @@ const DisplayMusicDetail = ({ item }: IProps) => {
     useGlobalContext()!;
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [isLiked, setIsLiked] = useState(false);
+  const [totalFavorite, setTotalFavorite] = useState(item.totalFavorite);
+  const { accessToken } = useContext(AuthContext) || {};
+
+  useEffect(() => {
+    const checkLikeStatus = async () => {
+      try {
+        const res = await sendRequest<any>({
+          url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/music-favorite/check-favorite/${item._id}`,
+          method: "GET",
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        setIsLiked(res.data);
+      } catch (error) {
+        console.error("Error checking like status:", error);
+      }
+    };
+    checkLikeStatus();
+  }, [item._id]);
+
+  const handleLike = async () => {
+    try {
+      const res = await sendRequest<any>({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/music-favorite/favorite/${item._id}`,
+        method: "POST",
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+
+      setIsLiked(!isLiked);
+      setTotalFavorite(isLiked ? totalFavorite - 1 : totalFavorite + 1);
+    } catch (error) {
+      console.error("Error toggling like:", error);
+    }
+  };
 
   const handleNavigate = () => {
     router.back();
@@ -88,10 +125,17 @@ const DisplayMusicDetail = ({ item }: IProps) => {
                 </div>
               </div>
               <div className="flex gap-5">
-                <div className="flex gap-2 items-center cursor-pointer">
-                  <MdFavoriteBorder size={20} className="text-gray-400" />
+                <div
+                  className="flex gap-2 items-center cursor-pointer"
+                  onClick={handleLike}
+                >
+                  {isLiked ? (
+                    <MdFavorite size={20} className="text-red-500" /> // Icon like (đã like)
+                  ) : (
+                    <MdFavoriteBorder size={20} className="text-gray-400" /> // Icon like (chưa like)
+                  )}
                   <span className="text-gray-400">
-                    {formatNumber(item.totalFavorite)}
+                    {formatNumber(totalFavorite)}
                   </span>
                 </div>
                 <div className="flex gap-2 items-center cursor-pointer">

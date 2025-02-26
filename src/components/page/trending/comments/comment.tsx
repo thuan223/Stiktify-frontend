@@ -10,7 +10,8 @@ interface CommentProps {
   comment: {
     _id: string;
     username: string;
-    avatar?: string;
+    userImage?: string;
+    image?: string;
     parentId: string;
     CommentDescription: string;
     totalOfChildComments: number;
@@ -157,7 +158,7 @@ const Comment: React.FC<CommentProps> = ({
     <div key={comment._id} className="mb-4">
       <div className="comment flex gap-3 p-3 rounded-lg group transition-all">
         <img
-          src={comment.avatar}
+          src={comment.userImage ? comment.userImage : comment.image}
           alt="Avatar"
           className="w-10 h-10 rounded-full object-cover"
         />
@@ -260,7 +261,7 @@ const Comment: React.FC<CommentProps> = ({
         <div className="flex gap-3 p-3 mt-2">
           {/* Avatar */}
           <img
-            src={comment.avatar || userAvatar}
+            src={comment.userImage || userAvatar}
             alt="Avatar"
             className="w-10 h-10 rounded-full object-cover"
           />
@@ -299,7 +300,7 @@ const Comment: React.FC<CommentProps> = ({
         <div className="flex gap-3 p-3 mt-2">
           {/* Avatar */}
           <img
-            src={comment.avatar || userAvatar}
+            src={comment.userImage || userAvatar}
             alt="Avatar"
             className="w-10 h-10 rounded-full object-cover"
           />
