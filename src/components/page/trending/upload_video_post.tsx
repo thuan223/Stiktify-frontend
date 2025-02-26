@@ -24,57 +24,45 @@ const UploadVideoPost: React.FC = () => {
   const router = useRouter();
   const [videoDescription, setVideoDescription] = useState("");
   const [videoFile, setVideoFile] = useState<File | null>(null);
-  // Lưu tên của Category được chọn
+  const [videoThumbnail, setVideoThumbnail] = useState<File | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [allCategories, setAllCategories] = useState<ICategory[]>([]);
   const [loading, setLoading] = useState(false);
-  // State mới để lưu hashtag nhập từ người dùng
   const [hashtagsInput, setHashtagsInput] = useState("");
 
-  // Lấy danh sách categories
   useEffect(() => {
     const fetchCategories = async () => {
+      if (!accessToken) return;
       try {
-        const res = await sendRequest<{
-          statusCode: number;
-          data: any;
-          message: string;
-        }>({
+        const res = await sendRequest<{ statusCode: number; data: any }>({
           url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/categories`,
           method: "GET",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
+          headers: { Authorization: `Bearer ${accessToken}` },
         });
-        if (res.statusCode === 200) {
-          const categoriesArray = Array.isArray(res.data)
-            ? res.data
-            : Array.isArray(res.data.categories)
-            ? res.data.categories
-            : [];
-          setAllCategories(categoriesArray);
+
+        if (res.statusCode === 200 && Array.isArray(res.data)) {
+          setAllCategories(res.data);
         } else {
           notification.error({
-            message: res.message || "Get list of categories failed.",
+            message: "Failed to fetch categories.",
           });
         }
-      } catch (error) {
+      } catch {
         notification.error({
-          message: "An error occurred while retrieving the categories list.",
+          message: "An error occurred while retrieving categories.",
         });
       }
     };
 
-    if (accessToken) {
-      fetchCategories();
-    }
+    fetchCategories();
   }, [accessToken]);
 
-  const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    setFile: React.Dispatch<React.SetStateAction<File | null>>
+  ) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setVideoFile(file);
-    }
+    if (file) setFile(file);
   };
 
   const handleUpload = async () => {
@@ -85,67 +73,55 @@ const UploadVideoPost: React.FC = () => {
       return;
     }
 
-    if (!user || !user._id) {
-      notification.error({ message: "User information not identified." });
-      return;
-    }
-
-    if (!videoFile) {
-      notification.error({ message: "You have not selected a video file." });
-      return;
-    }
-
-    if (!selectedCategory) {
-      notification.error({ message: "You have not selected Video Category." });
+    if (!user || !user._id || !videoFile || !selectedCategory) {
+      notification.error({ message: "Please fill in all required fields." });
       return;
     }
 
     setLoading(true);
     try {
-      // 1. Upload file video từ local
-      const formDataUpload = new FormData();
-      formDataUpload.append("file", videoFile);
+      const uploadVideoForm = new FormData();
+      uploadVideoForm.append("file", videoFile);
 
-      const uploadRes = await sendRequestFile<IUploadResponse>({
+      const videoUploadRes = await sendRequestFile<IUploadResponse>({
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/upload/upload-video`,
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: formDataUpload,
+        headers: { Authorization: `Bearer ${accessToken}` },
+        body: uploadVideoForm,
       });
 
-      if (uploadRes.statusCode !== 201) {
-        notification.error({
-          message: uploadRes.message || "Upload failed.",
+      if (videoUploadRes.statusCode !== 201)
+        throw new Error("Video upload failed");
+
+      const videoUrl = videoUploadRes.data?.data;
+      let thumbnailUrl = "";
+
+      if (videoThumbnail) {
+        const uploadThumbnailForm = new FormData();
+        uploadThumbnailForm.append("file", videoThumbnail);
+        uploadThumbnailForm.append("folder", "thumbnails");
+
+        const thumbnailUploadRes = await sendRequestFile<IUploadResponse>({
+          url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/upload/upload-image`,
+          method: "POST",
+          headers: { Authorization: `Bearer ${accessToken}` },
+          body: uploadThumbnailForm,
         });
-        setLoading(false);
-        return;
+
+        if (thumbnailUploadRes.statusCode === 201) {
+          thumbnailUrl = thumbnailUploadRes.data;
+        }
       }
 
-      // Lấy video URL theo cấu trúc đúng của API
-      const videoUrl = uploadRes.data?.data?.data?.downloadURL;
-
-      if (!videoUrl || typeof videoUrl !== "string") {
-        notification.error({
-          message: "Video URL is invalid. Please check your upload file again.",
-        });
-        setLoading(false);
-        return;
-      }
-
-      // 2. Tạo bài post video với thông tin bổ sung
       const videoTag = hashtagsInput
-        ? hashtagsInput
-            .split(" ")
-            .map((tag) => tag.trim())
-            .filter((tag) => tag)
-        : [];
-
+        .split(" ")
+        .map((tag) => tag.trim())
+        .filter(Boolean);
       const postData = {
         videoDescription,
         videoUrl,
-        userId: typeof user._id === "string" ? user._id : String(user._id),
+        videoThumbnail: thumbnailUrl,
+        userId: user._id,
         videoTag,
         categories: [selectedCategory],
       };
@@ -153,31 +129,25 @@ const UploadVideoPost: React.FC = () => {
       const postRes = await sendRequest<IUploadResponse>({
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/create`,
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+        headers: { Authorization: `Bearer ${accessToken}` },
         body: postData,
       });
 
       if (postRes.statusCode === 201) {
         notification.success({ message: "Post created successfully!" });
-        // Reset form
         setVideoDescription("");
         setVideoFile(null);
+        setVideoThumbnail(null);
         setSelectedCategory("");
         setHashtagsInput("");
-
-        // Sau khi upload thành công, chuyển hướng đến trang user detail
         router.push(`/page/detail_user/${user._id}`);
       } else {
         notification.error({
           message: postRes.message || "Post creation failed.",
         });
       }
-    } catch (error) {
-      notification.error({
-        message: "An error occurred during upload.",
-      });
+    } catch {
+      notification.error({ message: "An error occurred during upload." });
     } finally {
       setLoading(false);
     }
@@ -192,7 +162,19 @@ const UploadVideoPost: React.FC = () => {
         <input
           type="file"
           accept="video/*"
-          onChange={handleVideoChange}
+          onChange={(e) => handleFileChange(e, setVideoFile)}
+          className="w-full"
+        />
+      </div>
+
+      <div className="mb-4">
+        <label className="block font-medium mb-1">
+          Choose Thumbnail (Optional)
+        </label>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => handleFileChange(e, setVideoThumbnail)}
           className="w-full"
         />
       </div>
@@ -213,7 +195,7 @@ const UploadVideoPost: React.FC = () => {
           value={hashtagsInput}
           onChange={(e) => setHashtagsInput(e.target.value)}
           className="w-full border p-2 rounded"
-          placeholder="Example: fun, travel, music"
+          placeholder="Example: fun travel music"
         />
       </div>
 
