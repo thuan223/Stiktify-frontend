@@ -7,8 +7,8 @@ import { sendRequest } from "@/utils/api";
 import { Copy, Check, Loader2, AlertCircle } from "lucide-react";
 
 interface Video {
-  videoUrl: string | undefined;
-  videoDescription: string | undefined;
+  videoUrl: string;
+  videoDescription: string;
 }
 
 const ShareVideo = () => {
@@ -36,7 +36,7 @@ const ShareVideo = () => {
         method: "GET",
       });
 
-      if (res?.data?.videoUrl) {
+      if (res?.data) {
         setVideoData({
           videoUrl: res.data.videoUrl,
           videoDescription: res.data.videoDescription,
@@ -52,60 +52,66 @@ const ShareVideo = () => {
     }
   };
 
-  const handleCopyDescription = () => {
-    if (videoData?.videoDescription) {
-      navigator.clipboard.writeText(videoData.videoDescription).then(() => {
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      });
-    }
+  const handleCopyLink = () => {
+    const url = `${window.location.origin}${pathname}`;
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-8">
-      <div className="bg-white shadow-xl rounded-xl p-8 max-w-4xl w-full border border-gray-200 text-center">
-        <h1 className="text-4xl font-bold text-gray-800 mb-6 font-serif">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-[#22C55E] p-6 relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-[#22C55E] to-[#a1e9b0] opacity-50 blur-3xl"></div>
+      <div className="bg-white/10 backdrop-blur-lg shadow-2xl rounded-3xl p-8 max-w-2xl w-full border border-white/20 relative z-10">
+        <h1 className="text-4xl font-bold text-gray-800 mb-6 font-serif text-center">
           Video Player
         </h1>
 
         {loading && (
-          <div className="flex flex-col items-center text-gray-700">
-            <Loader2 className="animate-spin w-8 h-8" />
-            <p className="mt-2 text-lg">Loading video...</p>
+          <div className="flex flex-col items-center justify-center text-white">
+            <Loader2 className="animate-spin w-6 h-6" />
+            <p className="mt-2">Loading video...</p>
           </div>
         )}
 
         {error && (
-          <div className="flex items-center justify-center text-red-600 bg-red-100 p-4 rounded-lg border border-red-400">
-            <AlertCircle className="w-8 h-6 mr-2" />
+          <div className="flex items-center text-red-400 bg-red-900/30 p-3 rounded-lg border border-red-500/50">
+            <AlertCircle className="w-5 h-5 mr-2" />
             <p>{error}</p>
           </div>
         )}
 
         {videoData && (
-          <div className="mt-6">
-            <video className="w-full h-[500px] rounded-lg shadow-md" controls>
+          <div className="mt-4 text-center">
+            <video
+              className="w-full rounded-xl shadow-md border border-white/10"
+              controls
+            >
               <source src={videoData.videoUrl} type="video/mp4" />
               Your browser does not support the video tag.
             </video>
-
-            {videoData.videoDescription && (
-              <div className="mt-4 flex items-center justify-center">
-                <p className="text-gray-800 text-lg font-bold">
-                  {videoData.videoDescription}
-                </p>
-                <button
-                  onClick={handleCopyDescription}
-                  className="p-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-200 active:scale-95 transition ml-8"
-                >
-                  {copied ? (
-                    <Check className="w-5 h-5 text-green-500" />
-                  ) : (
-                    <Copy className="w-5 h-5" />
-                  )}
-                </button>
-              </div>
-            )}
+            <h2 className="text-2xl font-bold text-white mt-4 drop-shadow-md">
+              {videoData.videoDescription}
+            </h2>
+            <div className="mt-4 flex justify-center">
+              <button
+                onClick={handleCopyLink}
+                className="px-3 py-1 rounded-md transition duration-300 border border-white/20 text-white bg-white/20 hover:bg-white/30 active:scale-95 flex items-center"
+              >
+                {copied ? (
+                  <>
+                    <Check className="w-4 h-4 text-white-300" />
+                    <span className="ml-2">Copied</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-4 h-4" />
+                    <span className="ml-2">Copy Link</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         )}
       </div>

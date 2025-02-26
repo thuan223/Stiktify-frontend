@@ -109,13 +109,18 @@ const ShareMusic = () => {
                 <span>{musicData.totalFavorite}</span>
                 <button
                   onClick={handleCopyLink}
-                  className="text-xs px-2 py-1 rounded-md transition duration-300 border border-white/20 
-                    text-white bg-white/20 hover:bg-white/30 active:scale-95 flex items-center"
+                  className="px-3 py-1 rounded-md transition duration-300 border border-white/20 text-white bg-white/20 hover:bg-white/30 active:scale-95 flex items-center"
                 >
                   {copied ? (
-                    <Check className="w-4 h-4 text-green-300" />
+                    <>
+                      <Check className="w-4 h-4 text-white-300" />
+                      <span className="ml-2">Copied</span>
+                    </>
                   ) : (
-                    <Copy className="w-4 h-4" />
+                    <>
+                      <Copy className="w-4 h-4" />
+                      <span className="ml-2">Copy Link</span>
+                    </>
                   )}
                 </button>
               </div>
