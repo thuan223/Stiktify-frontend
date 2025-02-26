@@ -14,7 +14,7 @@ const PlaylistPage = async ({ searchParams }: any) => {
         <div >
             <DisplayPlaylistDetail playlist={playList?.data.result[0]} item={data.result} />
             <div className="w-full h-[46vh] overflow-y-auto">
-                <TableListMusicInPlaylist playlist={data.result} />
+                <TableListMusicInPlaylist playlistP={data.result} />
             </div>
         </div>
     )
