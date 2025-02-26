@@ -12,7 +12,13 @@ interface Comment {
   CommentDescription: string;
 }
 
-const CommentSection = ({ musicId }: { musicId: string }) => {
+const CommentSection = ({
+  musicId,
+  onNewComment,
+}: {
+  musicId: string;
+  onNewComment: () => void;
+}) => {
   const { user, accessToken } = useContext(AuthContext) || {};
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
@@ -53,12 +59,13 @@ const CommentSection = ({ musicId }: { musicId: string }) => {
           ...comments,
           {
             _id: res._id,
-            username: user.fullname,
+            username: user.name,
             musicId,
             CommentDescription: newComment,
           },
         ]);
         setNewComment("");
+        onNewComment(); // Gọi hàm callback để tăng số lượng bình luận
       }
     } catch (error) {
       console.error("Error posting comment:", error);
@@ -84,16 +91,16 @@ const CommentSection = ({ musicId }: { musicId: string }) => {
       </div>
 
       {/* Ô nhập bình luận - cố định dưới cùng */}
-      <div className="absolute w-full bottom-0 left-0 right-0 bg-white border-t p-2 flex justify-center items-center">
+      <div className="absolute w-[98%] bottom-0 left-0 right-0 bg-white border-t mx-2 p-2 flex justify-between items-center mr-8">
         <textarea
-          className="w-3/4 p-2 border rounded h-10 resize-none"
+          className="w-5/6 p-2 border rounded h-10 resize-none"
           placeholder="Viết bình luận..."
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
         />
         <button
           onClick={handleSubmit}
-          className="bg-blue-500 h-10 text-white px-4 py-1 rounded mt-2 w-16"
+          className="bg-blue-500 h-10 text-white px-4 py-1 rounded w-16"
         >
           Gửi
         </button>

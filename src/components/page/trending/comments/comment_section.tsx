@@ -16,7 +16,7 @@ interface CommentSectionProps {
 interface Comment {
   _id: string;
   username: string;
-  avatar?: string;
+  image?: string;
   parentId: any;
   CommentDescription: string;
   totalOfChildComments: number;
@@ -44,8 +44,8 @@ const CommentSection: React.FC<CommentSectionProps> = ({
 
   const { accessToken, user } = useContext(AuthContext) ?? {};
   const userAvatar =
-    user?.avatar ||
-    "https://drive.google.com/thumbnail?id=1K8L721DKwYnSHIzyG7-OSgeLhNR_V---"; // Avatar mặc định
+    user?.image ||
+    "https://firebasestorage.googleapis.com/v0/b/stiktify-bachend.firebasestorage.app/o/avatars%2Fdefault_avatar.png?alt=media&token=93109c9b-d284-41ea-95e7-4786e3c69328"; // Avatar mặc định
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -110,7 +110,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
           {
             _id: res.data._id,
             username: user.name,
-            avatar: userAvatar,
+            image: userAvatar,
             parentId: null,
             CommentDescription: res.data.CommentDescription,
             totalOfChildComments: 0,

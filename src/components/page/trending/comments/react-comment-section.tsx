@@ -33,7 +33,7 @@ const reactions: Reaction[] = [
   {
     _id: "6741b8a5342097607f012a76",
     icon: (
-      <div className="relative w-8 h-8">
+      <div className="relative w-5 h-5">
         <Image
           src={like_img}
           alt="Like GIF"
@@ -47,7 +47,7 @@ const reactions: Reaction[] = [
           width={30}
           height={30}
           className="absolute inset-0 opacity-0 transition-opacity duration-300 hover:opacity-100 h-100 w-100"
-          style={{ scale: 1.5 }}
+          style={{ scale: 2 }}
         />
       </div>
     ),
@@ -55,7 +55,7 @@ const reactions: Reaction[] = [
   {
     _id: "6741b8a5342097607f012a77",
     icon: (
-      <div className="relative w-8 h-8">
+      <div className="relative w-5 h-5">
         <Image
           src={in_love_img}
           alt="Like GIF"
@@ -69,7 +69,7 @@ const reactions: Reaction[] = [
           width={30}
           height={30}
           className="absolute inset-0 opacity-0 transition-opacity duration-300 hover:opacity-100"
-          style={{ scale: 1.5 }}
+          style={{ scale: 2 }}
         />
       </div>
     ),
@@ -77,7 +77,7 @@ const reactions: Reaction[] = [
   {
     _id: "6741b8a5342097607f012a7b",
     icon: (
-      <div className="relative w-8 h-8">
+      <div className="relative w-5 h-5">
         <Image
           src={happy_img}
           alt="Like GIF"
@@ -91,7 +91,7 @@ const reactions: Reaction[] = [
           width={30}
           height={30}
           className=" absolute inset-0 opacity-0 transition-opacity duration-300 hover:opacity-100"
-          style={{ scale: 1.5 }}
+          style={{ scale: 2 }}
         />
       </div>
     ),
@@ -99,7 +99,7 @@ const reactions: Reaction[] = [
   {
     _id: "6741b8a5342097607f012a78",
     icon: (
-      <div className="relative w-8 h-8">
+      <div className="relative w-5 h-5">
         <Image
           src={surprised_img}
           alt="Like GIF"
@@ -113,7 +113,7 @@ const reactions: Reaction[] = [
           width={30}
           height={30}
           className="absolute inset-0 opacity-0 transition-opacity duration-300 hover:opacity-100"
-          style={{ scale: 1.5 }}
+          style={{ scale: 2 }}
         />
       </div>
     ),
@@ -121,7 +121,7 @@ const reactions: Reaction[] = [
   {
     _id: "6741b8a5342097607f012a79",
     icon: (
-      <div className="relative w-8 h-8">
+      <div className="relative w-5 h-5">
         <Image
           src={sad_img}
           alt="Like GIF"
@@ -135,7 +135,7 @@ const reactions: Reaction[] = [
           width={30}
           height={30}
           className="absolute inset-0 opacity-0 transition-opacity duration-300 hover:opacity-100"
-          style={{ scale: 1.5 }}
+          style={{ scale: 2 }}
         />
       </div>
     ),
@@ -143,7 +143,7 @@ const reactions: Reaction[] = [
   {
     _id: "6741b8a5342097607f012a7a",
     icon: (
-      <div className="relative w-8 h-8">
+      <div className="relative w-5 h-5">
         <Image
           src={angry_img}
           alt="Like GIF"
@@ -157,7 +157,7 @@ const reactions: Reaction[] = [
           width={30}
           height={30}
           className="absolute inset-0 opacity-0 transition-opacity duration-300 hover:opacity-100"
-          style={{ scale: 1.5 }}
+          style={{ scale: 2 }}
         />
       </div>
     ),
@@ -254,7 +254,7 @@ const ReactSection: React.FC<ReactionSectionProp> = ({
         <>
           {showReactions && (
             <div
-              className="absolute z-50 bottom-full left-1/2 transform -translate-x-1/2 -translate-y-2 bg-white border p-2 rounded-md shadow-md flex gap-2"
+              className="absolute z-50 bottom-full left-10 transform -translate-x-1/2 -translate-y-2 bg-white border p-2 rounded-md shadow-md flex gap-2"
               onMouseEnter={() => setShowReactions(true)}
               onMouseLeave={() => setShowReactions(false)}
             >
@@ -278,7 +278,10 @@ const ReactSection: React.FC<ReactionSectionProp> = ({
             {selectedReaction ? (
               <div onClick={handleRemoveReaction}>{selectedReaction.icon}</div>
             ) : (
-              <FaThumbsUp className="text-gray-400 scale-[2] ml-2" size={15} />
+              <FaThumbsUp
+                className="text-gray-400 scale-[2.5] ml-2"
+                size={10}
+              />
             )}
           </div>
         </>
