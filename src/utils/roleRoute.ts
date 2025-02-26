@@ -22,7 +22,12 @@ const roleRoutes: Record<string, (string | RegExp)[]> = {
     /^\/verify\/[\w-]+$/,
     /^\/page\/music\/\d+$/,
   ],
-  ADMIN: ["/dashboard/user", "/dashboard/report", "/dashboard/short-video"],
+  ADMIN: [
+    "/dashboard/user",
+    "/dashboard/report",
+    "/dashboard/short-video",
+    "/dashboard/algorithm",
+  ],
 };
 
 const defaultRoutes: Record<string, string> = {
