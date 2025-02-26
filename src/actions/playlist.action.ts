@@ -24,6 +24,28 @@ export const handleGetPlaylistAction = async (id: string) => {
     }
 }
 
+
+export const handleGetDetailsPlaylistAction = async (id: string) => {
+    try {
+        const cookieStore = cookies()
+        const token = cookieStore.get("token")?.value
+        const res = await fetch(`
+            ${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/playlists/detail-playlist/${id}`,
+            {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                next: { tags: ["list-playlist"] }
+            })
+        const result: IBackendRes<any> = await res.json();
+        return result
+    } catch (error) {
+        return null
+    }
+}
+
 export const handleAddMusicInPlaylistAction = async (playlistId: string, musicId: string) => {
     try {
         const cookieStore = cookies()

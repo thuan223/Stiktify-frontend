@@ -9,21 +9,17 @@ import { capitalizeWords, formatDateTimeVn, formatNumber } from "@/utils/utils";
 import { IoIosMusicalNotes } from "react-icons/io";
 import ButtonPlayer from "./button.player";
 import { Tooltip } from "antd";
-
+import noImagePlaylist from "@/assets/images/playlist-no-image.jpg"
 interface IProps {
-  item: IMusicInPlaylist[] | [];
+
+    item: IMusicInPlaylist[] | []
+    playlist: IPlaylist
 }
 const DisplayPlaylistDetail = (props: IProps) => {
-  const {
-    setTrackCurrent,
-    trackCurrent,
-    isPlaying,
-    setIsPlaying,
-    listPlaylist,
-    setListPlayList,
-  } = useGlobalContext()!;
-  const router = useRouter();
-  const { item } = props;
+    const { setTrackCurrent, trackCurrent, isPlaying, setIsPlaying, listPlaylist, setListPlayList } = useGlobalContext()!
+    const router = useRouter()
+    const { item, playlist } = props
+    console.log(playlist);
 
   const handleNavigate = () => {
     router.back();
@@ -68,11 +64,32 @@ const DisplayPlaylistDetail = (props: IProps) => {
             <div className="text-white text-[100px] font-roboto font-bold">
               {item[0].playlistId?.name}
             </div>
-            <div className="flex flex-col gap-2">
-              <div className="flex gap-5">
-                <div className="flex gap-2 items-center cursor-pointer">
-                  <IoIosMusicalNotes size={20} className="text-gray-400" />
-                  <span className="text-gray-400">{item.length}</span>
+
+            <div className="flex w-full justify-between items-end">
+                <div className="flex gap-5 items-center justify-around">
+                    <Image
+                        alt="thumbnail"
+                        src={playlist && playlist.image !== "" ? playlist.image : noImagePlaylist}
+                        width={200}
+                        height={100}
+                        className="rounded-md" />
+                    <div className="">
+                        <div className="text-white text-[100px] font-roboto font-bold">{playlist?.name}</div>
+                        <div className="flex flex-col gap-2">
+                            <div className="flex gap-5">
+                                <div className="flex gap-2 items-center cursor-pointer">
+                                    <IoIosMusicalNotes size={20} className="text-gray-400" />
+                                    <span className="text-gray-400">{item.length}</span>
+                                </div>
+                            </div>
+                            <div className="flex gap-5">
+                                <div className="flex gap-2 items-center cursor-pointer">
+                                    <HiOutlineCalendarDateRange size={20} className="text-gray-400" />
+                                    <span className="text-gray-400">{formatDateTimeVn(playlist?.createdAt)}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
               </div>
               <div className="flex gap-5">
