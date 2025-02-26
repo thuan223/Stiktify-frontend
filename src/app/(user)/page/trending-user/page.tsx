@@ -108,9 +108,9 @@ const TrendingPage = () => {
     }
   };
   const handleArrowKey = async (event: KeyboardEvent) => {
-    // if (showComments) {
-    //   return;
-    // }
+    if (event.key !== "ArrowDown" && event.key !== "ArrowUp") {
+      return;
+    }
     setIsWatched(false);
     const videoSuggestId = Cookies.get("suggestVideoId");
     if (event.key === "ArrowDown") {

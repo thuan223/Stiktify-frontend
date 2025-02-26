@@ -16,7 +16,7 @@ import Cookies from 'js-cookie';
 interface IProps {
     isCreateModalOpen: boolean;
     setIsCreateModalOpen: (v: boolean) => void;
-    listCate: any[] | []
+    listCate: { _id: string, categoryName: string }[] | []
 }
 
 const AddMusicModal = (props: IProps) => {
@@ -26,7 +26,7 @@ const AddMusicModal = (props: IProps) => {
     const [form] = Form.useForm();
     const [urlUpload, setUrlUpload] = useState<string>("")
     const [loading, setLoading] = useState(false);
-
+    const [listCateChoose, setListCateChoose] = useState<{ _id: string, categoryName: string }[] | []>([])
     const { Option } = Select;
 
 
@@ -78,6 +78,19 @@ const AddMusicModal = (props: IProps) => {
         form.setFieldValue("category", listCate)
 
     }, [isCreateModalOpen, listCate])
+
+    const handleAddCateChoose = (item: any) => {
+        setListCateChoose(prev => [...prev, item])
+    }
+
+    const checkChoose = (id: string) => {
+        listCateChoose && listCateChoose.length > 0 && listCateChoose.map(item => {
+            if (item._id === id) {
+                return true;
+            }
+            return false;
+        })
+    }
     return (
         <div>
             <Modal
@@ -103,43 +116,14 @@ const AddMusicModal = (props: IProps) => {
                     layout="vertical"
                     form={form}
                 >
-                    <Form.List name="category" initialValue={[""]}>
-                        {(fields, { add, remove }) => (
-                            <div>
-                                <Form.Item>
-                                    <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />}>Add tag</Button>
-                                </Form.Item>
-                                <Space style={{ display: 'flex', flexWrap: 'wrap' }}>
-                                    {fields.map((field) => (
-                                        <Form.Item
-                                            key={field.key}
-                                        >
-                                            <Space
-                                                style={{ position: "relative" }}>
-                                                <Form.Item
-                                                    hasFeedback
-                                                    {...field}
-                                                    validateTrigger={['onChange', 'onBlur']}
-                                                    rules={[{ required: true, message: 'Please input your music tag!' }]}
-                                                    noStyle
-                                                >
-                                                    <Input style={{ width: 100 }} placeholder="Enter tag" type='text' />
-                                                </Form.Item>
-                                                {fields.length > 1 && <MinusCircleOutlined
-                                                    style={{
-                                                        position: "absolute",
-                                                        top: -5,
-                                                        right: 0,
-                                                        color: "#2d3436"
-                                                    }}
-                                                    onClick={() => remove(field.name)} />}
-                                            </Space>
-                                        </Form.Item>
-                                    ))}
-                                </Space>
-                            </div>
-                        )}
-                    </Form.List>
+                    <div className='flex gap-2 flex-wrap mb-2'>
+                        {listCate && listCate.length > 0 && listCate.map(item => (
+                            <div
+                                key={item._id}
+                                onClick={() => handleAddCateChoose(item)}
+                                className='border border-gray-700 p-2 rounded-md cursor-pointer'>{item.categoryName}</div>
+                        ))}
+                    </div>
                     <Row>
                         <Form.List name="musicTag" initialValue={[""]}>
                             {(fields, { add, remove }) => (
