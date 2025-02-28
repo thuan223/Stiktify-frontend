@@ -21,8 +21,8 @@ const roleRoutes: Record<string, (string | RegExp)[]> = {
     "/auth/register",
     "/page/music",
     /^\/verify\/[\w-]+$/,
-    /^\/page\/music\/\d+$/,
     /^\/page\/share\/[\w-]+$/,
+    /^\/page\/music\/[\w-]+$/,
     /^\/page\/shareMusic\/[\w-]+$/,
 
   ],
