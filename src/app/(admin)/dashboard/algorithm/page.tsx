@@ -1,27 +1,30 @@
 "use client";
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Slider, Switch, Card } from "antd";
+import { Button, Modal } from "antd";
+import { sendRequest } from "@/utils/api";
+import { AuthContext } from "@/context/AuthContext";
 
 type AlgorithmConfig = {
-  NumberOfCount: {
-    wishLitCount: number;
+  numberOfCount: {
+    wishListCount: number;
     wishListScoreCount: number;
   };
-  ResetScore: {
+  resetScore: {
     discountScore: number;
     wasCheckScore: boolean;
   };
-  NumberVideoSuggest: {
+  numberVideoSuggest: {
     triggerAction: number;
     collaboration: number;
-    Trending: number;
-    Random: number;
+    trending: number;
+    random: number;
   };
-  CollaberativeFiltering: {
-    NumberCollaberator: number;
-    NumberWishListVideo: number;
+  collaborativeFiltering: {
+    numberCollaborator: number;
+    numberWishListVideo: number;
   };
-  ScoreIncrease: {
+  scoreIncrease: {
     watchVideo: number;
     reactionAboutVideo: number;
     reactionAboutMusic: number;
@@ -36,17 +39,17 @@ type AlgorithmConfig = {
 };
 
 const ManageAlgorithm: React.FC = () => {
-  const [config, setConfig] = useState<AlgorithmConfig>({
-    NumberOfCount: { wishLitCount: 10, wishListScoreCount: 100 },
-    ResetScore: { discountScore: 10, wasCheckScore: false },
-    NumberVideoSuggest: {
+  const defaultConfig: AlgorithmConfig = {
+    numberOfCount: { wishListCount: 10, wishListScoreCount: 100 },
+    resetScore: { discountScore: 10, wasCheckScore: false },
+    numberVideoSuggest: {
       triggerAction: 4,
       collaboration: 4,
-      Trending: 1,
-      Random: 1,
+      trending: 1,
+      random: 1,
     },
-    CollaberativeFiltering: { NumberCollaberator: 5, NumberWishListVideo: 5 },
-    ScoreIncrease: {
+    collaborativeFiltering: { numberCollaborator: 5, numberWishListVideo: 5 },
+    scoreIncrease: {
       watchVideo: 1,
       reactionAboutVideo: 1.5,
       reactionAboutMusic: 1.5,
@@ -58,8 +61,16 @@ const ManageAlgorithm: React.FC = () => {
       searchMusic: 2.5,
       shareVideo: 2,
     },
-  });
-
+  };
+  const [resetConfig, setResetConfig] =
+    useState<AlgorithmConfig>(defaultConfig);
+  const [config, setConfig] = useState<AlgorithmConfig>(defaultConfig);
+  const [averageWishListScore, setAverageWishListScore] = useState<Number>(0);
+  const [averageWishList, setAverageWishList] = useState<Number>(0);
+  const { user, accessToken, logout } = useContext(AuthContext) ?? {};
+  const onResetConfig = () => {
+    setConfig(resetConfig);
+  };
   const handleChange = (
     category: keyof AlgorithmConfig,
     key: string,
@@ -72,6 +83,57 @@ const ManageAlgorithm: React.FC = () => {
         [key]: value,
       },
     }));
+  };
+  useEffect(() => {
+    handleFetchSetting();
+  }, [accessToken]);
+  const handleFetchSetting = async () => {
+    if (!accessToken) return;
+    const res = await sendRequest<
+      IBackendRes<{
+        algorithmConfig: AlgorithmConfig;
+        averageWishListScore: Number;
+        averageWishList: Number;
+      }>
+    >({
+      url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/settings`,
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    setConfig(res?.data?.algorithmConfig ?? defaultConfig);
+    setResetConfig(res?.data?.algorithmConfig ?? defaultConfig);
+    setAverageWishList(res?.data?.averageWishList || 0);
+    setAverageWishListScore(res?.data?.averageWishListScore || 0);
+  };
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleUpdateAlgorithmSetting = async () => {
+    if (!accessToken) return;
+    setIsModalOpen(false);
+    const res = await sendRequest<IBackendRes<AlgorithmConfig>>({
+      url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/settings`,
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: {
+       numberOfCount:config.numberOfCount,
+       resetScore:config.resetScore,
+       numberVideoSuggest:config.numberVideoSuggest,
+       collaborativeFiltering:config.collaborativeFiltering,
+       scoreIncrease:config.scoreIncrease
+      },
+    });
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
   };
 
   return (
@@ -92,12 +154,12 @@ const ManageAlgorithm: React.FC = () => {
               <span className="text-sm w-6 text-right">10</span>
               <Slider
                 railStyle={{ backgroundColor: "#C3C3C3" }}
-                value={config.NumberOfCount.wishLitCount}
+                value={config.numberOfCount.wishListCount}
                 min={10}
                 max={30}
                 step={1}
                 onChange={(value) =>
-                  handleChange("NumberOfCount", "wishLitCount", value)
+                  handleChange("numberOfCount", "wishListCount", value)
                 }
                 className="flex-1"
               />
@@ -113,12 +175,12 @@ const ManageAlgorithm: React.FC = () => {
               <span className="text-sm w-10 text-right">100</span>
               <Slider
                 railStyle={{ backgroundColor: "#C3C3C3" }}
-                value={config.NumberOfCount.wishListScoreCount}
+                value={config.numberOfCount.wishListScoreCount}
                 min={100}
                 max={500}
                 step={10}
                 onChange={(value) =>
-                  handleChange("NumberOfCount", "wishListScoreCount", value)
+                  handleChange("numberOfCount", "wishListScoreCount", value)
                 }
                 className="flex-1"
               />
@@ -128,21 +190,25 @@ const ManageAlgorithm: React.FC = () => {
         </Card>
 
         <Card
-          title={<span className="text-xl">Wish List Averages</span>}
+          title={<span className="text-xl">Averages</span>}
           className="flex-1 flex flex-col items-center justify-center"
         >
           <div className="mb-4 text-center">
             <label className="block text-[18px]  mb-2 text-gray-700">
               Wish List Average:
             </label>
-            <span className="text-3xl  text-blue-600">1</span>
+            <span className="text-3xl  text-blue-600">
+              {averageWishList + ""}
+            </span>
           </div>
 
           <div className="text-center">
             <label className="block text-[18px]  mb-2 text-gray-700">
               Score Count Average:
             </label>
-            <span className="text-3xl  text-blue-600">2</span>
+            <span className="text-3xl  text-blue-600">
+              {averageWishListScore + ""}
+            </span>
           </div>
         </Card>
 
@@ -161,9 +227,9 @@ const ManageAlgorithm: React.FC = () => {
                 min={0}
                 max={50}
                 step={10}
-                value={config.ResetScore.discountScore}
+                value={config.resetScore.discountScore}
                 onChange={(value) =>
-                  handleChange("ResetScore", "discountScore", value)
+                  handleChange("resetScore", "discountScore", value)
                 }
                 className="flex-1"
               />
@@ -176,9 +242,9 @@ const ManageAlgorithm: React.FC = () => {
               Was Check Score:
             </label>
             <Switch
-              checked={config.ResetScore.wasCheckScore}
+              checked={config.resetScore.wasCheckScore}
               onChange={(checked) =>
-                handleChange("ResetScore", "wasCheckScore", checked)
+                handleChange("resetScore", "wasCheckScore", checked)
               }
             />
           </div>
@@ -198,12 +264,12 @@ const ManageAlgorithm: React.FC = () => {
                 <span className="text-sm w-6 text-right">0</span>
                 <Slider
                   railStyle={{ backgroundColor: "#C3C3C3" }}
-                  value={config.NumberVideoSuggest.triggerAction}
+                  value={config.numberVideoSuggest.triggerAction}
                   min={0}
                   max={10}
                   step={1}
                   onChange={(value) =>
-                    handleChange("NumberVideoSuggest", "triggerAction", value)
+                    handleChange("numberVideoSuggest", "triggerAction", value)
                   }
                   className="flex-1"
                 />
@@ -219,12 +285,12 @@ const ManageAlgorithm: React.FC = () => {
                 <span className="text-sm w-6 text-right">0</span>
                 <Slider
                   railStyle={{ backgroundColor: "#C3C3C3" }}
-                  value={config.NumberVideoSuggest.collaboration}
+                  value={config.numberVideoSuggest.collaboration}
                   min={0}
                   max={10}
                   step={1}
                   onChange={(value) =>
-                    handleChange("NumberVideoSuggest", "collaboration", value)
+                    handleChange("numberVideoSuggest", "collaboration", value)
                   }
                   className="flex-1"
                 />
@@ -240,12 +306,12 @@ const ManageAlgorithm: React.FC = () => {
                 <span className="text-sm w-6 text-right">0</span>
                 <Slider
                   railStyle={{ backgroundColor: "#C3C3C3" }}
-                  value={config.NumberVideoSuggest.Trending}
+                  value={config.numberVideoSuggest.trending}
                   min={0}
                   max={2}
                   step={1}
                   onChange={(value) =>
-                    handleChange("NumberVideoSuggest", "Trending", value)
+                    handleChange("numberVideoSuggest", "trending", value)
                   }
                   className="flex-1"
                 />
@@ -261,12 +327,12 @@ const ManageAlgorithm: React.FC = () => {
                 <span className="text-sm w-6 text-right">0</span>
                 <Slider
                   railStyle={{ backgroundColor: "#C3C3C3" }}
-                  value={config.NumberVideoSuggest.Random}
+                  value={config.numberVideoSuggest.random}
                   min={0}
                   max={2}
                   step={1}
                   onChange={(value) =>
-                    handleChange("NumberVideoSuggest", "Random", value)
+                    handleChange("numberVideoSuggest", "random", value)
                   }
                   className="flex-1"
                 />
@@ -287,20 +353,20 @@ const ManageAlgorithm: React.FC = () => {
               <span className="text-sm w-6 text-right">0</span>
               <Slider
                 railStyle={{ backgroundColor: "#C3C3C3" }}
-                value={config.CollaberativeFiltering.NumberCollaberator}
+                value={config.collaborativeFiltering.numberCollaborator}
                 min={0}
-                max={10}
-                step={1}
+                max={5}
+                step={0.5}
                 onChange={(value) =>
                   handleChange(
-                    "CollaberativeFiltering",
-                    "NumberCollaberator",
+                    "collaborativeFiltering",
+                    "numberCollaborator",
                     value
                   )
                 }
                 className="flex-1"
               />
-              <span className="text-sm w-6">10</span>
+              <span className="text-sm w-6">5</span>
             </div>
           </div>
 
@@ -312,234 +378,267 @@ const ManageAlgorithm: React.FC = () => {
               <span className="text-sm w-6 text-right">0</span>
               <Slider
                 railStyle={{ backgroundColor: "#C3C3C3" }}
-                value={config.CollaberativeFiltering.NumberWishListVideo}
+                value={config.collaborativeFiltering.numberWishListVideo}
                 min={0}
-                max={10}
-                step={1}
+                max={5}
+                step={0.5}
                 onChange={(value) =>
                   handleChange(
-                    "CollaberativeFiltering",
-                    "NumberWishListVideo",
+                    "collaborativeFiltering",
+                    "numberWishListVideo",
                     value
                   )
                 }
                 className="flex-1"
               />
-              <span className="text-sm w-6">10</span>
+              <span className="text-sm w-6">5</span>
             </div>
           </div>
         </Card>
       </div>
       <Card
-          title={<span className="text-xl">Score Increase</span>}
-          className="mb-4 w-full"
-        >
-          <div className="flex flex-wrap">
-            <div className="w-1/3 p-2">
-              <label className="block text-[18px] font-medium mb-1">
-                Watch Video:
-              </label>
-              <div className="flex items-center gap-4">
-                <span className="text-sm w-6 text-right">0</span>
-                <Slider
-                  railStyle={{ backgroundColor: "#C3C3C3" }}
-                  value={config.ScoreIncrease.watchVideo}
-                  min={0}
-                  max={5}
-                  step={0.5}
-                  onChange={(value) =>
-                    handleChange("ScoreIncrease", "watchVideo", value)
-                  }
-                  className="flex-1"
-                />
-                <span className="text-sm w-6">10</span>
-              </div>
-            </div>
-
-            <div className="w-1/3 p-2">
-              <label className="block text-[18px] font-medium mb-1">
-                Reaction Video:
-              </label>
-              <div className="flex items-center gap-4">
-                <span className="text-sm w-6 text-right">0</span>
-                <Slider
-                  railStyle={{ backgroundColor: "#C3C3C3" }}
-                  value={config.ScoreIncrease.reactionAboutVideo}
-                  min={0}
-                  max={5}
-                  step={0.5}
-                  onChange={(value) =>
-                    handleChange("ScoreIncrease", "reactionAboutVideo", value)
-                  }
-                  className="flex-1"
-                />
-                <span className="text-sm w-6">10</span>
-              </div>
-            </div>
-
-            <div className="w-1/3 p-2">
-              <label className="block text-[18px] font-medium mb-1">
-                Reaction Music:
-              </label>
-              <div className="flex items-center gap-4">
-                <span className="text-sm w-6 text-right">0</span>
-                <Slider
-                  railStyle={{ backgroundColor: "#C3C3C3" }}
-                  value={config.ScoreIncrease.reactionAboutMusic}
-                  min={0}
-                  max={5}
-                  step={0.5}
-                  onChange={(value) =>
-                    handleChange("ScoreIncrease", "reactionAboutMusic", value)
-                  }
-                  className="flex-1"
-                />
-                <span className="text-sm w-6">2</span>
-              </div>
-            </div>
-
-            <div className="w-1/3 p-2">
-              <label className="block text-[18px] font-medium mb-1">
-                Click Link Music:
-              </label>
-              <div className="flex items-center gap-4">
-                <span className="text-sm w-6 text-right">0</span>
-                <Slider
-                  railStyle={{ backgroundColor: "#C3C3C3" }}
-                  value={config.ScoreIncrease.clickLinkMusic}
-                  min={0}
-                  max={5}
-                  step={0.5}
-                  onChange={(value) =>
-                    handleChange("ScoreIncrease", "clickLinkMusic", value)
-                  }
-                  className="flex-1"
-                />
-                <span className="text-sm w-6">2</span>
-              </div>
-            </div>
-            <div className="w-1/3 p-2">
-              <label className="block text-[18px] font-medium mb-1">
-               Follow Creator:
-              </label>
-              <div className="flex items-center gap-4">
-                <span className="text-sm w-6 text-right">0</span>
-                <Slider
-                  railStyle={{ backgroundColor: "#C3C3C3" }}
-                  value={config.ScoreIncrease.followCreator}
-                  min={0}
-                  max={5}
-                  step={0.5}
-                  onChange={(value) =>
-                    handleChange("ScoreIncrease", "followCreator", value)
-                  }
-                  className="flex-1"
-                />
-                <span className="text-sm w-6">2</span>
-              </div>
-            </div>
-            <div className="w-1/3 p-2">
-              <label className="block text-[18px] font-medium mb-1">
-               Listen Music:
-              </label>
-              <div className="flex items-center gap-4">
-                <span className="text-sm w-6 text-right">0</span>
-                <Slider
-                  railStyle={{ backgroundColor: "#C3C3C3" }}
-                  value={config.ScoreIncrease.listenMusic}
-                  min={0}
-                  max={5}
-                  step={0.5}
-                  onChange={(value) =>
-                    handleChange("ScoreIncrease", "listenMusic", value)
-                  }
-                  className="flex-1"
-                />
-                <span className="text-sm w-6">2</span>
-              </div>
-            </div>
-            <div className="w-1/3 p-2">
-              <label className="block text-[18px] font-medium mb-1">
-               Comment Video:
-              </label>
-              <div className="flex items-center gap-4">
-                <span className="text-sm w-6 text-right">0</span>
-                <Slider
-                  railStyle={{ backgroundColor: "#C3C3C3" }}
-                  value={config.ScoreIncrease.commentVideo}
-                  min={0}
-                  max={5}
-                  step={0.5}
-                  onChange={(value) =>
-                    handleChange("ScoreIncrease", "commentVideo", value)
-                  }
-                  className="flex-1"
-                />
-                <span className="text-sm w-6">2</span>
-              </div>
-            </div>
-            <div className="w-1/3 p-2">
-              <label className="block text-[18px] font-medium mb-1">
-               Search Video:
-              </label>
-              <div className="flex items-center gap-4">
-                <span className="text-sm w-6 text-right">0</span>
-                <Slider
-                  railStyle={{ backgroundColor: "#C3C3C3" }}
-                  value={config.ScoreIncrease.searchVideo}
-                  min={0}
-                  max={5}
-                  step={0.5}
-                  onChange={(value) =>
-                    handleChange("ScoreIncrease", "searchVideo", value)
-                  }
-                  className="flex-1"
-                />
-                <span className="text-sm w-6">2</span>
-              </div>
-            </div>
-            <div className="w-1/3 p-2">
-              <label className="block text-[18px] font-medium mb-1">
-               Search Music:
-              </label>
-              <div className="flex items-center gap-4">
-                <span className="text-sm w-6 text-right">0</span>
-                <Slider
-                  railStyle={{ backgroundColor: "#C3C3C3" }}
-                  value={config.ScoreIncrease.searchMusic}
-                  min={0}
-                  max={5}
-                  step={0.5}
-                  onChange={(value) =>
-                    handleChange("ScoreIncrease", "searchMusic", value)
-                  }
-                  className="flex-1"
-                />
-                <span className="text-sm w-6">2</span>
-              </div>
-            </div>
-            <div className="w-1/3 p-2">
-              <label className="block text-[18px] font-medium mb-1">
-               Share Video:
-              </label>
-              <div className="flex items-center gap-4">
-                <span className="text-sm w-6 text-right">0</span>
-                <Slider
-                  railStyle={{ backgroundColor: "#C3C3C3" }}
-                  value={config.ScoreIncrease.shareVideo}
-                  min={0}
-                  max={5}
-                  step={0.5}
-                  onChange={(value) =>
-                    handleChange("ScoreIncrease", "shareVideo", value)
-                  }
-                  className="flex-1"
-                />
-                <span className="text-sm w-6">2</span>
-              </div>
+        title={<span className="text-xl">Score Increase</span>}
+        className="mb-4 w-full"
+      >
+        <div className="flex flex-wrap">
+          <div className="w-1/3 p-2">
+            <label className="block text-[18px] font-medium mb-1">
+              Watch Video:
+            </label>
+            <div className="flex items-center gap-4">
+              <span className="text-sm w-6 text-right">0</span>
+              <Slider
+                railStyle={{ backgroundColor: "#C3C3C3" }}
+                value={config.scoreIncrease.watchVideo}
+                min={0}
+                max={5}
+                step={0.5}
+                onChange={(value) =>
+                  handleChange("scoreIncrease", "watchVideo", value)
+                }
+                className="flex-1"
+              />
+              <span className="text-sm w-6">5</span>
             </div>
           </div>
-        </Card>
+
+          <div className="w-1/3 p-2">
+            <label className="block text-[18px] font-medium mb-1">
+              Reaction Video:
+            </label>
+            <div className="flex items-center gap-4">
+              <span className="text-sm w-6 text-right">0</span>
+              <Slider
+                railStyle={{ backgroundColor: "#C3C3C3" }}
+                value={config.scoreIncrease.reactionAboutVideo}
+                min={0}
+                max={5}
+                step={0.5}
+                onChange={(value) =>
+                  handleChange("scoreIncrease", "reactionAboutVideo", value)
+                }
+                className="flex-1"
+              />
+              <span className="text-sm w-6">5</span>
+            </div>
+          </div>
+
+          <div className="w-1/3 p-2">
+            <label className="block text-[18px] font-medium mb-1">
+              Reaction Music:
+            </label>
+            <div className="flex items-center gap-4">
+              <span className="text-sm w-6 text-right">0</span>
+              <Slider
+                railStyle={{ backgroundColor: "#C3C3C3" }}
+                value={config.scoreIncrease.reactionAboutMusic}
+                min={0}
+                max={5}
+                step={0.5}
+                onChange={(value) =>
+                  handleChange("scoreIncrease", "reactionAboutMusic", value)
+                }
+                className="flex-1"
+              />
+              <span className="text-sm w-6">5</span>
+            </div>
+          </div>
+
+          <div className="w-1/3 p-2">
+            <label className="block text-[18px] font-medium mb-1">
+              Click Link Music:
+            </label>
+            <div className="flex items-center gap-4">
+              <span className="text-sm w-6 text-right">0</span>
+              <Slider
+                railStyle={{ backgroundColor: "#C3C3C3" }}
+                value={config.scoreIncrease.clickLinkMusic}
+                min={0}
+                max={5}
+                step={0.5}
+                onChange={(value) =>
+                  handleChange("scoreIncrease", "clickLinkMusic", value)
+                }
+                className="flex-1"
+              />
+              <span className="text-sm w-6">5</span>
+            </div>
+          </div>
+          <div className="w-1/3 p-2">
+            <label className="block text-[18px] font-medium mb-1">
+              Follow Creator:
+            </label>
+            <div className="flex items-center gap-4">
+              <span className="text-sm w-6 text-right">0</span>
+              <Slider
+                railStyle={{ backgroundColor: "#C3C3C3" }}
+                value={config.scoreIncrease.followCreator}
+                min={0}
+                max={5}
+                step={0.5}
+                onChange={(value) =>
+                  handleChange("scoreIncrease", "followCreator", value)
+                }
+                className="flex-1"
+              />
+              <span className="text-sm w-6">5</span>
+            </div>
+          </div>
+          <div className="w-1/3 p-2">
+            <label className="block text-[18px] font-medium mb-1">
+              Listen Music:
+            </label>
+            <div className="flex items-center gap-4">
+              <span className="text-sm w-6 text-right">0</span>
+              <Slider
+                railStyle={{ backgroundColor: "#C3C3C3" }}
+                value={config.scoreIncrease.listenMusic}
+                min={0}
+                max={5}
+                step={0.5}
+                onChange={(value) =>
+                  handleChange("scoreIncrease", "listenMusic", value)
+                }
+                className="flex-1"
+              />
+              <span className="text-sm w-6">5</span>
+            </div>
+          </div>
+          <div className="w-1/3 p-2">
+            <label className="block text-[18px] font-medium mb-1">
+              Comment Video:
+            </label>
+            <div className="flex items-center gap-4">
+              <span className="text-sm w-6 text-right">0</span>
+              <Slider
+                railStyle={{ backgroundColor: "#C3C3C3" }}
+                value={config.scoreIncrease.commentVideo}
+                min={0}
+                max={5}
+                step={0.5}
+                onChange={(value) =>
+                  handleChange("scoreIncrease", "commentVideo", value)
+                }
+                className="flex-1"
+              />
+              <span className="text-sm w-6">5</span>
+            </div>
+          </div>
+          <div className="w-1/3 p-2">
+            <label className="block text-[18px] font-medium mb-1">
+              Search Video:
+            </label>
+            <div className="flex items-center gap-4">
+              <span className="text-sm w-6 text-right">0</span>
+              <Slider
+                railStyle={{ backgroundColor: "#C3C3C3" }}
+                value={config.scoreIncrease.searchVideo}
+                min={0}
+                max={5}
+                step={0.5}
+                onChange={(value) =>
+                  handleChange("scoreIncrease", "searchVideo", value)
+                }
+                className="flex-1"
+              />
+              <span className="text-sm w-6">5</span>
+            </div>
+          </div>
+          <div className="w-1/3 p-2">
+            <label className="block text-[18px] font-medium mb-1">
+              Search Music:
+            </label>
+            <div className="flex items-center gap-4">
+              <span className="text-sm w-6 text-right">0</span>
+              <Slider
+                railStyle={{ backgroundColor: "#C3C3C3" }}
+                value={config.scoreIncrease.searchMusic}
+                min={0}
+                max={5}
+                step={0.5}
+                onChange={(value) =>
+                  handleChange("scoreIncrease", "searchMusic", value)
+                }
+                className="flex-1"
+              />
+              <span className="text-sm w-6">5</span>
+            </div>
+          </div>
+          <div className="w-1/3 p-2">
+            <label className="block text-[18px] font-medium mb-1">
+              Share Video:
+            </label>
+            <div className="flex items-center gap-4">
+              <span className="text-sm w-6 text-right">0</span>
+              <Slider
+                railStyle={{ backgroundColor: "#C3C3C3" }}
+                value={config.scoreIncrease.shareVideo}
+                min={0}
+                max={5}
+                step={0.5}
+                onChange={(value) =>
+                  handleChange("scoreIncrease", "shareVideo", value)
+                }
+                className="flex-1"
+              />
+              <span className="text-sm w-6">5</span>
+            </div>
+          </div>
+        </div>
+      </Card>
+      <div className="flex justify-end">
+        <Button
+          color="primary"
+          variant="solid"
+          onClick={showModal}
+          size="large"
+          className="mr-2"
+        >
+          Save
+        </Button>
+        <Button
+          onClick={onResetConfig}
+          size="large"
+          color="default"
+          variant="outlined"
+        >
+          Reset
+        </Button>
+      </div>
+
+      <Modal
+        title={<div className="text-xl">Confirm Algorithm Update</div>}
+        open={isModalOpen}
+        onOk={handleUpdateAlgorithmSetting}
+        onCancel={handleCancel}
+        okText="Confirm"
+        cancelText="Cancel"
+      >
+        <p className="text-[16px]">
+          Are you sure you want to apply these changes to the system-wide
+          algorithm?
+        </p>
+      </Modal>
     </div>
   );
 };

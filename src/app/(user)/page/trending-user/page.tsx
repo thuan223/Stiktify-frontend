@@ -96,7 +96,7 @@ const TrendingPage = () => {
         setCurrentVideoIndex(newIndex);
         setCurrentVideo(videoData[newIndex]);
       } else if (currentVideoIndex == videoData.length - 1) {
-        setRequestCount(videoData.length / 10);
+        setRequestCount((prev) => prev + 1);
         getVideoData();
       }
     } else {
@@ -111,6 +111,7 @@ const TrendingPage = () => {
     // if (showComments) {
     //   return;
     // }
+    if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
     setIsWatched(false);
     const videoSuggestId = Cookies.get("suggestVideoId");
     if (event.key === "ArrowDown") {
@@ -119,7 +120,7 @@ const TrendingPage = () => {
         setCurrentVideoIndex(newIndex);
         setCurrentVideo(videoData[newIndex]);
       } else if (currentVideoIndex == videoData.length - 1) {
-        setRequestCount(videoData.length / 10);
+        setRequestCount((prev) => prev + 1);
         getVideoData();
       }
     } else if (event.key === "ArrowUp") {
@@ -226,7 +227,7 @@ const TrendingPage = () => {
       setCurrentVideo(videoData[newIndex]);
 
       if (newIndex === requestCount * 10 - 1) {
-        setRequestCount(videoData.length / 10);
+        setRequestCount((prev) => prev + 1);
         getVideoData();
       }
     }
@@ -290,7 +291,7 @@ const TrendingPage = () => {
         searchValue={searchValue}
         setSearchValue={setSearchValue}
       />
-      {/* {currentVideo ? (
+      {currentVideo ? (
         <MainVideo
           videoUrl={currentVideo.videoUrl}
           onVideoWatched={handleVideoWatched}
@@ -298,7 +299,7 @@ const TrendingPage = () => {
         />
       ) : (
         <p>Loading video...</p>
-      )} */}
+      )}
 
       <VideoFooter
         videoDescription={currentVideo?.videoDescription || ""}
