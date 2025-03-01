@@ -4,7 +4,7 @@ import SideBarPlaylist from "@/components/playlist/sidebar.playlist";
 const MusicGuestPage = async ({ searchParams }: any) => {
     const { current, pageSize } = await searchParams
     const result = current ? current : 1;
-    const LIMIT = pageSize ? pageSize : 20;
+    const LIMIT = pageSize ? pageSize : 50;
 
     const res = await handleGetAllMusic(result, LIMIT)
     const data = res?.data

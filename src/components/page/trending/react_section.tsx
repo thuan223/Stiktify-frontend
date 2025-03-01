@@ -241,7 +241,7 @@ const reactions: Reaction[] = [
   },
   {
     _id: "6741b8a5342097607f012a7a",
-    type: "Hungry",
+    type: "Angry",
     icon: (
       <div className="relative w-8 h-8">
         <Image

@@ -7,13 +7,17 @@ import { BsThreeDots } from "react-icons/bs";
 import { Dropdown, MenuProps, notification } from "antd";
 import { MdOutlineMusicOff } from "react-icons/md";
 import { handleRemoveMusicInPlaylistAction } from "@/actions/playlist.action";
+import { useGlobalContext } from "@/library/global.context";
 
 interface IProps {
-    playlist: IMusicInPlaylist[] | []
+    playlistP: IMusicInPlaylist[] | [],
 }
 
 const TableListMusicInPlaylist = (props: IProps) => {
-    const { playlist } = props
+    const { playlistP } = props
+    const [durations, setDurations] = useState<{ [key: string]: string }>({});
+    const [data, setData] = useState<IMusicInPlaylist[] | []>([])
+    const { setListPlayList, listPlaylist } = useGlobalContext()!
 
     const getDuration = (url: string): Promise<string> => {
         return new Promise((resolve, reject) => {
@@ -27,15 +31,17 @@ const TableListMusicInPlaylist = (props: IProps) => {
         });
     };
 
-    const [durations, setDurations] = useState<{ [key: string]: string }>({});
+    useEffect(() => {
+        setData(playlistP)
+    }, [playlistP])
 
     useEffect(() => {
-        playlist.forEach((item) => {
+        data.forEach((item) => {
             getDuration(item.musicId.musicUrl!).then((duration) => {
                 setDurations((prev: any) => ({ ...prev, [item.musicId.musicUrl!]: duration }));
             });
         });
-    }, [playlist]);
+    }, [data]);
 
     const items: MenuProps["items"] = [{
         key: "remove",
@@ -47,6 +53,8 @@ const TableListMusicInPlaylist = (props: IProps) => {
         const res = await handleRemoveMusicInPlaylistAction(id)
 
         if (res?.statusCode === 200) {
+            const newPlaylist = listPlaylist.filter(x => x.musicId._id !== id)
+            setListPlayList(newPlaylist)
             return notification.success({ message: "Deleted successfully" })
         }
         return notification.warning({ message: res?.message })
@@ -66,7 +74,7 @@ const TableListMusicInPlaylist = (props: IProps) => {
                     </tr>
                 </thead>
                 <tbody>
-                    {playlist && playlist.length > 0 && playlist.map((item, index) => (
+                    {data && data.length > 0 && data.map((item, index) => (
                         <tr key={index} >
                             <td className="w-1/15 px-4 py-2 font-medium">{index + 1}</td>
                             <td className="w-5/15 px-4 py-2 flex items-center gap-2">

@@ -8,6 +8,8 @@ import { FaUser, FaRegEnvelope, FaEllipsisH } from "react-icons/fa";
 import { FiEdit, FiMessageSquare, FiShare2, FiUserPlus } from "react-icons/fi";
 import MyVideo from "@/components/page/myvideo/MyVideo";
 import LikedVideo from "@/components/page/likedVideoPost/LikedVideo";
+import ListFavoriteMusic from "@/components/music/music-favorite/list.favorite";
+import ListMyMusic from "@/components/page/mymusic/list-my-music";
 // ======= Interfaces for User & Video =======
 interface User {
   _id: string;
@@ -158,9 +160,9 @@ const UserDetail = () => {
         {/* Tab Content */}
         <div className="flex-1 p-4 overflow-y-auto">
           {activeTab === "video" && <VideoTab />}
-          {activeTab === "music" && <MusicTab />}
+          {activeTab === "music" && <MusicTab userId={user._id} />}
           {activeTab === "likedVideo" && <LikedVideoTab />}
-          {activeTab === "likedMusic" && <LikedMusicTab />}
+          {activeTab === "likedMusic" && <LikedMusicTab userId={user._id} />}
         </div>
       </div>
     </div>
@@ -189,12 +191,9 @@ const VideoTab = () => (
   </div>
 );
 
-const MusicTab = () => (
+const MusicTab = ({ userId }: { userId: string }) => (
   <div>
-    <h2 className="text-xl font-bold mb-4">Music</h2>
-    <p className="text-gray-600">
-      List of user's music tracks (this feature is under development).
-    </p>
+    <ListMyMusic userId={userId} />
   </div>
 );
 
@@ -203,10 +202,9 @@ const LikedVideoTab = () => (
     <LikedVideo />
   </div>
 );
-const LikedMusicTab = () => (
+const LikedMusicTab = ({ userId }: { userId: string }) => (
   <div>
-    <h2 className="text-xl font-bold mb-4">Liked Music</h2>
-    <p className="text-gray-600">List of liked music.</p>
+    <ListFavoriteMusic userId={userId} />
   </div>
 );
 

@@ -3,22 +3,34 @@ import { useGlobalContext } from "@/library/global.context";
 import Image from "next/image";
 import { IoMdAdd } from "react-icons/io";
 import noImagePlaylist from "@/assets/images/playlist-no-image.jpg"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AddPlayList from "../modal/modal.add.playlist";
 import { Tooltip } from "antd";
 import { useRouter } from "next/navigation";
 import { PiMusicNotesPlusBold } from "react-icons/pi";
 import AddMusicModal from "../modal/modal.add.music";
+import { handleGetAllCategoryAction } from "@/actions/category.action";
 
 const SideBarPlaylist = () => {
     const { playlist } = useGlobalContext()!
     const [isOpenModal, setIsOpenModal] = useState(false)
     const [isOpenModalAddMusic, setIsOpenModalMusic] = useState(false)
+    const [listCate, setListCate] = useState([])
     const router = useRouter()
 
     const handleNavigate = (playlistId: string) => {
         router.push(`music/playlist?playlistId=${playlistId}`)
     }
+
+    useEffect(() => {
+        (async () => {
+            const res = await handleGetAllCategoryAction()
+            if (res?.statusCode === 200) {
+                return setListCate(res.data)
+            }
+            setListCate([])
+        })()
+    }, [isOpenModalAddMusic])
     return (
         <>
             <div className="flex flex-col justify-between">
@@ -47,7 +59,7 @@ const SideBarPlaylist = () => {
 
             </div >
             <AddPlayList isOpenModal={isOpenModal} setIsOpenModal={setIsOpenModal} />
-            <AddMusicModal listCate={[]} isCreateModalOpen={isOpenModalAddMusic} setIsCreateModalOpen={setIsOpenModalMusic} />
+            <AddMusicModal listCate={listCate} isCreateModalOpen={isOpenModalAddMusic} setIsCreateModalOpen={setIsOpenModalMusic} />
         </>
     )
 }

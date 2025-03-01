@@ -49,7 +49,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
     logout();
     router.replace("/page/trending-guest");
   };
-  
+
   const [editProfile, setEditProfile] = useState({
     image: profile.image,
     fullname: profile.fullname || "",
@@ -192,7 +192,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
         formData.append("file", file);
         formData.append("folder", folder);
         const result = await handleUploadImage(formData);
-        const downloadUrl = result?.data?.data?.data?.data?.downloadURL;
+        const downloadUrl = result?.data;
         if (downloadUrl) {
           setEditProfile((prevState) => ({
             ...prevState,
