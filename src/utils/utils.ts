@@ -27,8 +27,8 @@ export const formatDateTimeVn = (isoString: string) => {
 
 export const formatNumber = (value: number) => {
     if (!value) value = 0
-    if (value >= 1_000_000) return (value / 1_000_000) + 'M';
-    if (value >= 1_000) return (value / 1_000) + 'K';
+    if (value >= 1_000_000) return (value / 1_000_000).toFixed(1) + 'M';
+    if (value >= 1_000) return (value / 1_000).toFixed(1) + 'K';
     return value.toString();
 }
 

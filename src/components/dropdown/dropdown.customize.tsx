@@ -19,6 +19,8 @@ const DropdownCustomize: React.FC<IProps> = (props) => {
             <Option value="" >None</Option>
             <Option value="lock">Block</Option>
             <Option value="unlock">Unblock</Option>
+            <Option value="USERS">Users</Option>
+            <Option value="ADMIN">Admin</Option>
         </Select>
     )
 }

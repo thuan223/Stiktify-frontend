@@ -21,7 +21,7 @@ const VideoFooter: React.FC<VideoFooterProps> = ({
       </div>
       <div className="flex justify-between items-center text-sm">
         <div className="flex space-x-4">
-        <span>{`#${videoTag.join(" #")}`}</span>
+          <span>{`#${videoTag.join(" #")}`}</span>
           <span>{`${totalView} views`}</span>
           <span>{`Uploaded on: ${formatDateTimeVn(
             createAt)}`}</span>

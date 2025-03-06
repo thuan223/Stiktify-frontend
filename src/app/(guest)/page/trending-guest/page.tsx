@@ -1,5 +1,6 @@
 "use client";
 import { handleSearchShortVideos } from "@/actions/manage.short.video.action";
+import TagMusic from "@/components/music/tag.music";
 import SearchCard from "@/components/page/search/searchCard";
 import Header from "@/components/page/trending/header";
 import InteractSideBar from "@/components/page/trending/interact_sidebar";
@@ -7,6 +8,8 @@ import MainVideo from "@/components/page/trending/main_video";
 import OtherVideos from "@/components/page/trending/otherVideo";
 import VideoFooter from "@/components/page/trending/video-footer";
 import { sendRequest } from "@/utils/api";
+import { div } from "framer-motion/client";
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 const TrendingPage = () => {
@@ -19,6 +22,16 @@ const TrendingPage = () => {
   const [requestCount, setRequestCount] = useState<number>(0);
   const [isWatched, setIsWatched] = useState(false);
   const [isShowOtherVideos, setIsShowOtherVideos] = useState(false);
+  const [currentMusic, setCurrentMusic] = useState<IMusic | null>(null);
+  const router = useRouter()
+
+  useEffect(() => {
+    if (currentVideo) {
+      const data = currentVideo?.musicId
+      setCurrentMusic(data)
+    }
+  }, [currentVideo])
+
   const getVideoData = async () => {
     try {
       const res = await sendRequest<IBackendRes<IVideo[]>>({
@@ -132,21 +145,26 @@ const TrendingPage = () => {
       window.removeEventListener("keydown", handleArrowKey);
     };
   }, [currentVideoIndex, videoData, requestCount]);
+
+  const handleNavigate = (id: string) => {
+    router.push(`music/${id}`)
+  }
   return (
-    <div onWheel={handleScroll}>
-      <Header
-        onClick={() => fetchSearchVideo()}
-        searchValue={searchValue}
-        setSearchValue={setSearchValue}
-        isGuest={true}
-      />
-      {videoDataSearch && videoDataSearch.length > 0 ? (
-        <>
-          <SearchCard videos={videoDataSearch} />
-        </>
-      ) : (
-        <>
-          {currentVideo ? (
+    <div>
+      <div onWheel={handleScroll}>
+        <Header
+          onClick={() => fetchSearchVideo()}
+          searchValue={searchValue}
+          setSearchValue={setSearchValue}
+          isGuest={true}
+        />
+        {videoDataSearch && videoDataSearch.length > 0 ? (
+          <>
+            <SearchCard videos={videoDataSearch} />
+          </>
+        ) : (
+          <>
+            {/* {currentVideo ? (
             <MainVideo
               videoUrl={currentVideo.videoUrl}
               onVideoDone={nextVideo}
@@ -154,47 +172,53 @@ const TrendingPage = () => {
             />
           ) : (
             <p>Loading video...</p>
-          )}
-          <VideoFooter
-            videoDescription={currentVideo?.videoDescription || ""}
-            totalView={currentVideo?.totalViews || 0}
-            videoTag={currentVideo?.videoTag || []}
-            createAt={currentVideo?.createAt.toString() || ""}
-          />
-          {isShowOtherVideos ? (
-            <OtherVideos
-              isVisible={isShowOtherVideos}
-              videoData={videoData}
-              setCurrentVideo={setCurrentVideo}
-              setIsShowOtherVideos={setIsShowOtherVideos}
-              setCurrentVideoIndex={setCurrentVideoIndex}
+          )} */}
+            <VideoFooter
+              videoDescription={currentVideo?.videoDescription || ""}
+              totalView={currentVideo?.totalViews || 0}
+              videoTag={currentVideo?.videoTag || []}
+              createAt={currentVideo?.createAt.toString() || ""}
             />
-          ) : (
-            <InteractSideBar
-              creatorId={currentVideo?.userId.fullname || ""}
-              userId={currentVideo?.userId._id || ""}
-              videoId={currentVideo?._id}
-              numberComment={currentVideo?.totalComment}
-              numberReaction={currentVideo?.totalReaction}
-              isHidden={isShowOtherVideos}
-            />
-          )}
-          {!isShowOtherVideos ? (
-            <svg
-              onClick={() => setIsShowOtherVideos((prev) => !prev)}
-              xmlns="http://www.w3.org/2000/svg"
-              className={`fixed right-[13%]
+            {isShowOtherVideos ? (
+              <OtherVideos
+                isVisible={isShowOtherVideos}
+                videoData={videoData}
+                setCurrentVideo={setCurrentVideo}
+                setIsShowOtherVideos={setIsShowOtherVideos}
+                setCurrentVideoIndex={setCurrentVideoIndex}
+              />
+            ) : (
+              <InteractSideBar
+                creatorId={currentVideo?.userId.fullname || ""}
+                userId={currentVideo?.userId._id || ""}
+                videoId={currentVideo?._id}
+                numberComment={currentVideo?.totalComment}
+                numberReaction={currentVideo?.totalReaction}
+                isHidden={isShowOtherVideos}
+              />
+            )}
+            {!isShowOtherVideos ? (
+              <svg
+                onClick={() => setIsShowOtherVideos((prev) => !prev)}
+                xmlns="http://www.w3.org/2000/svg"
+                className={`fixed right-[13%]
             bottom-1/2 transform -translate-y-1/2 cursor-pointer w-6 h-6 text-gray-600 hover:text-gray-800`}
-              viewBox="0 0 448 512"
-              fill="currentColor"
-            >
-              <path d="M207 273L71 409c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l152-152c9.4-9.4 9.4-24.6 0-33.9L104.9 105c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l136 136zm192 0L263 409c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l152-152c9.4-9.4 9.4-24.6 0-33.9L295.9 105c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l136 136z" />
-            </svg>
-          ) : (
-            ""
-          )}
-        </>
-      )}
+                viewBox="0 0 448 512"
+                fill="currentColor"
+              >
+                <path d="M207 273L71 409c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l152-152c9.4-9.4 9.4-24.6 0-33.9L104.9 105c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l136 136zm192 0L263 409c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l152-152c9.4-9.4 9.4-24.6 0-33.9L295.9 105c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l136 136z" />
+              </svg>
+            ) : (
+              ""
+            )}
+          </>
+        )}
+      </div>
+      {currentMusic ?
+        <div className="w-64 h-20  bg-gray-900/80 absolute right-0 bottom-2 rounded-md flex px-2 mx-1">
+          <TagMusic onClick={handleNavigate} item={currentMusic} />
+        </div>
+        : <></>}
     </div>
   );
 };
