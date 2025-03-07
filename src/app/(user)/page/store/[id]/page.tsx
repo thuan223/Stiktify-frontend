@@ -142,6 +142,10 @@ const StorePage: React.FC = () => {
 
   return (
     <div className="p-8 bg-gray-100 min-h-screen">
+      <h1 className="text-4xl font-bold text-blue-600 text-center mb-6">
+        Stiktify Shop
+      </h1>
+
       <div className="flex justify-between items-center mb-6 bg-white p-4 rounded-lg shadow-md">
         <Input
           placeholder="Search for products..."
