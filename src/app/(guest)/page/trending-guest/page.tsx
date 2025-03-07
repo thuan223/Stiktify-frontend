@@ -164,15 +164,15 @@ const TrendingPage = () => {
           </>
         ) : (
           <>
-            {/* {currentVideo ? (
-            <MainVideo
-              videoUrl={currentVideo.videoUrl}
-              onVideoDone={nextVideo}
-              onVideoWatched={handleVideoWatched}
-            />
-          ) : (
-            <p>Loading video...</p>
-          )} */}
+            {currentVideo ? (
+              <MainVideo
+                videoUrl={currentVideo.videoUrl}
+                onVideoDone={nextVideo}
+                onVideoWatched={handleVideoWatched}
+              />
+            ) : (
+              <p>Loading video...</p>
+            )}
             <VideoFooter
               videoDescription={currentVideo?.videoDescription || ""}
               totalView={currentVideo?.totalViews || 0}
