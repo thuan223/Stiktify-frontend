@@ -168,13 +168,18 @@ const StorePage: React.FC = () => {
             </Option>
           ))}
         </Select>
+        <div className="Cart">
+          <ShoppingCartOutlined />
+          <span className="text-gray-500">Cart ({products.length})</span>
+        </div>
+
         <Button
           type="primary"
           icon={<PlusOutlined />}
           onClick={() => setIsModalOpen(true)}
           className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg px-4 py-2"
         >
-          Add Product
+          New Product
         </Button>
       </div>
 
