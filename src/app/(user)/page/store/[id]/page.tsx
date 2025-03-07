@@ -1,13 +1,25 @@
 "use client";
 
 import React, { useState, useEffect, useContext } from "react";
-import { Button, Input, Modal, Spin, notification, Select } from "antd";
+import {
+  Button,
+  Input,
+  Modal,
+  Spin,
+  notification,
+  Select,
+  Dropdown,
+  Menu,
+} from "antd";
 import {
   PlusOutlined,
   SearchOutlined,
   EditOutlined,
   DeleteOutlined,
   ExclamationCircleOutlined,
+  ShoppingCartOutlined,
+  DollarCircleOutlined,
+  MoreOutlined,
 } from "@ant-design/icons";
 import UploadProduct from "@/components/modal/modal.add.product";
 import EditProduct from "@/components/modal/modal.edit.product";
@@ -168,54 +180,63 @@ const StorePage: React.FC = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {filteredProducts.length > 0 ? (
-            filteredProducts.map((product) => (
-              <div
-                key={product._id}
-                className="bg-white p-4 rounded-lg shadow-lg flex flex-col items-center transition-transform duration-300 hover:scale-105 hover:shadow-xl"
+          {filteredProducts.map((product) => (
+            <div
+              key={product._id}
+              className="bg-white p-4 rounded-lg shadow-lg flex flex-col items-center relative"
+            >
+              <Dropdown
+                overlay={
+                  <Menu>
+                    <Menu.Item
+                      key="edit"
+                      onClick={() => handleEdit(product)}
+                      icon={<EditOutlined />}
+                    >
+                      Edit
+                    </Menu.Item>
+                    <Menu.Item
+                      key="delete"
+                      onClick={() => handleDelete(product._id)}
+                      icon={<DeleteOutlined />}
+                      danger
+                    >
+                      Delete
+                    </Menu.Item>
+                  </Menu>
+                }
+                trigger={["click"]}
               >
-                <img
-                  src={product.image || "/default-image.jpg"}
-                  alt={product.productName}
-                  className="w-40 h-40 object-cover rounded-lg mb-4"
-                />
-                <span className="text-lg font-semibold text-gray-800 text-center">
-                  {product.productName}
-                </span>
-                <span className="text-blue-600 text-sm font-medium mt-1">
-                  {new Intl.NumberFormat("en-US", {
-                    style: "currency",
-                    currency: "USD",
-                  }).format(product.productPrice)}
-                </span>
-                <span className="text-gray-500 text-xs mt-1">
-                  {product.productCategory}
-                </span>
-
-                <div className="flex gap-2 mt-3 w-full">
-                  <Button
-                    type="default"
-                    className="border rounded-md flex-1"
-                    onClick={() => handleEdit(product)}
-                  >
-                    <EditOutlined /> Edit
-                  </Button>
-                  <Button
-                    type="default"
-                    danger
-                    className="border rounded-md flex-1"
-                    onClick={() => handleDelete(product._id)}
-                  >
-                    <DeleteOutlined /> Delete
-                  </Button>
-                </div>
+                <MoreOutlined className="absolute top-3 right-3 text-xl cursor-pointer" />
+              </Dropdown>
+              <img
+                src={product.image || "/default-image.jpg"}
+                alt={product.productName}
+                className="w-40 h-40 object-cover rounded-lg mb-4"
+              />
+              <span className="text-lg font-semibold text-gray-800 text-center">
+                {product.productName}
+              </span>
+              <span className="text-blue-600 text-sm font-medium mt-1">
+                ${product.productPrice}
+              </span>
+              <span className="text-gray-500 text-xs mt-1">
+                {product.productCategory}
+              </span>
+              <div className="flex gap-2 mt-3 w-full">
+                <Button className="flex-1" icon={<DollarCircleOutlined />}>
+                  Buy Now
+                </Button>
+                <Button
+                  type="default"
+                  className="flex-1"
+                  icon={<ShoppingCartOutlined />}
+                >
+                  Add to Cart
+                </Button>
               </div>
-            ))
-          ) : (
-            <p className="text-center col-span-full text-gray-500">
-              No products available.
-            </p>
-          )}
+            </div>
+          ))}
         </div>
       )}
 
