@@ -211,7 +211,10 @@ const UploadProduct: React.FC<UploadProductProps> = ({
           onChange={setCategory}
         >
           {categories.map((category) => (
-            <Select.Option key={category._id} value={category._id}>
+            <Select.Option
+              key={category._id}
+              value={category.categoryProductName}
+            >
               {category.categoryProductName}
             </Select.Option>
           ))}

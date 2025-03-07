@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useContext } from "react";
-import { Button, Input, Modal, Spin, notification } from "antd";
+import { Button, Input, Modal, Spin, notification, Select } from "antd";
 import {
   PlusOutlined,
   SearchOutlined,
@@ -15,13 +15,18 @@ import { sendRequest } from "@/utils/api";
 import { AuthContext } from "@/context/AuthContext";
 
 const { confirm } = Modal;
+const { Option } = Select;
 
 const StorePage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string | undefined>(
+    undefined
+  );
   const [products, setProducts] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]); // State to store categories
   const [loading, setLoading] = useState(true);
   const authContext = useContext(AuthContext);
 
@@ -32,8 +37,27 @@ const StorePage: React.FC = () => {
   const { accessToken, user } = authContext;
 
   useEffect(() => {
-    fetchProducts();
+    fetchCategories(); // Fetch categories on mount
+    fetchProducts(); // Fetch products after categories are loaded
   }, [accessToken, user?._id]);
+
+  const fetchCategories = async () => {
+    if (!accessToken || !user?._id) return;
+
+    try {
+      const res = await sendRequest<{ statusCode: number; data: any[] }>({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/category-for-products`,
+        method: "GET",
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+
+      if (res.statusCode === 200) {
+        setCategories(res.data);
+      }
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
 
   const fetchProducts = async () => {
     if (!accessToken || !user?._id) return;
@@ -93,6 +117,17 @@ const StorePage: React.FC = () => {
     });
   };
 
+  // Filter products based on search query and selected category
+  const filteredProducts = products.filter((product) => {
+    const matchesSearchQuery = (product.productName || "")
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
+    const matchesCategory =
+      !selectedCategory || product.productCategory === selectedCategory;
+
+    return matchesSearchQuery && matchesCategory;
+  });
+
   return (
     <div className="p-8 bg-gray-100 min-h-screen">
       <div className="flex justify-between items-center mb-6 bg-white p-4 rounded-lg shadow-md">
@@ -103,6 +138,20 @@ const StorePage: React.FC = () => {
           className="w-1/3 border p-2 rounded-lg shadow-sm"
           prefix={<SearchOutlined className="text-gray-500" />}
         />
+        {/* Category filter dropdown */}
+        <Select
+          placeholder="Select Category"
+          value={selectedCategory}
+          onChange={(value) => setSelectedCategory(value)}
+          className="w-1/4"
+        >
+          <Option value={undefined}>All</Option>
+          {categories.map((category) => (
+            <Option key={category._id} value={category.categoryProductName}>
+              {category.categoryProductName}
+            </Option>
+          ))}
+        </Select>
         <Button
           type="primary"
           icon={<PlusOutlined />}
@@ -119,55 +168,49 @@ const StorePage: React.FC = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {products.length > 0 ? (
-            products
-              .filter((product) =>
-                (product.productName || "")
-                  .toLowerCase()
-                  .includes(searchQuery.toLowerCase())
-              )
-              .map((product) => (
-                <div
-                  key={product._id}
-                  className="bg-white p-4 rounded-lg shadow-lg flex flex-col items-center transition-transform duration-300 hover:scale-105 hover:shadow-xl"
-                >
-                  <img
-                    src={product.image || "/default-image.jpg"}
-                    alt={product.productName}
-                    className="w-40 h-40 object-cover rounded-lg mb-4"
-                  />
-                  <span className="text-lg font-semibold text-gray-800 text-center">
-                    {product.productName}
-                  </span>
-                  <span className="text-blue-600 text-sm font-medium mt-1">
-                    {new Intl.NumberFormat("en-US", {
-                      style: "currency",
-                      currency: "USD",
-                    }).format(product.productPrice)}
-                  </span>
-                  <span className="text-gray-500 text-xs mt-1">
-                    {product.productCategory}
-                  </span>
+          {filteredProducts.length > 0 ? (
+            filteredProducts.map((product) => (
+              <div
+                key={product._id}
+                className="bg-white p-4 rounded-lg shadow-lg flex flex-col items-center transition-transform duration-300 hover:scale-105 hover:shadow-xl"
+              >
+                <img
+                  src={product.image || "/default-image.jpg"}
+                  alt={product.productName}
+                  className="w-40 h-40 object-cover rounded-lg mb-4"
+                />
+                <span className="text-lg font-semibold text-gray-800 text-center">
+                  {product.productName}
+                </span>
+                <span className="text-blue-600 text-sm font-medium mt-1">
+                  {new Intl.NumberFormat("en-US", {
+                    style: "currency",
+                    currency: "USD",
+                  }).format(product.productPrice)}
+                </span>
+                <span className="text-gray-500 text-xs mt-1">
+                  {product.productCategory}
+                </span>
 
-                  <div className="flex gap-2 mt-3 w-full">
-                    <Button
-                      type="default"
-                      className="border rounded-md flex-1"
-                      onClick={() => handleEdit(product)}
-                    >
-                      <EditOutlined /> Edit
-                    </Button>
-                    <Button
-                      type="default"
-                      danger
-                      className="border rounded-md flex-1"
-                      onClick={() => handleDelete(product._id)}
-                    >
-                      <DeleteOutlined /> Delete
-                    </Button>
-                  </div>
+                <div className="flex gap-2 mt-3 w-full">
+                  <Button
+                    type="default"
+                    className="border rounded-md flex-1"
+                    onClick={() => handleEdit(product)}
+                  >
+                    <EditOutlined /> Edit
+                  </Button>
+                  <Button
+                    type="default"
+                    danger
+                    className="border rounded-md flex-1"
+                    onClick={() => handleDelete(product._id)}
+                  >
+                    <DeleteOutlined /> Delete
+                  </Button>
                 </div>
-              ))
+              </div>
+            ))
           ) : (
             <p className="text-center col-span-full text-gray-500">
               No products available.
