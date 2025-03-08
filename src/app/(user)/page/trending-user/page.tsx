@@ -10,8 +10,7 @@ import React, { useContext, useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { useShowComment } from "@/context/ShowCommentContext";
 import OtherVideos from "@/components/page/trending/otherVideo";
-import { useSearchParams } from "next/navigation";
-import { useRouter } from "next/router";
+import { useSearchParams, useRouter } from "next/navigation";
 import TagMusic from "@/components/music/tag.music";
 
 const TrendingPage = () => {
@@ -31,10 +30,11 @@ const TrendingPage = () => {
 
   const [currentMusic, setCurrentMusic] = useState<IMusic | null>(null);
   const router = useRouter()
-
   useEffect(() => {
     if (currentVideo) {
       const data = currentVideo?.musicId
+      console.log("Check data>>>>>", currentVideo);
+
       setCurrentMusic(data)
     }
   }, [currentVideo])

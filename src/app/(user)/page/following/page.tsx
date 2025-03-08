@@ -10,9 +10,8 @@ import React, { useContext, useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { useShowComment } from "@/context/ShowCommentContext";
 import OtherVideos from "@/components/page/trending/otherVideo";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { handleGetFollowing } from "@/actions/follow.action";
-import { useRouter } from "next/router";
 import TagMusic from "@/components/music/tag.music";
 
 const FollowPage = () => {

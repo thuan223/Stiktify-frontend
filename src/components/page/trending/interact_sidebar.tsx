@@ -218,18 +218,6 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-7 w-7"
-                viewBox="0 0 512 512"
-              >
-                <path d="M470.4 1.5L150.4 96A32 32 0 0 0 128 126.5v261.4A139 139 0 0 0 96 384c-53 0-96 28.7-96 64s43 64 96 64 96-28.7 96-64V214.3l256-75v184.6a138.4 138.4 0 0 0 -32-3.9c-53 0-96 28.7-96 64s43 64 96 64 96-28.7 96-64V32a32 32 0 0 0 -41.6-30.5z" />
-              </svg>
-            </div>
-            Link Music
-          </li>
-          <li className="flex items-center">
-            <div className="text-xl cursor-pointer mr-2">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-7 w-7"
                 viewBox="0 0 576 512"
                 onClick={handleShareClick}
               >
