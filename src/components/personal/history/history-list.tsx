@@ -1,11 +1,10 @@
-'use client'
+"use client";
 import { AuthContext } from "@/context/AuthContext";
 import { sendRequest } from "@/utils/api";
 import { formatDateTimeVn } from "@/utils/utils";
 import { Dropdown, MenuProps } from "antd";
 import throttle from "lodash.throttle";
 import { useRouter } from "next/navigation";
-
 
 import React, {
   Dispatch,
@@ -37,7 +36,7 @@ const HistoryList: React.FC<HistoryListProps> = ({
   const { user, accessToken, logout } = useContext(AuthContext) ?? {};
   const lastVideoRef = useRef<HTMLDivElement | null>(null);
   const router = useRouter();
- 
+
   useEffect(() => {
     const handleScroll = throttle(() => {
       if (maxLength) return;
@@ -107,20 +106,25 @@ const HistoryList: React.FC<HistoryListProps> = ({
 
           return (
             <div
-              onClick={() => {
-                router.push(`/page/trending-user?id=${history.videoId._id}`);
-              }}
               key={history._id}
               className="mb-[10px] p-[10px] pl-[20px] border-b flex gap-4 cursor-pointer"
               ref={index === videoList?.length - 1 ? lastVideoRef : null}
             >
               <img
+                onClick={() => {
+                  router.push(`/page/trending-user?id=${history.videoId._id}`);
+                }}
                 src={history.videoId?.videoThumbnail}
                 alt="Thumbnail"
                 className="w-[250px] h-[150px] object-cover border-3 border-gray-300 rounded-lg"
               />
 
-              <div className="flex-1">
+              <div
+                className="flex-1"
+                onClick={() => {
+                  router.push(`/page/trending-user?id=${history.videoId._id}`);
+                }}
+              >
                 <h3 className="font-semibold text-lg">
                   {history?.videoId?.videoDescription}
                 </h3>

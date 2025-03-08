@@ -96,7 +96,7 @@ const TrendingPage = () => {
         setCurrentVideoIndex(newIndex);
         setCurrentVideo(videoData[newIndex]);
       } else if (currentVideoIndex == videoData.length - 1) {
-        setRequestCount(videoData.length / 10);
+        setRequestCount((prev) => prev + 1);
         getVideoData();
       }
     } else {
@@ -119,7 +119,7 @@ const TrendingPage = () => {
         setCurrentVideoIndex(newIndex);
         setCurrentVideo(videoData[newIndex]);
       } else if (currentVideoIndex == videoData.length - 1) {
-        setRequestCount(videoData.length / 10);
+        setRequestCount((prev) => prev + 1);
         getVideoData();
       }
     } else if (event.key === "ArrowUp") {
@@ -226,7 +226,7 @@ const TrendingPage = () => {
       setCurrentVideo(videoData[newIndex]);
 
       if (newIndex === requestCount * 10 - 1) {
-        setRequestCount(videoData.length / 10);
+        setRequestCount((prev) => prev + 1);
         getVideoData();
       }
     }
