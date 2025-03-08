@@ -37,6 +37,7 @@ interface User {
 
 const UserDetail = () => {
   const [totalFollowers, setTotalFollowers] = useState(1000);
+  const [isUpgraded, setIsUpgraded] = useState(false);
   const [showBusinessModal, setShowBusinessModal] = useState(false);
   const router = useRouter();
   const { id } = useParams();
@@ -126,6 +127,12 @@ const UserDetail = () => {
     likedMusic: "Liked Music",
   };
 
+  const handleUpgradeSuccess = () => {
+    setIsUpgraded(true);
+    setShowBusinessModal(true);
+    router.refresh();
+  };
+
   return (
     <div className="max-w-screen-xl mx-auto p-6 bg-white border rounded-2xl shadow-2xl transition-shadow duration-300 min-h-screen max-h-screen overflow-hidden flex flex-col">
       {/* Header */}
@@ -166,7 +173,7 @@ const UserDetail = () => {
                 text="Share"
                 className="bg-gray-200 hover:bg-gray-300 text-gray-700"
               />
-              {userData.totalFollowers >= 1000 && (
+              {userData.totalFollowers >= 1000 && !isUpgraded && (
                 <div className="flex space-x-4 mt-3">
                   <button
                     onClick={handleOpenBusinessModal}
@@ -179,6 +186,7 @@ const UserDetail = () => {
                     <BusinessAccountModal
                       totalFollowers={userData.totalFollowers}
                       onClose={() => setShowBusinessModal(false)}
+                      onUpgradeSuccess={handleUpgradeSuccess}
                     />
                   )}
                 </div>

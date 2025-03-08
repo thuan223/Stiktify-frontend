@@ -7,6 +7,7 @@ const BusinessAccountModal = ({
 }: {
   totalFollowers: number;
   onClose: () => void;
+  onUpgradeSuccess: () => void;
 }) => {
   const { accessToken, user } = useContext(AuthContext) ?? {};
   const [isOpen, setIsOpen] = useState(false);
