@@ -33,42 +33,49 @@ const Login = () => {
   const [code, setCode] = useState<string>("");
   const [userId, setUserId] = useState<string>("");
   const onLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (password.length < 6) {
-      return notification.warning({ message: "Password must be least 6 characters!" })
-    }
-    const res = await sendRequest<IBackendRes<any>>({
-      url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/login`,
-      method: "POST",
-      body: {
-        username: email,
-        password,
-      },
-    });
-
-    if (res?.data?.access_token) {
-      login?.(res?.data?.access_token);
-    }
-
-    if (res?.data?.user?.role == "ADMIN") {
-      router.push("/dashboard/user");
-    } else if (res?.data?.user?.role == "USERS") {
-      router.push("/page/trending-user");
-    } else {
-      if (res?.message === "Account has not been activated") {
-        setIsActive(false);
-        const res2 = await sendRequest<IBackendRes<any>>({
-          url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/retry-active`,
-          method: "POST",
-          body: {
-            email: email,
-          },
-        });
-        setUserId(res2.data._id);
+    try {
+      e.preventDefault();
+      if (password.length < 6) {
+        return notification.warning({ message: "Password must be least 6 characters!" })
       }
+      const res = await sendRequest<IBackendRes<any>>({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/login`,
+        method: "POST",
+        body: {
+          username: email,
+          password,
+        },
+      });
+
+      if (res?.data?.access_token) {
+        login?.(res?.data?.access_token);
+      }
+
+      if (res?.data?.user?.role == "ADMIN") {
+        router.push("/dashboard/user");
+      } else if (res?.data?.user?.role == "USERS") {
+        router.push("/page/trending-user");
+      } else {
+        if (res?.message === "Account has not been activated") {
+          setIsActive(false);
+          const res2 = await sendRequest<IBackendRes<any>>({
+            url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/retry-active`,
+            method: "POST",
+            body: {
+              email: email,
+            },
+          });
+          setUserId(res2.data._id);
+        }
+        notification.error({
+          message: "Login Unsuccessfully",
+          description: res?.message,
+          duration: 3,
+        });
+      }
+    } catch (error) {
       notification.error({
-        message: "Login Unsuccessfully",
-        description: res?.message,
+        message: "Server can't connect",
         duration: 3,
       });
     }

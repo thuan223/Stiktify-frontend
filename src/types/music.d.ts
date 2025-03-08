@@ -19,4 +19,6 @@ interface IMusic {
     musicLyric: string,
     createdAt: string,
     updatedAt: string,
+    isDelete: boolean,
+    flag: boolean,
 }

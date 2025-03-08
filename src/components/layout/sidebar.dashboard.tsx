@@ -6,11 +6,12 @@ import {
   ExceptionOutlined,
   InfoCircleOutlined,
   MailOutlined,
+  PlayCircleOutlined,
   ReconciliationOutlined,
   TeamOutlined,
   VideoCameraOutlined,
-  WarningOutlined,
-} from "@ant-design/icons";
+  WarningOutlined
+} from '@ant-design/icons';
 import React, { useContext, useEffect, useState } from "react";
 import type { MenuProps } from "antd";
 import Link from "next/link";
@@ -29,55 +30,52 @@ const DashboardSideBar = () => {
       type: "group",
       children: [
         {
-          key: "/dashboard",
-          label: <Link href={"/dashboard"}>Dashboard</Link>,
-          icon: <AppstoreOutlined />,
-        },
-        {
-          key: "/dashboard/user",
-          label: <Link href={"/dashboard/user"}>Manage Users</Link>,
-          icon: <TeamOutlined />,
-        },
-        {
-          key: "/dashboard/short-video",
-          label: (
-            <Link href={"/dashboard/short-video"}>Manage Short Video</Link>
-          ),
-          icon: <VideoCameraOutlined />,
-        },
-
-        {
-          key: "/dashboard/report",
-          label: <Link href={"/dashboard/report"}>Manage Report</Link>,
-          icon: <InfoCircleOutlined />,
-        },
-        {
-          key: "/dashboard/algorithm",
-          label: <Link href={"/dashboard/algorithm"}>Manage Algorithm</Link>,
-          icon: <ReconciliationOutlined />,
-        },
-        {
-          key: "sub1",
-          label: "Navigation One",
-          icon: <MailOutlined />,
+          key: 'grp',
+          label: 'Stiktify',
+          type: 'group',
           children: [
             {
-              key: "g1",
-              label: "Item 1",
-              type: "group",
+              key: "/dashboard",
+              label: <Link href={"/dashboard"}>Dashboard</Link>,
+              icon: <AppstoreOutlined />,
+            },
+            {
+              key: "/dashboard/user",
+              label: <Link href={"/dashboard/user"}>Manage Users</Link>,
+              icon: <TeamOutlined />,
+            },
+            {
+              key: "/dashboard/short-video",
+              label: <Link href={"/dashboard/short-video"}>Manage Short Video</Link>,
+              icon: <VideoCameraOutlined />,
+            },
+            {
+              key: "/dashboard/music",
+              label: <Link href={"/dashboard/music"}>Manage Music</Link>,
+              icon: <PlayCircleOutlined />,
+            },
+            {
+              key: 'sub1',
+              label: 'Manage Report',
+              icon: <InfoCircleOutlined />,
               children: [
-                { key: "1", label: "Option 1" },
-                { key: "2", label: "Option 2" },
+                {
+                  key: '/dashboard/report/report-video',
+                  label: <Link href={"/dashboard/report/report-video"}>Video Report</Link>,
+                },
+                {
+                  key: '/dashboard/report-music',
+                  label: <Link href={"/dashboard/report/report-music"}>Music Report</Link>,
+                },
               ],
             },
             {
-              key: "g2",
-              label: "Item 2",
-              type: "group",
-              children: [
-                { key: "3", label: "Option 3" },
-                { key: "4", label: "Option 4" },
-              ],
+              key: "/dashboard/algorithm",
+              label: <Link href={"/dashboard/algorithm"}>Manage Algorithm</Link>,
+              icon: <ReconciliationOutlined />,
+            },
+            {
+              type: 'divider',
             },
           ],
         },
