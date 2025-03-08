@@ -6,6 +6,7 @@ import {
     ExceptionOutlined,
     InfoCircleOutlined,
     MailOutlined,
+    PlayCircleOutlined,
     TeamOutlined,
     VideoCameraOutlined,
     WarningOutlined
@@ -43,11 +44,11 @@ const DashboardSideBar = () => {
                     icon: <VideoCameraOutlined />,
                 },
 
-                // {
-                //     key: "/dashboard/report",
-                //     label: <Link href={"/dashboard/report"}>Manage Report</Link>,
-                //     icon: <InfoCircleOutlined />,
-                // },
+                {
+                    key: "/dashboard/music",
+                    label: <Link href={"/dashboard/music"}>Manage Music</Link>,
+                    icon: <PlayCircleOutlined />,
+                },
                 {
                     key: 'sub1',
                     label: 'Manage Report',
