@@ -18,6 +18,7 @@ import LikedVideo from "@/components/page/likedVideoPost/LikedVideo";
 import ListFavoriteMusic from "@/components/music/music-favorite/list.favorite";
 import ListMyMusic from "@/components/page/mymusic/list-my-music";
 import { useRouter } from "next/navigation";
+import BusinessAccountModal from "@/components/modal/modal.upgrade.to.business.account";
 
 // ======= Interfaces for User & Video =======
 interface User {
@@ -30,10 +31,13 @@ interface User {
   role: string;
   accountType: string;
   isActive: boolean;
-  followersCount: number;
+  totalFollowers: number;
+  isShop: boolean;
 }
 
 const UserDetail = () => {
+  const [totalFollowers, setTotalFollowers] = useState(1000);
+  const [showBusinessModal, setShowBusinessModal] = useState(false);
   const router = useRouter();
   const { id } = useParams();
   const { accessToken, user } = useContext(AuthContext) ?? {};
@@ -70,6 +74,11 @@ const UserDetail = () => {
     }
   };
 
+  const handleOpenBusinessModal = () => {
+    setShowBusinessModal(false); // Đảm bảo re-render
+    setTimeout(() => setShowBusinessModal(true), 0); // Đặt lại modal sau 1 tick
+  };
+
   const sendFriendRequest = async () => {
     if (!accessToken) {
       console.error("User not authenticated");
@@ -100,8 +109,12 @@ const UserDetail = () => {
     return <p className="text-center text-gray-600">No user data</p>;
 
   const handleStoreClick = () => {
-    router.push(`/page/store/${id}`);
+    if (userData.totalFollowers >= 1000 && userData.isShop) {
+      router.push(`/page/store/${id}`);
+    }
   };
+
+  const canAccessStore = userData.totalFollowers >= 1000 && userData.isShop;
 
   const tabLabels: Record<
     "video" | "music" | "likedVideo" | "likedMusic",
@@ -132,10 +145,7 @@ const UserDetail = () => {
             ></span>
             {userData.isActive ? "Online" : "Offline"}
           </p>
-          <p className="text-lg text-gray-600 flex items-center space-x-2">
-            <FaRegEnvelope className="text-gray-500" />{" "}
-            <span>{userData.email}</span>
-          </p>
+
           {isCurrent ? (
             <div className="flex space-x-4 mt-3">
               <Button
@@ -143,17 +153,36 @@ const UserDetail = () => {
                 text="Edit Profile"
                 className="bg-green-500 hover:bg-green-600 text-white"
               />
-              <Button
-                icon={<FiShoppingBag />}
-                text="Store"
-                className="bg-yellow-500 hover:bg-yellow-600 text-white"
-                onClick={handleStoreClick}
-              />
+              {canAccessStore && (
+                <Button
+                  icon={<FiShoppingBag />}
+                  text="Store"
+                  className="bg-yellow-500 hover:bg-yellow-600 text-white"
+                  onClick={handleStoreClick}
+                />
+              )}
               <Button
                 icon={<FiShare2 />}
                 text="Share"
                 className="bg-gray-200 hover:bg-gray-300 text-gray-700"
               />
+              {userData.totalFollowers >= 1000 && (
+                <div className="flex space-x-4 mt-3">
+                  <button
+                    onClick={handleOpenBusinessModal}
+                    className="px-4 py-2 bg-yellow-400 hover:bg-green-500 text-white rounded-lg flex items-center space-x-2 transition-all duration-500 ease-in-out shadow-md"
+                  >
+                    <span>Upgrade to business account</span>
+                  </button>
+
+                  {showBusinessModal && (
+                    <BusinessAccountModal
+                      totalFollowers={userData.totalFollowers}
+                      onClose={() => setShowBusinessModal(false)}
+                    />
+                  )}
+                </div>
+              )}
             </div>
           ) : (
             <div className="flex space-x-4 mt-3">
@@ -173,18 +202,19 @@ const UserDetail = () => {
                 text="Follow"
                 className="bg-gray-200 hover:bg-gray-300 text-gray-700"
               />
-              <Button
-                icon={<FiShoppingBag />}
-                text="Store"
-                className="bg-yellow-500 hover:bg-yellow-600 text-white"
-                onClick={handleStoreClick}
-              />
+              {canAccessStore && (
+                <Button
+                  icon={<FiShoppingBag />}
+                  text="Store"
+                  className="bg-yellow-500 hover:bg-yellow-600 text-white"
+                  onClick={handleStoreClick}
+                />
+              )}
               <Button
                 icon={<FiShare2 />}
                 text="Share"
                 className="bg-gray-200 hover:bg-gray-300 text-gray-700"
               />
-
               <Button
                 icon={<FaEllipsisH />}
                 className="bg-gray-200 hover:bg-gray-300 text-gray-700"
