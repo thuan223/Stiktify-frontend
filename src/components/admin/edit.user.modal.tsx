@@ -9,7 +9,7 @@ import ImageCustomize from '../image/image.customize';
 import { formatDateTime } from '@/utils/utils';
 import { StyleStatus } from '../table/user.render.table';
 import { LockTwoTone, UnlockTwoTone } from '@ant-design/icons';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 interface IProps {
     isUpdateModalOpen: boolean;
     setIsUpdateModalOpen: (v: boolean) => void;
@@ -24,6 +24,7 @@ const UpdateUserModal = (props: IProps) => {
     } = props;
     const [isBanStatus, setIsBanStatus] = useState(dataUser?.isBan!)
     const [isActiveStatus, setIsActiveStatus] = useState(dataUser?.isActive!)
+    const [data, setData] = useState<IUser | null>(null)
     const [form] = Form.useForm();
 
     const handleCloseCreateModal = () => {
@@ -43,7 +44,22 @@ const UpdateUserModal = (props: IProps) => {
         form.resetFields()
         setIsUpdateModalOpen(false);
     };
-
+    useEffect(() => {
+        form.setFieldsValue({ _id: dataUser?._id });
+        form.setFieldsValue({ fullname: dataUser?.fullname });
+        form.setFieldsValue({ isActive: dataUser?.isActive });
+        form.setFieldsValue({ isBan: dataUser?.isBan });
+        form.setFieldsValue({ userName: dataUser?.userName });
+        form.setFieldsValue({ email: dataUser?.email });
+        form.setFieldsValue({ role: dataUser?.role });
+        form.setFieldsValue({ accountType: dataUser?.accountType });
+        form.setFieldsValue({ status: dataUser?.status });
+        form.setFieldsValue({ codeExpired: dataUser?.codeExpired });
+        form.setFieldsValue({ activeCode: dataUser?.activeCode });
+        setData(dataUser)
+        setIsBanStatus(dataUser?.isBan!)
+        setIsActiveStatus(dataUser?.isActive!)
+    }, [isUpdateModalOpen, dataUser, form])
     return (
         <Modal
             style={{ top: 20 }}
@@ -65,7 +81,7 @@ const UpdateUserModal = (props: IProps) => {
                 <div
                     style={{ display: "flex", justifyContent: "center" }}
                 >
-                    <ImageCustomize image={dataUser?.image || ""} />
+                    <ImageCustomize image={data?.image || ""} />
                 </div>
                 <div style={{ display: "flex", gap: 50 }}>
                     <div>
@@ -73,7 +89,6 @@ const UpdateUserModal = (props: IProps) => {
                             hidden
                             label="ID"
                             name="_id"
-                            initialValue={dataUser?._id}
                         >
                             <Input type='text' />
                         </Form.Item>
@@ -82,7 +97,6 @@ const UpdateUserModal = (props: IProps) => {
                             label="Full name"
                             name="fullname"
                             rules={[{ required: true, message: 'Please input your full name!' }]}
-                            initialValue={dataUser?.fullname}
                         >
                             <Input type='text' />
                         </Form.Item>
@@ -93,7 +107,6 @@ const UpdateUserModal = (props: IProps) => {
                                     label="Username"
                                     name="userName"
                                     rules={[{ required: true, message: 'Please input your username!' }]}
-                                    initialValue={dataUser?.userName}
                                 >
                                     <Input disabled type='text' />
                                 </Form.Item>
@@ -103,7 +116,6 @@ const UpdateUserModal = (props: IProps) => {
                                     label="Email"
                                     name="email"
                                     rules={[{ required: true, message: 'Please input your email!' }]}
-                                    initialValue={dataUser?.email}
                                 >
                                     <Input disabled type='email' />
                                 </Form.Item>
@@ -116,11 +128,10 @@ const UpdateUserModal = (props: IProps) => {
                                 label="Code"
                                 name="activeCode"
                                 rules={[{ required: true, message: 'Please input your password!' }]}
-                                initialValue={dataUser?.activeCode}
                             >
                                 <Input disabled type='text' />
                             </Form.Item>
-                            <div style={{ color: "#636e72" }}>Code Expired: {formatDateTime(dataUser?.codeExpired ?? "")}</div>
+                            <div style={{ color: "#636e72" }}>Code Expired: {formatDateTime(data?.codeExpired ?? "")}</div>
                         </div>
                     </div>
                     <div >
@@ -130,7 +141,6 @@ const UpdateUserModal = (props: IProps) => {
                                     label="Role"
                                     name="role"
                                     rules={[{ required: true, message: 'Please input your role!' }]}
-                                    initialValue={dataUser?.role}
                                 >
                                     <Input disabled type='text' />
                                 </Form.Item>
@@ -140,7 +150,6 @@ const UpdateUserModal = (props: IProps) => {
                                     label="Account Type"
                                     name="accountType"
                                     rules={[{ required: true, message: 'Please input your account type!' }]}
-                                    initialValue={dataUser?.accountType}
                                 >
                                     <Input disabled type='email' />
                                 </Form.Item>
@@ -178,7 +187,7 @@ const UpdateUserModal = (props: IProps) => {
                             marginTop: 30
                         }}>
                             <div>Status: </div>
-                            <div><StyleStatus value={dataUser?.status + ""} /></div>
+                            <div><StyleStatus value={data?.status + ""} /></div>
                         </div>
                     </div>
                 </div>

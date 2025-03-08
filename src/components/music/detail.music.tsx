@@ -105,7 +105,7 @@ const DisplayMusicDetail = ({ item }: IProps) => {
             className="rounded-md"
           />
           <div>
-            <div className="text-white text-[100px] font-roboto font-bold">
+            <div className="text-white text-[80px] font-roboto font-bold truncate w-[70vw]">
               {item.musicDescription}
             </div>
             <div className="flex flex-col gap-2">

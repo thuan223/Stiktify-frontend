@@ -1,7 +1,6 @@
 "use client"
 
 import { useGlobalContext } from "@/library/global.context"
-import { useEffect } from "react"
 import { FaPause, FaPlay } from "react-icons/fa"
 
 interface IProps {

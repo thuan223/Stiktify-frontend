@@ -7,7 +7,7 @@ import image from "@/assets/images/gratisography-augmented-reality-800x525.jpg"
 import { useRouter } from "next/navigation"
 import { useGlobalContext } from "@/library/global.context"
 import { FaBarsStaggered } from "react-icons/fa6";
-import { Dropdown, MenuProps, notification } from "antd"
+import { Dropdown, MenuProps, notification, Tooltip } from "antd"
 import noImagePlaylist from "@/assets/images/playlist-no-image.jpg"
 import { RiPlayListLine } from "react-icons/ri";
 import { MdOutlinePlaylistAdd } from "react-icons/md";
@@ -56,7 +56,7 @@ const CardMusic = (props: IProps) => {
                         <Image height={30} width={30} className="rounded-md" alt="thumbnail" src={!item.image || item.image === "" ? noImagePlaylist : item.image} />
                         <div>
                             <div className="font-roboto font-bold text-1xl">{item.name}</div>
-                            <div className="font-roboto text-gray-400 text-[10px]  max-w-[150px] overflow-hidden text-ellipsis whitespace-nowrap">{item.description} Lorem ipsum dolor sit amet consectetur adipisicing elit. Minus expedita, voluptatem tempore quam culpa officiis minima. Distinctio magni ex porro ut quaerat quas nobis vitae dolorum exercitationem facilis. Ab, voluptatum?</div>
+                            <div className="font-roboto text-gray-400 text-[10px]  max-w-[150px] overflow-hidden text-ellipsis whitespace-nowrap">{item.description} </div>
                         </div>
                     </div>,
                 }
@@ -125,7 +125,9 @@ const CardMusic = (props: IProps) => {
                     width={200}
                     height={200}
                     src={item ? item.musicThumbnail : image} />
-                <div className="mt-2 text-[20px] font-semibold font-roboto">{item.musicDescription}</div>
+                <Tooltip title={item.musicDescription}>
+                    <div className="mt-2 text-[20px] font-semibold font-roboto truncate w-[10vw]">{item.musicDescription}</div>
+                </Tooltip>
                 <ButtonPlayer
                     current={item._id}
                     className={`absolute right-2 bottom-6 transition-all duration-300 transform 

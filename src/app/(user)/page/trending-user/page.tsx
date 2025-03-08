@@ -10,7 +10,8 @@ import React, { useContext, useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { useShowComment } from "@/context/ShowCommentContext";
 import OtherVideos from "@/components/page/trending/otherVideo";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
+import TagMusic from "@/components/music/tag.music";
 
 const TrendingPage = () => {
   const [searchValue, setSearchValue] = useState<string>("");
@@ -22,10 +23,26 @@ const TrendingPage = () => {
   const [isWatched, setIsWatched] = useState(false);
   const [isShowOtherVideos, setIsShowOtherVideos] = useState(false);
   // const [showComments, setShowComments] = useState<boolean>(false);
-  const { showComments, setShowComments } = useShowComment();
+  const { showComments, setShowComments, showNotification } = useShowComment();
   const searchParams = useSearchParams();
   const [isFetchId, setIsFetchId] = useState(true);
   let id = searchParams.get("id");
+
+  const [currentMusic, setCurrentMusic] = useState<IMusic | null>(null);
+  const router = useRouter()
+  useEffect(() => {
+    if (currentVideo) {
+      const data = currentVideo?.musicId
+      console.log("Check data>>>>>", currentVideo);
+
+      setCurrentMusic(data)
+    }
+  }, [currentVideo])
+
+  const handleNavigate = (id: string) => {
+    router.push(`music/${id}`)
+  }
+
   const toggleComments = () => {
     setShowComments((prev) => !prev);
   };
@@ -70,7 +87,7 @@ const TrendingPage = () => {
     Cookies.set("suggestVideoId", suggestVideoId + "", { expires: 365 });
   };
   const handleScroll = async (event: React.WheelEvent) => {
-    if (showComments || isShowOtherVideos) {
+    if (showComments || showNotification || isShowOtherVideos) {
       return;
     }
 
@@ -96,7 +113,7 @@ const TrendingPage = () => {
         setCurrentVideoIndex(newIndex);
         setCurrentVideo(videoData[newIndex]);
       } else if (currentVideoIndex == videoData.length - 1) {
-        setRequestCount(videoData.length / 10);
+        setRequestCount((prev) => prev + 1);
         getVideoData();
       }
     } else {
@@ -119,7 +136,7 @@ const TrendingPage = () => {
         setCurrentVideoIndex(newIndex);
         setCurrentVideo(videoData[newIndex]);
       } else if (currentVideoIndex == videoData.length - 1) {
-        setRequestCount(videoData.length / 10);
+        setRequestCount((prev) => prev + 1);
         getVideoData();
       }
     } else if (event.key === "ArrowUp") {
@@ -226,7 +243,7 @@ const TrendingPage = () => {
       setCurrentVideo(videoData[newIndex]);
 
       if (newIndex === requestCount * 10 - 1) {
-        setRequestCount(videoData.length / 10);
+        setRequestCount((prev) => prev + 1);
         getVideoData();
       }
     }
@@ -284,73 +301,79 @@ const TrendingPage = () => {
   };
 
   return (
-    <div onWheel={handleScroll}>
-      <Header
-        isGuest={false}
-        searchValue={searchValue}
-        setSearchValue={setSearchValue}
-      />
-      {/* {currentVideo ? (
-        <MainVideo
-          videoUrl={currentVideo.videoUrl}
-          onVideoWatched={handleVideoWatched}
-          onVideoDone={nextVideo}
+    <div>
+      <div onWheel={handleScroll}>
+        <Header
+          isGuest={false}
+          searchValue={searchValue}
+          setSearchValue={setSearchValue}
         />
-      ) : (
-        <p>Loading video...</p>
-      )} */}
-
-      <VideoFooter
-        videoDescription={currentVideo?.videoDescription || ""}
-        totalView={currentVideo?.totalViews || 0}
-        videoTag={currentVideo?.videoTag || []}
-        createAt={currentVideo?.createAt?.toString() || ""}
-      />
-      {isShowOtherVideos ? (
-        <OtherVideos
-          isVisible={isShowOtherVideos}
-          videoData={videoData}
-          setCurrentVideo={setCurrentVideo}
-          setIsShowOtherVideos={setIsShowOtherVideos}
-          setCurrentVideoIndex={setCurrentVideoIndex}
+        {currentVideo ? (
+          <MainVideo
+            videoUrl={currentVideo.videoUrl}
+            onVideoWatched={handleVideoWatched}
+            onVideoDone={nextVideo}
+          />
+        ) : (
+          <p>Loading video...</p>
+        )}
+        <VideoFooter
+          videoDescription={currentVideo?.videoDescription || ""}
+          totalView={currentVideo?.totalViews || 0}
+          videoTag={currentVideo?.videoTag || []}
+          createAt={currentVideo?.createAt?.toString() || ""}
         />
-      ) : (
-        <InteractSideBar
-          creatorId={currentVideo?.userId.fullname || ""}
-          userId={currentVideo?.userId._id || ""}
-          onCommentClick={toggleComments}
-          videoId={currentVideo?._id}
-          numberComment={currentVideo?.totalComment}
-          numberReaction={currentVideo?.totalReaction}
-          onReactionAdded={onReactionAdded}
-          onReactionRemove={onReactionRemove}
-          isHidden={showComments}
-        />
-      )}
-      {!isShowOtherVideos ? (
-        <svg
-          onClick={() => setIsShowOtherVideos(true)}
-          xmlns="http://www.w3.org/2000/svg"
-          className={`fixed right-[13%]
+        {isShowOtherVideos ? (
+          <OtherVideos
+            isVisible={isShowOtherVideos}
+            videoData={videoData}
+            setCurrentVideo={setCurrentVideo}
+            setIsShowOtherVideos={setIsShowOtherVideos}
+            setCurrentVideoIndex={setCurrentVideoIndex}
+          />
+        ) : (
+          <InteractSideBar
+            creatorId={currentVideo?.userId.fullname || ""}
+            userId={currentVideo?.userId._id || ""}
+            onCommentClick={toggleComments}
+            videoId={currentVideo?._id}
+            numberComment={currentVideo?.totalComment}
+            numberReaction={currentVideo?.totalReaction}
+            onReactionAdded={onReactionAdded}
+            onReactionRemove={onReactionRemove}
+            isHidden={showComments}
+          />
+        )}
+        {!isShowOtherVideos ? (
+          <svg
+            onClick={() => setIsShowOtherVideos(true)}
+            xmlns="http://www.w3.org/2000/svg"
+            className={`fixed right-[13%]
             bottom-1/2 transform -translate-y-1/2 cursor-pointer w-6 h-6 text-gray-600 hover:text-gray-800`}
-          viewBox="0 0 448 512"
-          fill="currentColor"
-        >
-          <path d="M207 273L71 409c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l152-152c9.4-9.4 9.4-24.6 0-33.9L104.9 105c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l136 136zm192 0L263 409c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l152-152c9.4-9.4 9.4-24.6 0-33.9L295.9 105c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l136 136z" />
-        </svg>
-      ) : (
-        ""
-      )}
+            viewBox="0 0 448 512"
+            fill="currentColor"
+          >
+            <path d="M207 273L71 409c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l152-152c9.4-9.4 9.4-24.6 0-33.9L104.9 105c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l136 136zm192 0L263 409c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l152-152c9.4-9.4 9.4-24.6 0-33.9L295.9 105c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l136 136z" />
+          </svg>
+        ) : (
+          ""
+        )}
 
-      {showComments && (
-        <CommentSection
-          onCommentClick={toggleComments}
-          videoId={currentVideo?._id}
-          showComments={showComments}
-          onCommentAdded={onCommentAdded}
-          onCommentRemove={onCommentRemove}
-        />
-      )}
+        {showComments && (
+          <CommentSection
+            onCommentClick={toggleComments}
+            videoId={currentVideo?._id}
+            showComments={showComments}
+            onCommentAdded={onCommentAdded}
+            onCommentRemove={onCommentRemove}
+          />
+        )}
+      </div>
+      {currentMusic ?
+        <div className="w-64 h-20  bg-gray-900/80 absolute right-0 bottom-2 rounded-md flex px-2 mx-1">
+          <TagMusic onClick={handleNavigate} item={currentMusic} />
+        </div>
+        : <></>}
     </div>
   );
 };

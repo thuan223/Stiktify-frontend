@@ -3,7 +3,7 @@ interface VideoHistoryProps {
   userId: string;
   createdAt: Date;
   updatedAt: Date;
-  _id:string;
+  _id: string;
 }
 
 interface IVideo {
@@ -12,7 +12,7 @@ interface IVideo {
   totalReaction: number;
   totalViews: number;
   userId: IUser;
-  musicId: string;
+  musicId: IMusic;
   videoDescription: string;
   isBlock: boolean;
   videoThumbnail: string;

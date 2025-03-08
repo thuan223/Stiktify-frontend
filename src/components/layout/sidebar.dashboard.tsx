@@ -1,97 +1,101 @@
-'use client'
+"use client";
 import Layout from "antd/es/layout";
 import Menu from "antd/es/menu";
 import {
-    AppstoreOutlined,
-    ExceptionOutlined,
-    InfoCircleOutlined,
-    MailOutlined,
-    TeamOutlined,
-    VideoCameraOutlined,
-    WarningOutlined
+  AppstoreOutlined,
+  ExceptionOutlined,
+  InfoCircleOutlined,
+  MailOutlined,
+  PlayCircleOutlined,
+  ReconciliationOutlined,
+  TeamOutlined,
+  VideoCameraOutlined,
+  WarningOutlined
 } from '@ant-design/icons';
-import React, { useContext, useEffect, useState } from 'react';
-import type { MenuProps } from 'antd';
-import Link from 'next/link'
+import React, { useContext, useEffect, useState } from "react";
+import type { MenuProps } from "antd";
+import Link from "next/link";
 import { DashboardContext } from "@/library/dashboard.context";
 import { usePathname } from "next/navigation";
 
-type MenuItem = Required<MenuProps>['items'][number];
+type MenuItem = Required<MenuProps>["items"][number];
 const DashboardSideBar = () => {
-    const pathname = usePathname();
-    const { Sider } = Layout;
-    const { collapseMenu } = useContext(DashboardContext)!;
-    const items: MenuItem[] = [
+  const pathname = usePathname();
+  const { Sider } = Layout;
+  const { collapseMenu } = useContext(DashboardContext)!;
+  const items: MenuItem[] = [
+    {
+      key: "grp",
+      label: "Stiktify",
+      type: "group",
+      children: [
         {
-            key: 'grp',
-            label: 'Stiktify',
-            type: 'group',
-            children: [
+          key: 'grp',
+          label: 'Stiktify',
+          type: 'group',
+          children: [
+            {
+              key: "/dashboard",
+              label: <Link href={"/dashboard"}>Dashboard</Link>,
+              icon: <AppstoreOutlined />,
+            },
+            {
+              key: "/dashboard/user",
+              label: <Link href={"/dashboard/user"}>Manage Users</Link>,
+              icon: <TeamOutlined />,
+            },
+            {
+              key: "/dashboard/short-video",
+              label: <Link href={"/dashboard/short-video"}>Manage Short Video</Link>,
+              icon: <VideoCameraOutlined />,
+            },
+            {
+              key: "/dashboard/music",
+              label: <Link href={"/dashboard/music"}>Manage Music</Link>,
+              icon: <PlayCircleOutlined />,
+            },
+            {
+              key: 'sub1',
+              label: 'Manage Report',
+              icon: <InfoCircleOutlined />,
+              children: [
                 {
-                    key: "/dashboard",
-                    label: <Link href={"/dashboard"}>Dashboard</Link>,
-                    icon: <AppstoreOutlined />,
+                  key: '/dashboard/report/report-video',
+                  label: <Link href={"/dashboard/report/report-video"}>Video Report</Link>,
                 },
                 {
-                    key: "/dashboard/user",
-                    label: <Link href={"/dashboard/user"}>Manage Users</Link>,
-                    icon: <TeamOutlined />,
+                  key: '/dashboard/report-music',
+                  label: <Link href={"/dashboard/report/report-music"}>Music Report</Link>,
                 },
-                {
-                    key: "/dashboard/short-video",
-                    label: <Link href={"/dashboard/short-video"}>Manage Short Video</Link>,
-                    icon: <VideoCameraOutlined />,
-                },
-            
-                {
-                    key: "/dashboard/report",
-                    label: <Link href={"/dashboard/report"}>Manage Report</Link>,
-                    icon: <InfoCircleOutlined />,
-                },
-                {
-                    key: 'sub1',
-                    label: 'Navigation One',
-                    icon: <MailOutlined />,
-                    children: [
-                        {
-                            key: 'g1',
-                            label: 'Item 1',
-                            type: 'group',
-                            children: [
-                                { key: '1', label: 'Option 1' },
-                                { key: '2', label: 'Option 2' },
-                            ],
-                        },
-                        {
-                            key: 'g2',
-                            label: 'Item 2',
-                            type: 'group',
-                            children: [
-                                { key: '3', label: 'Option 3' },
-                                { key: '4', label: 'Option 4' },
-                            ],
-                        },
-                    ],
-                },
-                {
-                    type: 'divider',
-                },
-            ],
+              ],
+            },
+            {
+              key: "/dashboard/algorithm",
+              label: <Link href={"/dashboard/algorithm"}>Manage Algorithm</Link>,
+              icon: <ReconciliationOutlined />,
+            },
+            {
+              type: 'divider',
+            },
+          ],
         },
-    ];
+        {
+          type: "divider",
+        },
+      ],
+    },
+  ];
 
-    return (
-        <Sider
-            collapsed={collapseMenu}
-        >
-            <Menu
-                mode="inline"
-                defaultSelectedKeys={[pathname]}
-                items={items}
-                style={{ height: '100vh' }}
-            />
-        </Sider>
-    )
-}
+  return (
+    <Sider collapsed={collapseMenu}>
+      <Menu
+        mode="inline"
+        defaultSelectedKeys={[pathname]}
+        items={items}
+        style={{ height: "100vh" }}
+      />
+    </Sider>
+  );
+};
 
 export default DashboardSideBar;

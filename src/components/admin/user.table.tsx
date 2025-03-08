@@ -36,13 +36,27 @@ const ManageUserTable = (props: IProps) => {
 
     const [isEmailModalOpen, setIsEmailModalOpen] = useState<boolean>(false)
 
+    const dataFilter = [
+        {
+            value: "lock",
+            title: "Block"
+        }, {
+            value: "unlock",
+            title: "Unblock"
+        }, {
+            value: "USERS",
+            title: "Users"
+        }, {
+            value: "ADMIN",
+            title: "Admin"
+        },
+    ]
 
-
-    const handleMailClick = (record:any) => {
+    const handleMailClick = (record: any) => {
         setDataUser(record)
         setIsEmailModalOpen(true)
     };
-    
+
     useEffect(() => {
         (async () => {
             if (search.length > 0 || filterReq.length > 0) {
@@ -55,7 +69,7 @@ const ManageUserTable = (props: IProps) => {
             }
         })()
 
-        
+
     }, [search, dataSource, filterReq, meta])
 
     const columns: ColumnsType<IUser> = [
@@ -92,10 +106,10 @@ const ManageUserTable = (props: IProps) => {
             key: 'mail',
             render: (value: boolean, record: IUser, index: number) => (
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    
-                    <MailTwoTone 
-                        style={{ fontSize: 16, color: "#1890ff" }} 
-                        onClick={() => handleMailClick(record)} 
+
+                    <MailTwoTone
+                        style={{ fontSize: 16, color: "#1890ff" }}
+                        onClick={() => handleMailClick(record)}
                     />                </div>
             )
         },
@@ -105,12 +119,12 @@ const ManageUserTable = (props: IProps) => {
             key: 'isBan',
             render: (value: boolean, record: IUser, index: number) => (
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    
+
                     {ActionManagerUser(value, record, index, setIsUpdateModalOpen, setDataUser)}
                 </div>
             )
         }
-        
+
     ];
 
 
@@ -134,7 +148,7 @@ const ManageUserTable = (props: IProps) => {
                     <InputCustomize setValue={setSearch} value={search} icon={<SearchOutlined />} />
                 </div>
                 <div>
-                    <DropdownCustomize title="Filter" selected={filterReq} setSelect={setFilterReq} icon={<FilterOutlined />} />
+                    <DropdownCustomize data={dataFilter} title="Filter" selected={filterReq} setSelect={setFilterReq} icon={<FilterOutlined />} />
                 </div>
             </div>
             <TableCustomize columns={columns} dataSource={dataTable} meta={metaTable} />

@@ -117,9 +117,8 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
       initial={{ x: "100%", opacity: 0 }}
       animate={{ x: !isHidden ? "0%" : "100%", opacity: !isHidden ? 1 : 0 }}
       transition={{ duration: 0.4, ease: "easeInOut" }}
-      className={`w-[15%] bg-white shadow-lg absolute right-0 top-[95px] pt-10 pl-10 h-3/4 ${
-        isHidden ? "hidden" : ""
-      }`}
+      className={`w-[15%] bg-white shadow-lg absolute right-0 top-[95px] pt-10 pl-10 h-3/4 ${isHidden ? "hidden" : ""
+        }`}
     >
       <nav>
         <ul className="space-y-10">
@@ -129,7 +128,7 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
           >
             <div
               className="relative w-16 h-16 rounded-full overflow-hidden cursor-pointer border-2 border-white shadow-md hover:opacity-80 transition-all flex items-center justify-center bg-gray-200"
-              onClick={handleFollower}
+
             >
               {avatarUrl ? (
                 <img
@@ -142,11 +141,14 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
               )}
             </div>
             <div
-              className={`absolute -left-1 -bottom-1 w-6 h-6 flex items-center justify-center rounded-full shadow-md ${
-                isFollowing
-                  ? "bg-green-500 text-white"
-                  : "bg-red-500 text-white"
-              }`}
+              onClick={(e) => {
+                e.stopPropagation()
+                handleFollower()
+              }}
+              className={`absolute -left-1 -bottom-1 w-6 h-6 flex items-center justify-center rounded-full shadow-md ${isFollowing
+                ? "bg-green-500 text-white"
+                : "bg-red-500 text-white"
+                }`}
             >
               {isFollowing ? (
                 <CheckOutlined className="text-md" />
@@ -196,7 +198,7 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
               </div>
             )}
           </li>
-          <li className="flex items-center">
+          <li className="flex items-center !mt-4">
             <div
               className="text-xl cursor-pointer mr-2"
               onClick={onCommentClick}
@@ -210,18 +212,6 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
               </svg>
             </div>
             <p>{numberComment} Comment</p>
-          </li>
-          <li className="flex items-center">
-            <div className="text-xl cursor-pointer mr-2">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-7 w-7"
-                viewBox="0 0 512 512"
-              >
-                <path d="M470.4 1.5L150.4 96A32 32 0 0 0 128 126.5v261.4A139 139 0 0 0 96 384c-53 0-96 28.7-96 64s43 64 96 64 96-28.7 96-64V214.3l256-75v184.6a138.4 138.4 0 0 0 -32-3.9c-53 0-96 28.7-96 64s43 64 96 64 96-28.7 96-64V32a32 32 0 0 0 -41.6-30.5z" />
-              </svg>
-            </div>
-            Link Music
           </li>
           <li className="flex items-center">
             <div className="text-xl cursor-pointer mr-2">
