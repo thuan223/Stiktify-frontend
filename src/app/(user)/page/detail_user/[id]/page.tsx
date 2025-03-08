@@ -5,12 +5,20 @@ import { useParams } from "next/navigation";
 import { AuthContext } from "@/context/AuthContext";
 import { sendRequest } from "@/utils/api";
 import { FaUser, FaRegEnvelope, FaEllipsisH } from "react-icons/fa";
-import { FiEdit, FiMessageSquare, FiShare2, FiUserPlus } from "react-icons/fi";
+import {
+  FiEdit,
+  FiMessageSquare,
+  FiShare2,
+  FiShoppingBag,
+  FiUserPlus,
+} from "react-icons/fi";
 import { LuBellRing } from "react-icons/lu";
 import MyVideo from "@/components/page/myvideo/MyVideo";
 import LikedVideo from "@/components/page/likedVideoPost/LikedVideo";
 import ListFavoriteMusic from "@/components/music/music-favorite/list.favorite";
 import ListMyMusic from "@/components/page/mymusic/list-my-music";
+import { useRouter } from "next/navigation";
+
 // ======= Interfaces for User & Video =======
 interface User {
   _id: string;
@@ -26,6 +34,7 @@ interface User {
 }
 
 const UserDetail = () => {
+  const router = useRouter();
   const { id } = useParams();
   const { accessToken, user } = useContext(AuthContext) ?? {};
   const [userData, setUserData] = useState<User | null>(null);
@@ -90,6 +99,10 @@ const UserDetail = () => {
   if (!userData)
     return <p className="text-center text-gray-600">No user data</p>;
 
+  const handleStoreClick = () => {
+    router.push(`/page/store/${id}`);
+  };
+
   const tabLabels: Record<
     "video" | "music" | "likedVideo" | "likedMusic",
     string
@@ -131,6 +144,12 @@ const UserDetail = () => {
                 className="bg-green-500 hover:bg-green-600 text-white"
               />
               <Button
+                icon={<FiShoppingBag />}
+                text="Store"
+                className="bg-yellow-500 hover:bg-yellow-600 text-white"
+                onClick={handleStoreClick}
+              />
+              <Button
                 icon={<FiShare2 />}
                 text="Share"
                 className="bg-gray-200 hover:bg-gray-300 text-gray-700"
@@ -155,10 +174,17 @@ const UserDetail = () => {
                 className="bg-gray-200 hover:bg-gray-300 text-gray-700"
               />
               <Button
+                icon={<FiShoppingBag />}
+                text="Store"
+                className="bg-yellow-500 hover:bg-yellow-600 text-white"
+                onClick={handleStoreClick}
+              />
+              <Button
                 icon={<FiShare2 />}
                 text="Share"
                 className="bg-gray-200 hover:bg-gray-300 text-gray-700"
               />
+
               <Button
                 icon={<FaEllipsisH />}
                 className="bg-gray-200 hover:bg-gray-300 text-gray-700"

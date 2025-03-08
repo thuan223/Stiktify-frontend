@@ -93,7 +93,8 @@ const UploadVideoPost: React.FC = () => {
       if (videoUploadRes.statusCode !== 201)
         throw new Error("Video upload failed");
 
-      const videoUrl = videoUploadRes.data?.data;
+      const videoUrl = videoUploadRes.data;
+      console.log(videoUrl);
       let thumbnailUrl = "";
 
       if (videoThumbnail) {
