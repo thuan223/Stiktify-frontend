@@ -60,15 +60,38 @@ const UploadProduct: React.FC<UploadProductProps> = ({
 
     fetchCategories();
 
-    // If editing a product, pre-fill the form with product details
     if (isEditMode && editingProduct) {
       setName(editingProduct.productName);
-      setDescription(editingProduct.productDescription || ""); // Thêm mô tả sản phẩm
+      setDescription(editingProduct.productDescription || "");
       setPrice(editingProduct.productPrice.toString());
       setStock(editingProduct.stock.toString());
       setCategory(editingProduct.productCategory);
     }
   }, [accessToken, isEditMode, editingProduct]);
+
+  const validateInputs = () => {
+    if (!name.trim()) {
+      notification.error({ message: "Product name is required." });
+      return false;
+    }
+    if (!price || isNaN(Number(price)) || Number(price) <= 0) {
+      notification.error({ message: "Price must be a positive number." });
+      return false;
+    }
+    if (!stock || isNaN(Number(stock)) || Number(stock) <= 0) {
+      notification.error({ message: "Stock must be a non-negative number." });
+      return false;
+    }
+    if (!category) {
+      notification.error({ message: "Please select a product category." });
+      return false;
+    }
+    if (!isEditMode && !image) {
+      notification.error({ message: "Please upload an image." });
+      return false;
+    }
+    return true;
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -83,14 +106,11 @@ const UploadProduct: React.FC<UploadProductProps> = ({
       return;
     }
 
-    if (!name || !price || !category || !stock) {
-      notification.error({ message: "Please fill in all required fields." });
-      return;
-    }
+    if (!validateInputs()) return;
 
     setLoading(true);
     try {
-      let imageUrl = null;
+      let imageUrl = editingProduct?.image || null;
       if (image) {
         const uploadImageForm = new FormData();
         uploadImageForm.append("file", image);
@@ -116,17 +136,16 @@ const UploadProduct: React.FC<UploadProductProps> = ({
       const productData = {
         userId,
         productName: name,
-        productDescription: description, // Thêm mô tả sản phẩm
+        productDescription: description,
         productCategory: category,
         productPrice: Number(price),
         stock: Number(stock),
-        image: imageUrl || editingProduct?.image, // Use existing image if not uploading new one
+        image: imageUrl,
       };
 
       const url = isEditMode
         ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/products/${editingProduct._id}`
         : `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/products`;
-
       const method = isEditMode ? "PUT" : "POST";
 
       const postRes = await sendRequest<{
@@ -146,7 +165,7 @@ const UploadProduct: React.FC<UploadProductProps> = ({
             : "Product added successfully!",
         });
         onProductUpdated();
-        onClose(); // Close the modal after save
+        onClose();
       } else {
         notification.error({
           message: postRes.message || "Product upload failed.",
