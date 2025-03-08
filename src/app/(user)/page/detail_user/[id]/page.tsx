@@ -36,7 +36,7 @@ interface User {
 }
 
 const UserDetail = () => {
-  const [totalFollowers, setTotalFollowers] = useState(1000);
+  // const [totalFollowers, setTotalFollowers] = useState(1000);
   const [isUpgraded, setIsUpgraded] = useState(false);
   const [showBusinessModal, setShowBusinessModal] = useState(false);
   const router = useRouter();
@@ -76,8 +76,8 @@ const UserDetail = () => {
   };
 
   const handleOpenBusinessModal = () => {
-    setShowBusinessModal(false); // Đảm bảo re-render
-    setTimeout(() => setShowBusinessModal(true), 0); // Đặt lại modal sau 1 tick
+    setShowBusinessModal(false);
+    setTimeout(() => setShowBusinessModal(true), 0);
   };
 
   const sendFriendRequest = async () => {
@@ -175,24 +175,26 @@ const UserDetail = () => {
                 text="Share"
                 className="bg-gray-200 hover:bg-gray-300 text-gray-700"
               />
-              {userData.totalFollowers >= 1000 && !isUpgraded && (
-                <div className="flex space-x-4 mt-3">
-                  <button
-                    onClick={handleOpenBusinessModal}
-                    className="px-4 py-2 bg-yellow-400 hover:bg-green-500 text-white rounded-lg flex items-center space-x-2 transition-all duration-500 ease-in-out shadow-md"
-                  >
-                    <span>Upgrade to business account now!</span>
-                  </button>
+              {userData.totalFollowers >= 1000 &&
+                !isUpgraded &&
+                !userData.isShop && (
+                  <div className="flex space-x-4 mt-3">
+                    <button
+                      onClick={handleOpenBusinessModal}
+                      className="px-4 py-2 bg-yellow-400 hover:bg-green-500 text-white rounded-lg flex items-center space-x-2 transition-all duration-500 ease-in-out shadow-md"
+                    >
+                      <span>Upgrade to business account now!</span>
+                    </button>
 
-                  {showBusinessModal && (
-                    <BusinessAccountModal
-                      totalFollowers={userData.totalFollowers}
-                      onClose={() => setShowBusinessModal(false)}
-                      onUpgradeSuccess={handleUpgradeSuccess}
-                    />
-                  )}
-                </div>
-              )}
+                    {showBusinessModal && (
+                      <BusinessAccountModal
+                        totalFollowers={userData.totalFollowers}
+                        onClose={() => setShowBusinessModal(false)}
+                        onUpgradeSuccess={handleUpgradeSuccess}
+                      />
+                    )}
+                  </div>
+                )}
             </div>
           ) : (
             <div className="flex space-x-4 mt-3">
