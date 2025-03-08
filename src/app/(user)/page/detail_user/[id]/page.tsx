@@ -159,7 +159,9 @@ const UserDetail = () => {
                 icon={<FiEdit />}
                 text="Edit Profile"
                 className="bg-green-500 hover:bg-green-600 text-white"
+                onClick={() => router.push("/page/profile")}
               />
+
               {canAccessStore && (
                 <Button
                   icon={<FiShoppingBag />}
@@ -179,7 +181,7 @@ const UserDetail = () => {
                     onClick={handleOpenBusinessModal}
                     className="px-4 py-2 bg-yellow-400 hover:bg-green-500 text-white rounded-lg flex items-center space-x-2 transition-all duration-500 ease-in-out shadow-md"
                   >
-                    <span>Upgrade to business account</span>
+                    <span>Upgrade to business account now!</span>
                   </button>
 
                   {showBusinessModal && (
