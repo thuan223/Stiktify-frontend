@@ -117,9 +117,8 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
       initial={{ x: "100%", opacity: 0 }}
       animate={{ x: !isHidden ? "0%" : "100%", opacity: !isHidden ? 1 : 0 }}
       transition={{ duration: 0.4, ease: "easeInOut" }}
-      className={`w-[15%] bg-white shadow-lg absolute right-0 top-[95px] pt-10 pl-10 h-3/4 ${
-        isHidden ? "hidden" : ""
-      }`}
+      className={`w-[15%] bg-white shadow-lg absolute right-0 top-[95px] pt-10 pl-10 h-3/4 ${isHidden ? "hidden" : ""
+        }`}
     >
       <nav>
         <ul className="space-y-10">
@@ -129,7 +128,7 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
           >
             <div
               className="relative w-16 h-16 rounded-full overflow-hidden cursor-pointer border-2 border-white shadow-md hover:opacity-80 transition-all flex items-center justify-center bg-gray-200"
-              onClick={handleFollower}
+
             >
               {avatarUrl ? (
                 <img
@@ -142,11 +141,14 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
               )}
             </div>
             <div
-              className={`absolute -left-1 -bottom-1 w-6 h-6 flex items-center justify-center rounded-full shadow-md ${
-                isFollowing
-                  ? "bg-green-500 text-white"
-                  : "bg-red-500 text-white"
-              }`}
+              onClick={(e) => {
+                e.stopPropagation()
+                handleFollower()
+              }}
+              className={`absolute -left-1 -bottom-1 w-6 h-6 flex items-center justify-center rounded-full shadow-md ${isFollowing
+                ? "bg-green-500 text-white"
+                : "bg-red-500 text-white"
+                }`}
             >
               {isFollowing ? (
                 <CheckOutlined className="text-md" />

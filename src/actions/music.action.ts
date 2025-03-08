@@ -42,6 +42,7 @@ export const handleDisPlayMusicAction = async (id: string) => {
   }
 };
 
+
 export const handleUpdateListenerAction = async (id: string) => {
   try {
     const res = await fetch(
@@ -217,5 +218,42 @@ export const handleCreateMusicAction = async (data: any) => {
     return result;
   } catch (error) {
     return null;
+  }
+}
+
+export const handleFilterAndSearchMusicAction = async (current: number, pageSize: number, search: string, filterRes: string) => {
+  try {
+    const cookieStore = cookies();
+    const token = cookieStore.get("token")?.value;
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/music-categories/filter-search?search=${search}&filterReq=${filterRes}&current=${current}&pageSize=${pageSize}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+    })
+    const result: IBackendRes<any> = await res.json();
+    return result
+  } catch (error) {
+    return null
+  }
+}
+
+export const handleGetMusic = async (current: string, pageSize: string) => {
+  try {
+    const cookieStore = cookies();
+    const token = cookieStore.get("token")?.value;
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/list-music-admin?current=${current}&pageSize=${pageSize}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      next: { tags: ["list-music"] }
+    })
+    const result: IBackendRes<any> = await res.json();
+    return result
+  } catch (error) {
+    return null
   }
 }

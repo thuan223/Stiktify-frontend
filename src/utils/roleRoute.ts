@@ -5,6 +5,7 @@ const roleRoutes: Record<string, (string | RegExp)[]> = {
     "/page/music-favorite",
     "/page/my-music",
     "/page/my-video",
+    "/page/following",
     "/page/profile",
     "/page/search-user",
     "/personal/videohistory",
@@ -21,12 +22,20 @@ const roleRoutes: Record<string, (string | RegExp)[]> = {
     "/auth/register",
     "/page/music",
     /^\/verify\/[\w-]+$/,
-    /^\/page\/music\/\d+$/,
     /^\/page\/share\/[\w-]+$/,
+    /^\/page\/music\/[\w-]+$/,
     /^\/page\/shareMusic\/[\w-]+$/,
     /^\/page\/detail_user\/[\w-]+$/,
   ],
-  ADMIN: ["/dashboard/user", "/dashboard/report", "/dashboard/short-video"],
+  ADMIN: [
+    "/dashboard/user",
+    "/dashboard/report",
+    "/dashboard/short-video",
+    "/dashboard/report/report-video",
+    "/dashboard/report/report-music",
+    "/dashboard/music",
+    "/dashboard/algorithm",
+  ],
 };
 
 const defaultRoutes: Record<string, string> = {

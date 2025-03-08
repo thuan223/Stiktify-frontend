@@ -100,8 +100,8 @@ const MusicPlayer = () => {
 
     return (
         <div className="w-full h-full  bg-gray-900/80 backdrop-blur-md text-white p-4 rounded-2xl shadow-lg">
-            <div className="flex items-center justify-between">
-                <div className="flex gap-5 items-center justify-between">
+            <div className="flex items-center">
+                <div className="flex flex-1 gap-5 items-center justify-between">
                     <div className="flex gap-1 items-center justify-between">
                         {trackCurrent && trackCurrent.musicThumbnail && (
                             <Image
@@ -112,15 +112,15 @@ const MusicPlayer = () => {
                                 height={60}
                             />
                         )}
-                        <span className="ml-4 text-1xl font-semibold">
+                        <span className="ml-4 text-1xl font-semibold truncate w-[20vw] flex items-center gap-5">
                             {trackCurrent?.musicDescription}
+                            <FaHeartbeat size={20} />
                         </span>
+
                     </div>
-                    <div>
-                        <FaHeartbeat size={20} />
-                    </div>
+
                 </div>
-                <div className="flex flex-col gap-2">
+                <div className="flex justify-center flex-col gap-2">
                     <div className="flex gap-10 items-center justify-center">
                         <button className="hover:text-green-400 transition">
                             <FaShuffle size={20} />
@@ -153,8 +153,7 @@ const MusicPlayer = () => {
                         <span>{formatTime(Math.floor(duration))}</span>
                     </div>
                 </div>
-
-                <div className="flex justify-end items-center gap-2">
+                <div className="flex flex-1 justify-end items-center gap-2">
                     <button onClick={toggleMute} className="ml-4 hover:text-green-400 transition">
                         {volume > 0 ? <FaVolumeUp size={20} /> : <FaVolumeMute size={20} />}
                     </button>
@@ -179,7 +178,7 @@ const MusicPlayer = () => {
                     />}
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 

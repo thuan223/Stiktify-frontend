@@ -46,7 +46,6 @@ export const handleFlagShortVideoAction = async (id: string, flag: boolean) => {
         }),
       }
     );
-
     revalidateTag("list-short-video");
     revalidateTag("list-report");
     const result: IBackendRes<any> = await res.json();
