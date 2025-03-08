@@ -33,7 +33,8 @@ const roleRoutes: Record<string, (string | RegExp)[]> = {
     "/dashboard/short-video",
     "/dashboard/report/report-video",
     "/dashboard/report/report-music",
-    "/dashboard/music"
+    "/dashboard/music",
+    "/dashboard/algorithm",
   ],
 };
 
