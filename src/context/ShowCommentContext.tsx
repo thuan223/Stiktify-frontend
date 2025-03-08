@@ -4,15 +4,25 @@ import { createContext, useState, ReactNode, useContext } from "react";
 interface ShowCommentContextType {
   showComments: boolean;
   setShowComments: React.Dispatch<React.SetStateAction<boolean>>;
+  showNotification: boolean;
+  setShowNotification: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const ShowCommentContext = createContext<ShowCommentContextType | null>(null);
 
 export const ShowCommentProvider = ({ children }: { children: ReactNode }) => {
   const [showComments, setShowComments] = useState<boolean>(false);
+  const [showNotification, setShowNotification] = useState<boolean>(false);
 
   return (
-    <ShowCommentContext.Provider value={{ showComments, setShowComments }}>
+    <ShowCommentContext.Provider
+      value={{
+        showComments,
+        setShowComments,
+        showNotification,
+        setShowNotification,
+      }}
+    >
       {children}
     </ShowCommentContext.Provider>
   );

@@ -196,7 +196,7 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
               </div>
             )}
           </li>
-          <li className="flex items-center">
+          <li className="flex items-center !mt-4">
             <div
               className="text-xl cursor-pointer mr-2"
               onClick={onCommentClick}

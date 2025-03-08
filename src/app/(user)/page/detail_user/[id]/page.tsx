@@ -6,6 +6,7 @@ import { AuthContext } from "@/context/AuthContext";
 import { sendRequest } from "@/utils/api";
 import { FaUser, FaRegEnvelope, FaEllipsisH } from "react-icons/fa";
 import { FiEdit, FiMessageSquare, FiShare2, FiUserPlus } from "react-icons/fi";
+import { LuBellRing } from "react-icons/lu";
 import MyVideo from "@/components/page/myvideo/MyVideo";
 import LikedVideo from "@/components/page/likedVideoPost/LikedVideo";
 import ListFavoriteMusic from "@/components/music/music-favorite/list.favorite";
@@ -34,6 +35,7 @@ const UserDetail = () => {
     "video" | "music" | "likedVideo" | "likedMusic"
   >("video");
   const isCurrent = user?._id === id;
+  const [friendRequestSent, setFriendRequestSent] = useState(false);
 
   useEffect(() => {
     if (id && accessToken) fetchUserDetail();
@@ -56,6 +58,30 @@ const UserDetail = () => {
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const sendFriendRequest = async () => {
+    if (!accessToken) {
+      console.error("User not authenticated");
+      return;
+    }
+    try {
+      const res = await sendRequest({
+        url: "http://localhost:8080/api/v1/friend-requests",
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: { receiverId: id, senderId: user._id },
+      });
+
+      if (res) {
+        setFriendRequestSent(true);
+        console.log("Friend request sent successfully");
+      }
+    } catch (error) {
+      console.error("Failed to send friend request", error);
     }
   };
 
@@ -114,12 +140,18 @@ const UserDetail = () => {
             <div className="flex space-x-4 mt-3">
               <Button
                 icon={<FiUserPlus />}
-                text="Follow"
-                className="bg-blue-500 hover:bg-blue-600 text-white"
+                text={friendRequestSent ? "Request Sent" : "Add Friend"}
+                className={`${
+                  friendRequestSent
+                    ? "bg-gray-400"
+                    : "bg-blue-500 hover:bg-blue-600"
+                } text-white`}
+                onClick={sendFriendRequest}
+                disabled={friendRequestSent}
               />
               <Button
-                icon={<FiMessageSquare />}
-                text="Message"
+                icon={<LuBellRing />}
+                text="Follow"
                 className="bg-gray-200 hover:bg-gray-300 text-gray-700"
               />
               <Button
@@ -173,13 +205,19 @@ const Button = ({
   icon,
   text,
   className,
+  onClick,
+  disabled,
 }: {
   icon: JSX.Element;
   text?: string;
   className: string;
+  onClick?: any;
+  disabled?: boolean;
 }) => (
   <button
     className={`px-5 py-3 rounded-lg flex items-center space-x-2 shadow-md transition-all duration-300 ${className}`}
+    onClick={onClick}
+    disabled={disabled}
   >
     {icon} {text && <span>{text}</span>}
   </button>

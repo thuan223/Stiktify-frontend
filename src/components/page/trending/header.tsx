@@ -5,6 +5,7 @@ import { useState, useContext } from "react";
 import { Dropdown, Menu, MenuProps, Modal } from "antd";
 import { AuthContext } from "@/context/AuthContext";
 import UploadVideoPost from "@/components/page/trending/upload_video_post";
+import NotificationModel from "@/components/notification/NotificationModal";
 
 interface HeaderProps {
   searchValue: string;
@@ -117,6 +118,8 @@ const Header: React.FC<HeaderProps> = ({
         )}
       </div>
       <div className="flex items-center space-x-4">
+        {!isGuest && <NotificationModel />}
+
         <div className="text-xl cursor-pointer">
           {isGuest ? (
             <button
