@@ -25,6 +25,7 @@ const UploadProduct: React.FC<UploadProductProps> = ({
   const userId = user?._id || user?.id;
 
   const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("");
   const [image, setImage] = useState<File | null>(null);
@@ -62,6 +63,7 @@ const UploadProduct: React.FC<UploadProductProps> = ({
     // If editing a product, pre-fill the form with product details
     if (isEditMode && editingProduct) {
       setName(editingProduct.productName);
+      setDescription(editingProduct.productDescription || ""); // Thêm mô tả sản phẩm
       setPrice(editingProduct.productPrice.toString());
       setStock(editingProduct.stock.toString());
       setCategory(editingProduct.productCategory);
@@ -114,6 +116,7 @@ const UploadProduct: React.FC<UploadProductProps> = ({
       const productData = {
         userId,
         productName: name,
+        productDescription: description, // Thêm mô tả sản phẩm
         productCategory: category,
         productPrice: Number(price),
         stock: Number(stock),
@@ -168,6 +171,15 @@ const UploadProduct: React.FC<UploadProductProps> = ({
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
+          className="w-full border p-2 rounded"
+        />
+      </div>
+
+      <div className="mb-4">
+        <label className="block font-medium mb-1">Product Description</label>
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
           className="w-full border p-2 rounded"
         />
       </div>

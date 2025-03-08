@@ -102,28 +102,18 @@ const StorePage: React.FC = () => {
       title: "Are you sure you want to delete this product?",
       icon: <ExclamationCircleOutlined />,
       onOk: async () => {
+        setProducts((prevProducts) =>
+          prevProducts.filter((product) => product._id !== productId)
+        );
+
         try {
-          const res = await sendRequest<{
-            statusCode: number;
-            message: string;
-          }>({
+          await sendRequest({
             url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/products/${productId}`,
             method: "POST",
             headers: { Authorization: `Bearer ${accessToken}` },
           });
-
-          if (res.statusCode === 200) {
-            notification.success({ message: "Product deleted successfully!" });
-            fetchProducts();
-          } else {
-            notification.error({
-              message: res.message || "Failed to delete product.",
-            });
-          }
-        } catch {
-          notification.error({
-            message: "An error occurred while deleting the product.",
-          });
+        } catch (error) {
+          console.error("Error deleting product:", error);
         }
       },
     });
@@ -143,7 +133,7 @@ const StorePage: React.FC = () => {
   return (
     <div className="p-8 bg-gray-100 min-h-screen">
       <h1 className="text-4xl font-bold text-blue-600 text-center mb-6">
-        Stiktify Shop
+        My Store
       </h1>
 
       <div className="flex justify-between items-center mb-6 bg-white p-4 rounded-lg shadow-md">
@@ -226,11 +216,15 @@ const StorePage: React.FC = () => {
               <span className="text-lg font-semibold text-gray-800 text-center">
                 {product.productName}
               </span>
+              <span className="text-gray-500 text-xs mt-1">
+                {product.productDescription}
+              </span>
               <span className="text-blue-600 text-sm font-medium mt-1">
                 ${product.productPrice}
               </span>
+
               <span className="text-gray-500 text-xs mt-1">
-                {product.productCategory}
+                {/* {product.productCategory} */}
               </span>
               <div className="flex gap-2 mt-3 w-full">
                 <Button className="flex-1" icon={<DollarCircleOutlined />}>
