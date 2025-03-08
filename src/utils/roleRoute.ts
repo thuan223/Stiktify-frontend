@@ -25,7 +25,7 @@ const roleRoutes: Record<string, (string | RegExp)[]> = {
     /^\/page\/share\/[\w-]+$/,
     /^\/page\/music\/[\w-]+$/,
     /^\/page\/shareMusic\/[\w-]+$/,
-
+    /^\/page\/detail_user\/[\w-]+$/,
   ],
   ADMIN: [
     "/dashboard/user",

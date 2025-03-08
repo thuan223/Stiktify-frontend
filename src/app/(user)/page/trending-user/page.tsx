@@ -24,7 +24,7 @@ const TrendingPage = () => {
   const [isWatched, setIsWatched] = useState(false);
   const [isShowOtherVideos, setIsShowOtherVideos] = useState(false);
   // const [showComments, setShowComments] = useState<boolean>(false);
-  const { showComments, setShowComments } = useShowComment();
+  const { showComments, setShowComments, showNotification } = useShowComment();
   const searchParams = useSearchParams();
   const [isFetchId, setIsFetchId] = useState(true);
   let id = searchParams.get("id");
@@ -87,7 +87,7 @@ const TrendingPage = () => {
     Cookies.set("suggestVideoId", suggestVideoId + "", { expires: 365 });
   };
   const handleScroll = async (event: React.WheelEvent) => {
-    if (showComments || isShowOtherVideos) {
+    if (showComments || showNotification || isShowOtherVideos) {
       return;
     }
 

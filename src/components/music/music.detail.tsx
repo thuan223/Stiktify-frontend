@@ -11,13 +11,21 @@ const MusicDetailClient = ({ data, id }: { data: any; id: string }) => {
     setTotalComment(totalComment + 1);
   };
 
+  const handleDeleteComment = () => {
+    setTotalComment(totalComment - 1);
+  };
+
   return (
     <div>
       <div className="h-[40vh]">
         <DisplayMusicDetail item={{ ...data, totalComment }} />
       </div>
       <div className="h-[46vh]">
-        <CommentSection musicId={id} onNewComment={handleNewComment} />
+        <CommentSection
+          musicId={id}
+          onNewComment={handleNewComment}
+          handleDeleteComment={handleDeleteComment}
+        />
       </div>
     </div>
   );
