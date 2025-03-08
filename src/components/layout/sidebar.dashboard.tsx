@@ -42,34 +42,24 @@ const DashboardSideBar = () => {
                     label: <Link href={"/dashboard/short-video"}>Manage Short Video</Link>,
                     icon: <VideoCameraOutlined />,
                 },
-            
-                {
-                    key: "/dashboard/report",
-                    label: <Link href={"/dashboard/report"}>Manage Report</Link>,
-                    icon: <InfoCircleOutlined />,
-                },
+
+                // {
+                //     key: "/dashboard/report",
+                //     label: <Link href={"/dashboard/report"}>Manage Report</Link>,
+                //     icon: <InfoCircleOutlined />,
+                // },
                 {
                     key: 'sub1',
-                    label: 'Navigation One',
-                    icon: <MailOutlined />,
+                    label: 'Manage Report',
+                    icon: <InfoCircleOutlined />,
                     children: [
                         {
-                            key: 'g1',
-                            label: 'Item 1',
-                            type: 'group',
-                            children: [
-                                { key: '1', label: 'Option 1' },
-                                { key: '2', label: 'Option 2' },
-                            ],
+                            key: '/dashboard/report/report-video',
+                            label: <Link href={"/dashboard/report/report-video"}>Video Report</Link>,
                         },
                         {
-                            key: 'g2',
-                            label: 'Item 2',
-                            type: 'group',
-                            children: [
-                                { key: '3', label: 'Option 3' },
-                                { key: '4', label: 'Option 4' },
-                            ],
+                            key: '/dashboard/report-music',
+                            label: <Link href={"/dashboard/report/report-music"}>Music Report</Link>,
                         },
                     ],
                 },

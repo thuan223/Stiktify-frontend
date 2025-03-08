@@ -27,7 +27,13 @@ const roleRoutes: Record<string, (string | RegExp)[]> = {
     /^\/page\/shareMusic\/[\w-]+$/,
 
   ],
-  ADMIN: ["/dashboard/user", "/dashboard/report", "/dashboard/short-video"],
+  ADMIN: [
+    "/dashboard/user",
+    "/dashboard/report",
+    "/dashboard/short-video",
+    "/dashboard/report/report-video",
+    "/dashboard/report/report-music"
+  ],
 };
 
 const defaultRoutes: Record<string, string> = {
