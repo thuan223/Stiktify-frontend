@@ -217,7 +217,7 @@ const UserDetail = () => {
               {canAccessStore && (
                 <Button
                   icon={<FiShoppingBag />}
-                  text="Store"
+                  text="My Store"
                   className="bg-yellow-500 hover:bg-yellow-600 text-white"
                   onClick={handleStoreClick}
                 />

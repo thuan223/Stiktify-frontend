@@ -74,12 +74,25 @@ const UploadProduct: React.FC<UploadProductProps> = ({
       notification.error({ message: "Product name is required." });
       return false;
     }
-    if (!price || isNaN(Number(price)) || Number(price) <= 0) {
-      notification.error({ message: "Price must be a positive number." });
+    if (!description.trim()) {
+      notification.error({ message: "Product description is required." });
       return false;
     }
-    if (!stock || isNaN(Number(stock)) || Number(stock) <= 0) {
-      notification.error({ message: "Stock must be a non-negative number." });
+    if (!price || isNaN(Number(price)) || Number(price) <= 0) {
+      notification.error({
+        message: "Price is required and must be a positive number.",
+      });
+      return false;
+    }
+    if (
+      !stock ||
+      isNaN(Number(stock)) ||
+      Number(stock) < 0 ||
+      !Number.isInteger(Number(stock))
+    ) {
+      notification.error({
+        message: "Stock is required and must be a positive number.",
+      });
       return false;
     }
     if (!category) {
@@ -90,6 +103,20 @@ const UploadProduct: React.FC<UploadProductProps> = ({
       notification.error({ message: "Please upload an image." });
       return false;
     }
+    // if (image) {
+    //   const allowedTypes = [
+    //     "image/jpeg",
+    //     "image/png",
+    //     "image/jpg",
+    //     "image/webp",
+    //   ];
+    //   if (!allowedTypes.includes(image.type)) {
+    //     notification.error({
+    //       message: "Only JPG, JPEG, or PNG images are allowed.",
+    //     });
+    //     return false;
+    //   }
+    // }
     return true;
   };
 
