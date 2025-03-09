@@ -101,7 +101,7 @@ const NotificationModel = () => {
   }, [user, accessToken]);
 
   return (
-    <div className="relative">
+    <div className="fixed top-8 right-36 z-50 ">
       <button
         onClick={() => {
           setIsOpen(!isOpen);

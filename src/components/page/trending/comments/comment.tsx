@@ -5,6 +5,7 @@ import ReplyCommentModal from "./reply-comment-modal";
 import ReactSection from "./react-comment-section";
 import { sendRequest } from "@/utils/api";
 import { AuthContext } from "@/context/AuthContext";
+import TickedUser from "@/components/ticked-user/TickedUser";
 
 interface CommentProps {
   comment: {
@@ -120,7 +121,7 @@ const Comment: React.FC<CommentProps> = ({
       // }
       setThisComment((prevState) => ({
         ...prevState,
-        totalOfChildComments: prevState.totalOfChildComments + 0.5,
+        totalOfChildComments: prevState.totalOfChildComments + 1,
       }));
       onCommentAdded!();
       return updatedMap;
@@ -163,7 +164,10 @@ const Comment: React.FC<CommentProps> = ({
           className="w-10 h-10 rounded-full object-cover"
         />
         <div>
-          <p className="font-medium">{comment.username}</p>
+          <p className="font-medium">
+            {comment.username}
+            <TickedUser userId={comment.user._id} />{" "}
+          </p>
           <p>{thisComment.CommentDescription}</p>
           {comment?.user?._id === user._id ? (
             <div className="flex justify-end w-full opacity-0 group-hover:opacity-100">
