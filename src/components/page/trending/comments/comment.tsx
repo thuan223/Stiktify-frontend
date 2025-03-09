@@ -166,7 +166,7 @@ const Comment: React.FC<CommentProps> = ({
         <div>
           <p className="font-medium">
             {comment.username}
-            <TickedUser userId={comment.user._id} />{" "}
+            <TickedUser userId={comment.user._id} />
           </p>
           <p>{thisComment.CommentDescription}</p>
           {comment?.user?._id === user._id ? (
