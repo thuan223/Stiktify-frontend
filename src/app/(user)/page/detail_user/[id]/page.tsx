@@ -123,11 +123,10 @@ const UserDetail = () => {
     } catch (error) {
       console.error("Failed to send Tick request", error);
     }
-
+  };
   const handleOpenBusinessModal = () => {
     setShowBusinessModal(false);
     setTimeout(() => setShowBusinessModal(true), 0);
-
   };
 
   const sendFriendRequest = async () => {
