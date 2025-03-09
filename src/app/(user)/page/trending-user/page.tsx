@@ -29,19 +29,19 @@ const TrendingPage = () => {
   let id = searchParams.get("id");
 
   const [currentMusic, setCurrentMusic] = useState<IMusic | null>(null);
-  const router = useRouter()
+  const router = useRouter();
   useEffect(() => {
     if (currentVideo) {
-      const data = currentVideo?.musicId
+      const data = currentVideo?.musicId;
       console.log("Check data>>>>>", currentVideo);
 
-      setCurrentMusic(data)
+      setCurrentMusic(data);
     }
-  }, [currentVideo])
+  }, [currentVideo]);
 
   const handleNavigate = (id: string) => {
-    router.push(`music/${id}`)
-  }
+    router.push(`music/${id}`);
+  };
 
   const toggleComments = () => {
     setShowComments((prev) => !prev);
@@ -308,7 +308,7 @@ const TrendingPage = () => {
           searchValue={searchValue}
           setSearchValue={setSearchValue}
         />
-        {currentVideo ? (
+        {/* {currentVideo ? (
           <MainVideo
             videoUrl={currentVideo.videoUrl}
             onVideoWatched={handleVideoWatched}
@@ -316,7 +316,7 @@ const TrendingPage = () => {
           />
         ) : (
           <p>Loading video...</p>
-        )}
+        )} */}
         <VideoFooter
           videoDescription={currentVideo?.videoDescription || ""}
           totalView={currentVideo?.totalViews || 0}
@@ -369,11 +369,13 @@ const TrendingPage = () => {
           />
         )}
       </div>
-      {currentMusic ?
+      {currentMusic ? (
         <div className="w-64 h-20  bg-gray-900/80 absolute right-0 bottom-2 rounded-md flex px-2 mx-1">
           <TagMusic onClick={handleNavigate} item={currentMusic} />
         </div>
-        : <></>}
+      ) : (
+        <></>
+      )}
     </div>
   );
 };

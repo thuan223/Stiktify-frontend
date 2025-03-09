@@ -23,14 +23,14 @@ const TrendingPage = () => {
   const [isWatched, setIsWatched] = useState(false);
   const [isShowOtherVideos, setIsShowOtherVideos] = useState(false);
   const [currentMusic, setCurrentMusic] = useState<IMusic | null>(null);
-  const router = useRouter()
+  const router = useRouter();
 
   useEffect(() => {
     if (currentVideo) {
-      const data = currentVideo?.musicId
-      setCurrentMusic(data)
+      const data = currentVideo?.musicId;
+      setCurrentMusic(data);
     }
-  }, [currentVideo])
+  }, [currentVideo]);
 
   const getVideoData = async () => {
     try {
@@ -147,8 +147,8 @@ const TrendingPage = () => {
   }, [currentVideoIndex, videoData, requestCount]);
 
   const handleNavigate = (id: string) => {
-    router.push(`music/${id}`)
-  }
+    router.push(`music/${id}`);
+  };
   return (
     <div>
       <div onWheel={handleScroll}>
@@ -164,7 +164,7 @@ const TrendingPage = () => {
           </>
         ) : (
           <>
-            {currentVideo ? (
+            {/* {currentVideo ? (
               <MainVideo
                 videoUrl={currentVideo.videoUrl}
                 onVideoDone={nextVideo}
@@ -172,7 +172,7 @@ const TrendingPage = () => {
               />
             ) : (
               <p>Loading video...</p>
-            )}
+            )} */}
             <VideoFooter
               videoDescription={currentVideo?.videoDescription || ""}
               totalView={currentVideo?.totalViews || 0}
@@ -214,11 +214,13 @@ const TrendingPage = () => {
           </>
         )}
       </div>
-      {currentMusic ?
+      {currentMusic ? (
         <div className="w-64 h-20  bg-gray-900/80 absolute right-0 bottom-2 rounded-md flex px-2 mx-1">
           <TagMusic onClick={handleNavigate} item={currentMusic} />
         </div>
-        : <></>}
+      ) : (
+        <></>
+      )}
     </div>
   );
 };
