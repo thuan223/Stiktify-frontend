@@ -10,13 +10,13 @@ interface SideBarProps {
 const SideBar: React.FC<SideBarProps> = ({ isHidden }) => {
   const pathname = usePathname();
   const { user } = useContext(AuthContext) ?? {};
-  const [isGuest, setIsGuest] = useState(true)
+  const [isGuest, setIsGuest] = useState(true);
 
   useEffect(() => {
     if (user && user._id) {
-      setIsGuest(false)
+      setIsGuest(false);
     }
-  }, [user])
+  }, [user]);
 
   const getLinkClass = (path: string) => {
     return pathname === path
@@ -90,6 +90,18 @@ const SideBar: React.FC<SideBarProps> = ({ isHidden }) => {
             <li>
               <Link href="/page/chat" className={getLinkClass("/page/chat")}>
                 Chat
+              </Link>
+            </li>
+          )}
+          {isGuest ? (
+            ""
+          ) : (
+            <li>
+              <Link
+                href="/page/chat"
+                className={getLinkClass("/page/stiktify-shop")}
+              >
+                Stiktify Shop
               </Link>
             </li>
           )}
