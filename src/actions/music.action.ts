@@ -257,3 +257,25 @@ export const handleGetMusic = async (current: string, pageSize: string) => {
     return null
   }
 }
+
+export const handleGetAllListeningHistory = async (userId: string) => {
+  try {
+    const cookieStore = cookies();
+    const token = cookieStore.get("token")?.value;
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/listeninghistory/all-listening-history/${userId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        next: { tags: ["all-listening-history"] },
+      }
+    );
+
+    return await res.json();
+  } catch (error) {
+    return null;
+  }
+};
