@@ -118,7 +118,7 @@ const Header: React.FC<HeaderProps> = ({
         )}
       </div>
       <div className="flex items-center space-x-4">
-        {!isGuest && <NotificationModel />}
+        {/* {!isGuest && <NotificationModel />} */}
 
         <div className="text-xl cursor-pointer">
           {isGuest ? (

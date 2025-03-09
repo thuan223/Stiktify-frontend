@@ -18,6 +18,7 @@ import LikedVideo from "@/components/page/likedVideoPost/LikedVideo";
 import ListFavoriteMusic from "@/components/music/music-favorite/list.favorite";
 import ListMyMusic from "@/components/page/mymusic/list-my-music";
 import { useRouter } from "next/navigation";
+import { CheckCircleTwoTone } from "@ant-design/icons";
 import BusinessAccountModal from "@/components/modal/modal.upgrade.to.business.account";
 
 // ======= Interfaces for User & Video =======
@@ -43,6 +44,7 @@ const UserDetail = () => {
   const { id } = useParams();
   const { accessToken, user } = useContext(AuthContext) ?? {};
   const [userData, setUserData] = useState<User | null>(null);
+  const [requestData, setRequestData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState<
@@ -55,6 +57,30 @@ const UserDetail = () => {
     if (id && accessToken) fetchUserDetail();
   }, [id, accessToken]);
 
+  const fetchRequestById = async () => {
+    try {
+      const res = await sendRequest<any>({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/ticked-users/${id}`,
+        method: "GET",
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+
+      if (res?.statusCode === 404 || res?.error === "Not Found") {
+        return;
+      }
+
+      if (res?.data) {
+        console.log(res.data);
+        setRequestData(res.data);
+      }
+    } catch (err: any) {
+      if (err?.response?.data?.statusCode === 404) return;
+
+      setError("Failed to get request");
+      console.error(err);
+    }
+  };
+
   const fetchUserDetail = async () => {
     try {
       const res = await sendRequest<{ data: User }>({
@@ -63,6 +89,7 @@ const UserDetail = () => {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       if (res.data) {
+        fetchRequestById();
         setUserData(res.data);
       } else {
         setError("User not found");
@@ -74,10 +101,33 @@ const UserDetail = () => {
       setLoading(false);
     }
   };
+  const sendTickRequest = async () => {
+    if (!accessToken) {
+      console.error("User not authenticated");
+      return;
+    }
+    try {
+      const res = await sendRequest<any>({
+        url: "http://localhost:8080/api/v1/ticked-users",
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: { userId: id },
+      });
+
+      if (res.statusCode === 201) {
+        setRequestData(res.data);
+        console.log("Tick request sent successfully");
+      }
+    } catch (error) {
+      console.error("Failed to send Tick request", error);
+    }
 
   const handleOpenBusinessModal = () => {
     setShowBusinessModal(false);
     setTimeout(() => setShowBusinessModal(true), 0);
+
   };
 
   const sendFriendRequest = async () => {
@@ -141,9 +191,36 @@ const UserDetail = () => {
           <FaUser />
         </div>
         <div>
-          <h1 className="text-4xl font-bold text-gray-800">
-            {userData.fullname} {isCurrent && "(You)"}
-          </h1>
+          <div className="flex items-center gap-2">
+            <h1 className="flex text-4xl font-bold text-gray-800">
+              {userData.fullname} {isCurrent && "(You)"}
+            </h1>
+            {userData.totalFollowers >= 1000 &&
+              isCurrent &&
+              requestData?.status !== "approved" && (
+                // <Button
+                //   icon={<FaUser />}
+                //   text="Request Tick Xanh"
+                //   className="bg-blue-500 hover:bg-blue-600 text-white text-[10px] px-1 py-1 space-x-2"
+                //   onClick={() => console.log("Request for Tick")}
+                // />
+                <button
+                  className={`h-6 px-1 py-1 rounded-md flex items-center space-x-1 shadow-md transition-all duration-300 bg-blue-500 hover:bg-blue-600 text-white text-[10px]`}
+                  onClick={sendTickRequest}
+                  disabled={requestData?.status === "pending"}
+                >
+                  <CheckCircleTwoTone />{" "}
+                  {requestData?.status !== "pending" ||
+                  requestData?.status !== "rejected" ? (
+                    <span>Request for Tick</span>
+                  ) : (
+                    <span>Request processing...</span>
+                  )}
+                </button>
+              )}
+
+            {requestData?.status === "approved" && <CheckCircleTwoTone />}
+          </div>
           <p className="flex items-center text-lg font-medium mt-1">
             <span
               className={`w-3 h-3 mr-2 rounded-full ${

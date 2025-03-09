@@ -9,21 +9,8 @@ import { AuthContext } from "@/context/AuthContext";
 import { notification } from "antd";
 import ReportModal from "@/components/page/trending/report_video";
 import { motion } from "framer-motion";
-import { sendRequest } from "@/utils/api";
-import Image from "next/image";
 
-import like_gif from "@/assets/reaction/gif/thumb-up.gif";
-import like_img from "@/assets/reaction/image/thumb-up.png";
-import surprised_gif from "@/assets/reaction/gif/surprised.gif";
-import surprised_img from "@/assets/reaction/image/surprised.png";
-import angry_gif from "@/assets/reaction/gif/angry.gif";
-import angry_img from "@/assets/reaction/image/angry.png";
-import happy_gif from "@/assets/reaction/gif/happy.gif";
-import happy_img from "@/assets/reaction/image/happy.png";
-import in_love_gif from "@/assets/reaction/gif/in-love.gif";
-import in_love_img from "@/assets/reaction/image/in-love.png";
-import sad_gif from "@/assets/reaction/gif/sad.gif";
-import sad_img from "@/assets/reaction/image/sad.png";
+import TickedUser from "@/components/ticked-user/TickedUser";
 
 interface InteractSideBarProps {
   userId: string;
@@ -36,11 +23,6 @@ interface InteractSideBarProps {
   onReactionAdded?: () => void;
   onReactionRemove?: () => void;
   isHidden?: Boolean;
-}
-
-interface Reaction {
-  _id: string;
-  icon: JSX.Element;
 }
 
 const InteractSideBar: React.FC<InteractSideBarProps> = ({
@@ -61,8 +43,6 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
   const [flag, setFlag] = useState(false);
   const isFollowing = dataFollow?.includes(userId);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const { accessToken } = useContext(AuthContext) || {};
 
   const handleReport = () => {
     setIsModalOpen(true);
@@ -117,8 +97,9 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
       initial={{ x: "100%", opacity: 0 }}
       animate={{ x: !isHidden ? "0%" : "100%", opacity: !isHidden ? 1 : 0 }}
       transition={{ duration: 0.4, ease: "easeInOut" }}
-      className={`w-[15%] bg-white shadow-lg absolute right-0 top-[95px] pt-10 pl-10 h-3/4 ${isHidden ? "hidden" : ""
-        }`}
+      className={`w-[15%] bg-white shadow-lg absolute right-0 top-[95px] pt-10 pl-10 h-3/4 ${
+        isHidden ? "hidden" : ""
+      }`}
     >
       <nav>
         <ul className="space-y-10">
@@ -126,10 +107,7 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
             className="flex items-center relative"
             onClick={handleProfileClick}
           >
-            <div
-              className="relative w-16 h-16 rounded-full overflow-hidden cursor-pointer border-2 border-white shadow-md hover:opacity-80 transition-all flex items-center justify-center bg-gray-200"
-
-            >
+            <div className="relative w-16 h-16 rounded-full overflow-hidden cursor-pointer border-2 border-white shadow-md hover:opacity-80 transition-all flex items-center justify-center bg-gray-200">
               {avatarUrl ? (
                 <img
                   src={avatarUrl}
@@ -142,13 +120,14 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
             </div>
             <div
               onClick={(e) => {
-                e.stopPropagation()
-                handleFollower()
+                e.stopPropagation();
+                handleFollower();
               }}
-              className={`absolute -left-1 -bottom-1 w-6 h-6 flex items-center justify-center rounded-full shadow-md ${isFollowing
-                ? "bg-green-500 text-white"
-                : "bg-red-500 text-white"
-                }`}
+              className={`absolute -left-1 -bottom-1 w-6 h-6 flex items-center justify-center rounded-full shadow-md ${
+                isFollowing
+                  ? "bg-green-500 text-white"
+                  : "bg-red-500 text-white"
+              }`}
             >
               {isFollowing ? (
                 <CheckOutlined className="text-md" />
@@ -160,7 +139,7 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
               className="ml-4 cursor-pointer text-lg font-medium hover:underline hover:text-blue-500 transition"
               onClick={() => router.push(`/page/detail_user/${userId}`)}
             >
-              {creatorId}
+              {creatorId} <TickedUser userId={userId} />
             </span>
           </li>
 

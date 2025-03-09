@@ -15,7 +15,6 @@ const roleRoutes: Record<string, (string | RegExp)[]> = {
     "/page/playlist",
     "/page/music",
     /^\/page\/store\/[\w-]+$/,
-
   ],
   GUEST: [
     "/page/trending-guest",
@@ -37,6 +36,8 @@ const roleRoutes: Record<string, (string | RegExp)[]> = {
     "/dashboard/report/report-music",
     "/dashboard/music",
     "/dashboard/algorithm",
+    /^\/page\/detail_user\/[\w-]+$/,
+    "/dashboard/ticked",
   ],
 };
 
