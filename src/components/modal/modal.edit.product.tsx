@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useContext } from "react";
-import { Button, Input, notification, Modal } from "antd";
+import { Button, Input, notification } from "antd";
 import { sendRequest } from "@/utils/api";
 import { AuthContext } from "@/context/AuthContext";
 
@@ -8,6 +8,7 @@ interface Product {
   _id: string;
   productName: string;
   productPrice: number;
+  productDescription: string;
 }
 
 interface EditProductProps {
@@ -24,7 +25,11 @@ const EditProduct: React.FC<EditProductProps> = ({
   const { accessToken } = useContext(AuthContext) ?? {};
   const [name, setName] = useState(product?.productName || "");
   const [price, setPrice] = useState(product?.productPrice.toString() || "");
+  const [description, setDescription] = useState(
+    product?.productDescription || ""
+  );
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(""); // Lưu lỗi của price
 
   const handleSave = async () => {
     if (!accessToken) {
@@ -33,13 +38,27 @@ const EditProduct: React.FC<EditProductProps> = ({
       });
       return;
     }
+
+    const parsedPrice = parseFloat(price);
+
+    if (isNaN(parsedPrice) || parsedPrice < 0) {
+      setError("Price must be a non-negative number.");
+      notification.error({ message: "Price must be a non-negative number." });
+      return;
+    }
+
+    setError(""); // Xóa lỗi nếu hợp lệ
     setLoading(true);
     try {
       const res = (await sendRequest({
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/products/${product._id}`,
         method: "PATCH",
         headers: { Authorization: `Bearer ${accessToken}` },
-        body: { productName: name, productPrice: parseFloat(price) },
+        body: {
+          productName: name,
+          productPrice: parsedPrice,
+          productDescription: description,
+        },
       })) as { statusCode: number; message?: string };
 
       if (res.statusCode === 200) {
@@ -70,7 +89,17 @@ const EditProduct: React.FC<EditProductProps> = ({
         value={price}
         onChange={(e) => setPrice(e.target.value)}
         placeholder="Product Price"
+        className={`mb-3 p-2 border rounded-lg w-full ${
+          error ? "border-red-500" : ""
+        }`}
+      />
+      {error && <p className="text-red-500 text-sm">{error}</p>}
+      <Input.TextArea
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+        placeholder="Product Description"
         className="mb-3 p-2 border rounded-lg w-full"
+        rows={4}
       />
       <div className="flex justify-end gap-2">
         <Button

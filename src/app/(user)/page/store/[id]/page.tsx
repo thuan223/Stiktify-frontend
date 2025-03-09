@@ -20,6 +20,7 @@ import {
   ShoppingCartOutlined,
   DollarCircleOutlined,
   MoreOutlined,
+  ProductOutlined,
 } from "@ant-design/icons";
 import UploadProduct from "@/components/modal/modal.add.product";
 import EditProduct from "@/components/modal/modal.edit.product";
@@ -132,9 +133,21 @@ const StorePage: React.FC = () => {
 
   return (
     <div className="p-8 bg-gray-100 min-h-screen">
-      <h1 className="text-4xl font-bold text-blue-600 text-center mb-6">
+      <h1
+        className="text-4xl font-bold text-center mb-6 text-transparent 
+             bg-gradient-to-r from-blue-500 to-indigo-600 bg-clip-text"
+        style={{
+          fontFamily: "'Montserrat', sans-serif",
+          letterSpacing: "2px",
+        }}
+      >
         My Store
       </h1>
+
+      <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap"
+        rel="stylesheet"
+      />
 
       <div className="flex justify-between items-center mb-6 bg-white p-4 rounded-lg shadow-md">
         <Input
@@ -159,8 +172,10 @@ const StorePage: React.FC = () => {
           ))}
         </Select>
         <div className="Cart">
-          <ShoppingCartOutlined />
-          <span className="text-gray-500">Cart ({products.length})</span>
+          <ProductOutlined />
+          <span className="text-gray-500 ml-2">
+            Current product quantity ({products.length})
+          </span>
         </div>
 
         <Button
@@ -177,7 +192,7 @@ const StorePage: React.FC = () => {
         <div className="flex justify-center items-center h-40">
           <Spin size="large" />
         </div>
-      ) : (
+      ) : filteredProducts.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {filteredProducts.map((product) => (
             <div
@@ -219,15 +234,11 @@ const StorePage: React.FC = () => {
               <span className="text-gray-500 text-xs mt-1">
                 {product.productDescription}
               </span>
-              <span className="text-blue-600 text-sm font-medium mt-1">
+              <span className="text-green-600 text-sm font-medium mt-1">
                 ${product.productPrice}
               </span>
-
-              <span className="text-gray-500 text-xs mt-1">
-                {/* {product.productCategory} */}
-              </span>
               <div className="flex gap-2 mt-3 w-full">
-                <Button className="flex-1" icon={<DollarCircleOutlined />}>
+                {/* <Button className="flex-1" icon={<DollarCircleOutlined />}>
                   Buy Now
                 </Button>
                 <Button
@@ -236,10 +247,14 @@ const StorePage: React.FC = () => {
                   icon={<ShoppingCartOutlined />}
                 >
                   Add to Cart
-                </Button>
+                </Button> */}
               </div>
             </div>
           ))}
+        </div>
+      ) : (
+        <div className="text-center text-gray-500 text-lg font-semibold py-10">
+          Not Found
         </div>
       )}
 
