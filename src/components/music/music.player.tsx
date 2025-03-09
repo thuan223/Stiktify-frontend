@@ -16,7 +16,6 @@ import Image from "next/image";
 import { handleUpdateListenerAction } from "@/actions/music.action";
 import { AuthContext } from "@/context/AuthContext";
 
-
 const MusicPlayer = () => {
   const {
     isPlaying,
@@ -53,28 +52,27 @@ const MusicPlayer = () => {
       if (count === +seek.toFixed(0)) {
         setSecond(second + 1);
         if (second === 15) {
+          await fetch(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/listeninghistory/create-listening-history`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${accessToken}`,
+              },
+              body: JSON.stringify({
+                userId: user._id,
+                musicId: trackCurrent?._id,
+              }),
+            }
+          );
           if (!flag) {
             await handleUpdateListenerAction(trackCurrent?._id!);
-            fetch(
-              `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/listeninghistory/create-listening-history`,
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${accessToken}`,
-                },
-                body: JSON.stringify({
-                  userId: user._id,
-                  musicId: trackCurrent?._id,
-                }),
-              }
-            );
             setFlag(true);
           }
           setSecond(0);
         }
       }
-
       if (+seek.toFixed(0) !== count) {
         setCount(+seek.toFixed(0) + 1);
         setSecond(0);
