@@ -279,3 +279,48 @@ export const handleGetAllListeningHistory = async (userId: string) => {
     return null;
   }
 };
+
+export const handleClearAllListeningHistory = async (userId: string) => {
+  try {
+    const cookieStore = cookies();
+    const token = cookieStore.get("token")?.value;
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/listeninghistory/clear-all/${userId}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return await response.json();
+  } catch (error) {
+    return null;
+  }
+};
+
+export const handleSearchHistory = async (search: string) => {
+  try {
+    const cookieStore = cookies();
+    const token = cookieStore.get("token")?.value;
+    
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/listeninghistory/search-history?search=${search}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        next: { tags: ["search-history"] },
+      }
+    );
+    
+    const result: IBackendRes<any> = await res.json();
+    return result;
+  } catch (error) {
+    console.error("Error fetching search history:", error);
+    return null;
+  }
+};
