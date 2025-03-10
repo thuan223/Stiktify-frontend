@@ -33,6 +33,7 @@ interface User {
   accountType: string;
   isActive: boolean;
   totalFollowers: number;
+  totalFollowings: number;
   isShop: boolean;
 }
 
@@ -52,7 +53,6 @@ const UserDetail = () => {
   >("video");
   const isCurrent = user?._id === id;
   const [friendRequestSent, setFriendRequestSent] = useState(false);
-
   useEffect(() => {
     if (id && accessToken) fetchUserDetail();
   }, [id, accessToken]);
@@ -163,7 +163,6 @@ const UserDetail = () => {
       router.push(`/page/store/${id}`);
     }
   };
-
   const canAccessStore = userData.totalFollowers >= 1000 && userData.isShop;
 
   const tabLabels: Record<
@@ -251,6 +250,20 @@ const UserDetail = () => {
                 text="Share"
                 className="bg-gray-200 hover:bg-gray-300 text-gray-700"
               />
+              <div>
+                <div className="flex items-center justify-between">
+                  <p className="text-ellipsis font-bold text-black">
+                    {userData.totalFollowers || 0}
+                  </p>
+                  <p className="text-gray-600"> Followers</p>
+                </div>
+                <div className="flex items-center justify-between">
+                  <p className="text-nowrap font-bold text-black">
+                    {userData.totalFollowings || 0}
+                  </p>
+                  <p className="text-gray-600"> Following</p>
+                </div>
+              </div>
               {userData.totalFollowers >= 1000 &&
                 !isUpgraded &&
                 !userData.isShop && (
