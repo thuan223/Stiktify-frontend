@@ -3,6 +3,8 @@ import { AuthContext } from "@/context/AuthContext";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
+import Chatbox from "./chatBox/chatBox";
+
 interface SideBarProps {
   isHidden?: Boolean;
 }
@@ -108,6 +110,7 @@ const SideBar: React.FC<SideBarProps> = ({ isHidden }) => {
         </ul>
       </nav>
       <footer className="mt-[10px] text-center">
+        <Chatbox />
         <small className="text-gray-500">©2025 Stiktify</small>
       </footer>
     </div>
