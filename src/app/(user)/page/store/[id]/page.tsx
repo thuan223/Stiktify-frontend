@@ -56,7 +56,7 @@ const StorePage: React.FC = () => {
   useEffect(() => {
     fetchCategories();
     fetchProducts();
-    fetchShopData(); // Fetch shop data on mount
+    fetchShopData();
   }, [accessToken, user?._id]);
 
   const fetchCategories = async () => {
@@ -103,13 +103,13 @@ const StorePage: React.FC = () => {
 
     try {
       const res = await sendRequest<{ statusCode: number; data: any }>({
-        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/shop/${user._id}`, // Adjust this URL based on your API
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/shop/${user._id}`,
         method: "GET",
         headers: { Authorization: `Bearer ${accessToken}` },
       });
 
       if (res.statusCode === 200) {
-        setShopData(res.data); // Set the shop data
+        setShopData(res.data);
       }
     } catch (error) {
       console.error("Error fetching shop data:", error);

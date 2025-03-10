@@ -1,14 +1,12 @@
 "use client";
 
-import React, { useState, useContext } from "react";
-import { Input, Button, message } from "antd";
+import React, { useState, useEffect, useContext } from "react";
+import { Input, Button, message, Typography } from "antd";
 import { AuthContext } from "@/context/AuthContext";
 
-const EditShop = ({
-  shop,
-  onClose,
-  refreshShop = () => {},
-}: {
+const { Title } = Typography;
+
+interface EditShopProps {
   shop?: {
     _id: string;
     shopName: string;
@@ -18,7 +16,9 @@ const EditShop = ({
   };
   onClose: () => void;
   refreshShop?: () => void;
-}) => {
+}
+
+const EditShop = ({ shop, onClose, refreshShop = () => {} }: EditShopProps) => {
   const { accessToken, user } = useContext(AuthContext) ?? {};
   const [formData, setFormData] = useState({
     shopName: shop?.shopName || "",
@@ -26,12 +26,26 @@ const EditShop = ({
     shopBrandsAddress: shop?.shopBrandsAddress || "",
     shopDescription: shop?.shopDescription || "",
   });
+
   const [loading, setLoading] = useState(false);
+  const [isChanged, setIsChanged] = useState(false);
+
+  useEffect(() => {
+    if (shop) {
+      setFormData({
+        shopName: shop.shopName,
+        taxCode: shop.taxCode,
+        shopBrandsAddress: shop.shopBrandsAddress,
+        shopDescription: shop.shopDescription,
+      });
+    }
+  }, [shop]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    setIsChanged(true);
   };
 
   const handleSave = async () => {
@@ -60,12 +74,7 @@ const EditShop = ({
             "Content-Type": "application/json",
             Authorization: `Bearer ${accessToken}`,
           },
-          body: JSON.stringify({
-            shopName: formData.shopName,
-            taxCode: formData.taxCode,
-            shopBrandsAddress: formData.shopBrandsAddress,
-            shopDescription: formData.shopDescription,
-          }),
+          body: JSON.stringify(formData),
         }
       );
 
@@ -77,48 +86,68 @@ const EditShop = ({
       }
 
       message.success("Shop updated successfully!");
-      refreshShop(); // Cập nhật lại dữ liệu shop
-      onClose(); // Đóng Modal sau khi lưu thành công
+      refreshShop();
+      onClose();
     } catch (error) {
       message.error(
         error instanceof Error ? error.message : "An unexpected error occurred."
       );
     } finally {
       setLoading(false);
+      setIsChanged(false);
     }
   };
 
   return (
     <div>
-      <Input
-        name="shopName"
-        placeholder="Shop Name"
-        value={formData.shopName}
-        onChange={handleChange}
-        style={{ marginBottom: 10 }}
-      />
-      <Input
-        name="taxCode"
-        placeholder="Tax Code"
-        value={formData.taxCode}
-        onChange={handleChange}
-        style={{ marginBottom: 10 }}
-      />
-      <Input
-        name="shopBrandsAddress"
-        placeholder="Shop's Brand Address"
-        value={formData.shopBrandsAddress}
-        onChange={handleChange}
-        style={{ marginBottom: 10 }}
-      />
-      <Input.TextArea
-        name="shopDescription"
-        placeholder="Shop Description"
-        value={formData.shopDescription}
-        onChange={handleChange}
-        style={{ marginBottom: 10 }}
-        rows={4}
-      />
+      <Title level={4}>Current Shop Information</Title>
+      <p style={{ marginBottom: 20 }}></p>
+
+      <div style={{ marginBottom: 10 }}>
+        <label style={{ fontWeight: "bold" }}>Shop Name:</label>
+        <Input
+          name="shopName"
+          placeholder="Enter shop name"
+          value={formData.shopName}
+          onChange={handleChange}
+        />
+      </div>
+
+      <div style={{ marginBottom: 10 }}>
+        <label style={{ fontWeight: "bold" }}>Tax Code:</label>
+        <Input
+          name="taxCode"
+          placeholder="Enter tax code"
+          value={formData.taxCode}
+          onChange={handleChange}
+        />
+      </div>
+
+      <div style={{ marginBottom: 10 }}>
+        <label style={{ fontWeight: "bold" }}>Shop Brand Address:</label>
+        <Input
+          name="shopBrandsAddress"
+          placeholder="Enter shop brand address"
+          value={formData.shopBrandsAddress}
+          onChange={handleChange}
+        />
+      </div>
+
+      <div style={{ marginBottom: 10 }}>
+        <label style={{ fontWeight: "bold" }}>Shop Description:</label>
+        <Input.TextArea
+          name="shopDescription"
+          placeholder="Enter shop description"
+          value={formData.shopDescription}
+          onChange={handleChange}
+          rows={4}
+        />
+      </div>
+
+      {isChanged && (
+        <p style={{ color: "orange" }}>You have unsaved changes!</p>
+      )}
+
       <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
         <Button key="cancel" onClick={onClose} disabled={loading}>
           Close
@@ -128,6 +157,7 @@ const EditShop = ({
           type="primary"
           onClick={handleSave}
           loading={loading}
+          disabled={!isChanged}
         >
           Save
         </Button>
