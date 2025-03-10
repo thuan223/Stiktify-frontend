@@ -23,6 +23,8 @@ const MusicPlayer = () => {
     trackCurrent,
     listPlaylist,
     setTrackCurrent,
+    flag,
+    setFlag
   } = useGlobalContext()!;
   const [volume, setVolume] = useState(1);
   const playerRef = useRef<ReactHowler | null>(null);
@@ -31,7 +33,6 @@ const MusicPlayer = () => {
   const [duration, setDuration] = useState(0);
   const [count, setCount] = useState(0);
   const [second, setSecond] = useState(0);
-  const [flag, setFlag] = useState(false);
   const [countTrack, setCountTrack] = useState(0);
   const { user, accessToken } = useContext(AuthContext) ?? {};
 
@@ -52,21 +53,23 @@ const MusicPlayer = () => {
       if (count === +seek.toFixed(0)) {
         setSecond(second + 1);
         if (second === 15) {
-          await fetch(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/listeninghistory/create-listening-history`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${accessToken}`,
-              },
-              body: JSON.stringify({
-                userId: user._id,
-                musicId: trackCurrent?._id,
-              }),
-            }
-          );
           if (!flag) {
+            if (user) {
+              await fetch(
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/listeninghistory/create-listening-history`,
+                {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${accessToken}`,
+                  },
+                  body: JSON.stringify({
+                    userId: user._id,
+                    musicId: trackCurrent?._id,
+                  }),
+                }
+              );
+            }
             await handleUpdateListenerAction(trackCurrent?._id!);
             setFlag(true);
           }

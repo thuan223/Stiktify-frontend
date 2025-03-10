@@ -15,7 +15,7 @@ interface IProps {
 }
 
 const ListMusic = (props: IProps) => {
-  const { setTrackCurrent, trackCurrent, isPlaying, setIsPlaying, playlist, setPlaylist, refreshPlaylist, listPlaylist, setListPlayList } =
+  const { setTrackCurrent, trackCurrent, isPlaying, setIsPlaying, playlist, setPlaylist, refreshPlaylist, listPlaylist, setListPlayList, setFlag } =
     useGlobalContext()!;
   const { data } = props;
   const [search, setSearch] = useState<string>("");
@@ -63,6 +63,7 @@ const ListMusic = (props: IProps) => {
 
   const handlePlayer = (track: IMusic) => {
     if (trackCurrent?._id !== track._id) {
+      setFlag(false)
       const data = {
         _id: track._id,
         musicDescription: track.musicDescription,
