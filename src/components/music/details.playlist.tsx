@@ -18,7 +18,6 @@ const DisplayPlaylistDetail = (props: IProps) => {
   const { setTrackCurrent, trackCurrent, isPlaying, setIsPlaying, listPlaylist, setListPlayList } = useGlobalContext()!
   const router = useRouter()
   const { item, playlist } = props
-  console.log(playlist);
 
   const handleNavigate = () => {
     router.back()

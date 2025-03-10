@@ -13,7 +13,7 @@ import { FaShuffle, FaRepeat } from "react-icons/fa6";
 import ButtonPlayer from "./button.player";
 import { useGlobalContext } from "@/library/global.context";
 import Image from "next/image";
-import { handleUpdateListenerAction } from "@/actions/music.action";
+import { handleListenNeo4j, handleUpdateListenerAction } from "@/actions/music.action";
 import { AuthContext } from "@/context/AuthContext";
 import Cookies from "js-cookie";
 
@@ -24,6 +24,8 @@ const MusicPlayer = () => {
     trackCurrent,
     listPlaylist,
     setTrackCurrent,
+    flag,
+    setFlag
   } = useGlobalContext()!;
   const [volume, setVolume] = useState(1);
   const playerRef = useRef<ReactHowler | null>(null);
@@ -32,7 +34,6 @@ const MusicPlayer = () => {
   const [duration, setDuration] = useState(0);
   const [count, setCount] = useState(0);
   const [second, setSecond] = useState(0);
-  const [flag, setFlag] = useState(false);
   const [isMusicPaused, setIsMusicPaused] = useState(false);
   const [countTrack, setCountTrack] = useState(0);
   const { user, accessToken } = useContext(AuthContext) ?? {};
@@ -58,22 +59,27 @@ const MusicPlayer = () => {
       setCount(count + 1);
       if (count === +seek.toFixed(0)) {
         setSecond(second + 1);
-        if (second === 15 && !isMusicPaused) {
-          await fetch(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/listeninghistory/create-listening-history`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${accessToken}`,
-              },
-              body: JSON.stringify({
-                userId: user._id,
-                musicId: trackCurrent?._id,
-              }),
-            }
-          );
+        if (second === 15) {
           if (!flag) {
+            if (user) {
+              await handleListenNeo4j(trackCurrent?._id!, user._id)
+              if (!isMusicPaused) {
+                await fetch(
+                  `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/listeninghistory/create-listening-history`,
+                  {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                      Authorization: `Bearer ${accessToken}`,
+                    },
+                    body: JSON.stringify({
+                      userId: user._id,
+                      musicId: trackCurrent?._id,
+                    }),
+                  }
+                );
+              }
+            }
             await handleUpdateListenerAction(trackCurrent?._id!);
             setFlag(true);
           }

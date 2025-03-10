@@ -21,7 +21,7 @@ interface IProps {
 }
 
 const DisplayMusicDetail = ({ item }: IProps) => {
-  const { setTrackCurrent, trackCurrent, isPlaying, setIsPlaying } =
+  const { setTrackCurrent, trackCurrent, isPlaying, setIsPlaying, setFlag } =
     useGlobalContext()!;
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -62,6 +62,7 @@ const DisplayMusicDetail = ({ item }: IProps) => {
 
   const handlePlayer = (track: IMusic) => {
     if (trackCurrent?._id !== track._id) {
+      setFlag(false)
       const data = {
         _id: track._id,
         musicDescription: track.musicDescription,
