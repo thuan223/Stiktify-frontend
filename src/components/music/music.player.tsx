@@ -15,6 +15,7 @@ import { useGlobalContext } from "@/library/global.context";
 import Image from "next/image";
 import { handleUpdateListenerAction } from "@/actions/music.action";
 import { AuthContext } from "@/context/AuthContext";
+import Cookies from "js-cookie";
 
 const MusicPlayer = () => {
   const {
@@ -32,8 +33,14 @@ const MusicPlayer = () => {
   const [count, setCount] = useState(0);
   const [second, setSecond] = useState(0);
   const [flag, setFlag] = useState(false);
+  const [isMusicPaused, setIsMusicPaused] = useState(false);
   const [countTrack, setCountTrack] = useState(0);
   const { user, accessToken } = useContext(AuthContext) ?? {};
+
+  useEffect(() => {
+    const pauseStatus = Cookies.get("isMusicPause") === "true";
+    setIsMusicPaused(pauseStatus);
+  }, []);
 
   const togglePlay = () => {
     setIsPlaying(!isPlaying);
@@ -51,7 +58,7 @@ const MusicPlayer = () => {
       setCount(count + 1);
       if (count === +seek.toFixed(0)) {
         setSecond(second + 1);
-        if (second === 15) {
+        if (second === 15 && !isMusicPaused) {
           await fetch(
             `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/listeninghistory/create-listening-history`,
             {
@@ -78,7 +85,7 @@ const MusicPlayer = () => {
         setSecond(0);
       }
     })();
-  }, [seek]);
+  }, [seek, isMusicPaused]);
 
   useEffect(() => {
     if (isPlaying) {
