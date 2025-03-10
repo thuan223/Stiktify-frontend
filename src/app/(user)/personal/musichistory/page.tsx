@@ -4,15 +4,14 @@ import { useState } from "react";
 import ListenedHistory from "@/components/personal/history/listened-history";
 import SettingListenHistory from "@/components/personal/history/setting-listen-history";
 import Header from "@/components/page/trending/header";
-import { handleSearchHistory } from "@/actions/music.action"; // Import API search action
+import { handleSearchHistory } from "@/actions/music.action";
 
 const HistoryMusicPage = () => {
-  const [videoList, setVideoList] = useState<any[]>([]); // Lưu danh sách video
-  const [watchedDate, setWatchedDate] = useState<string>(""); // Lưu ngày đã xem
-  const [searchValue, setSearchValue] = useState<string>(""); // Lưu giá trị tìm kiếm
-  const [searchedMusic, setSearchedMusic] = useState<any[]>([]); // Lưu kết quả tìm kiếm
+  const [videoList, setVideoList] = useState<any[]>([]);
+  const [watchedDate, setWatchedDate] = useState<string>("");
+  const [searchValue, setSearchValue] = useState<string>("");
+  const [searchedMusic, setSearchedMusic] = useState<any[]>([]);
 
-  // Xử lý khi người dùng thay đổi ngày
   const handleFilterDate = (date: string) => {
     setWatchedDate(date);
   };
@@ -21,17 +20,15 @@ const HistoryMusicPage = () => {
     if (search.trim()) {
       const result = await handleSearchHistory(search);
       if (result?.data?.result) {
-        setSearchedMusic(result.data.result); // Lưu kết quả tìm kiếm
+        setSearchedMusic(result.data.result);
       } else {
-        setSearchedMusic([]); // Nếu không có kết quả, trả về mảng rỗng
+        setSearchedMusic([]);
       }
     }
   };
-
-  // Hiển thị tất cả music history khi không tìm kiếm
   const handleClearSearch = () => {
     setSearchValue("");
-    setSearchedMusic([]); // Đặt lại kết quả tìm kiếm
+    setSearchedMusic([]);
   };
 
   return (
@@ -41,12 +38,11 @@ const HistoryMusicPage = () => {
           searchValue={searchValue}
           setSearchValue={setSearchValue}
           isGuest={false}
-          onClick={() => handleSearchMusic(searchValue)} // Gọi API khi nhấn tìm kiếm
+          onClick={() => handleSearchMusic(searchValue)}
         />
       </div>
       <div className="flex p-4">
         <div className="flex-1 mr-8">
-          {/* Hiển thị tất cả lịch sử hoặc kết quả tìm kiếm */}
           {searchedMusic.length > 0 || searchValue.trim() ? (
             <div className="space-y-4">
               {searchedMusic.map((item) => {
@@ -84,7 +80,7 @@ const HistoryMusicPage = () => {
             <ListenedHistory />
           )}
         </div>
-        <div className="w-[30%] p-20">
+        <div className="w-[30%] p-5">
           <SettingListenHistory
             setVideoList={setVideoList}
             onChange={handleFilterDate}
