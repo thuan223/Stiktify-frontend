@@ -54,7 +54,6 @@ const BusinessAccountModal = ({
       );
 
       const responseData = await response.json();
-      console.log("Response Dataaaaaaaaaaaaaaaaaaaaaa:", responseData); // 🟢 Log response để debug
 
       if (!response.ok) {
         throw new Error(

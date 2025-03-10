@@ -47,7 +47,7 @@ const EditProduct: React.FC<EditProductProps> = ({
       return;
     }
 
-    setError(""); // Xóa lỗi nếu hợp lệ
+    setError("");
     setLoading(true);
     try {
       const res = (await sendRequest({

@@ -21,9 +21,11 @@ import {
   DollarCircleOutlined,
   MoreOutlined,
   ProductOutlined,
+  ShopOutlined, // Added for Edit Shop button icon
 } from "@ant-design/icons";
 import UploadProduct from "@/components/modal/modal.add.product";
 import EditProduct from "@/components/modal/modal.edit.product";
+import EditShop from "@/components/modal/modal.edit.shop.infor"; // Import the EditShop component
 import { sendRequest } from "@/utils/api";
 import { AuthContext } from "@/context/AuthContext";
 
@@ -33,13 +35,15 @@ const { Option } = Select;
 const StorePage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isEditShopModalOpen, setIsEditShopModalOpen] = useState(false); // State for Edit Shop modal
   const [editingProduct, setEditingProduct] = useState<any>(null);
+  const [shopData, setShopData] = useState<any>(null); // State to store shop data
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>(
     undefined
   );
   const [products, setProducts] = useState<any[]>([]);
-  const [categories, setCategories] = useState<any[]>([]); // State to store categories
+  const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const authContext = useContext(AuthContext);
 
@@ -50,8 +54,9 @@ const StorePage: React.FC = () => {
   const { accessToken, user } = authContext;
 
   useEffect(() => {
-    fetchCategories(); // Fetch categories on mount
-    fetchProducts(); // Fetch products after categories are loaded
+    fetchCategories();
+    fetchProducts();
+    fetchShopData(); // Fetch shop data on mount
   }, [accessToken, user?._id]);
 
   const fetchCategories = async () => {
@@ -93,6 +98,24 @@ const StorePage: React.FC = () => {
     }
   };
 
+  const fetchShopData = async () => {
+    if (!accessToken || !user?._id) return;
+
+    try {
+      const res = await sendRequest<{ statusCode: number; data: any }>({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/shop/${user._id}`, // Adjust this URL based on your API
+        method: "GET",
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+
+      if (res.statusCode === 200) {
+        setShopData(res.data); // Set the shop data
+      }
+    } catch (error) {
+      console.error("Error fetching shop data:", error);
+    }
+  };
+
   const handleEdit = (product: any) => {
     setEditingProduct(product);
     setIsEditModalOpen(true);
@@ -120,7 +143,6 @@ const StorePage: React.FC = () => {
     });
   };
 
-  // Filter products based on search query and selected category
   const filteredProducts = products.filter((product) => {
     const matchesSearchQuery = (product.productName || "")
       .toLowerCase()
@@ -157,7 +179,6 @@ const StorePage: React.FC = () => {
           className="w-1/3 border p-2 rounded-lg shadow-sm"
           prefix={<SearchOutlined className="text-gray-500" />}
         />
-        {/* Category filter dropdown */}
         <Select
           placeholder="Select Category"
           value={selectedCategory}
@@ -178,14 +199,24 @@ const StorePage: React.FC = () => {
           </span>
         </div>
 
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={() => setIsModalOpen(true)}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg px-4 py-2"
-        >
-          New Product
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => setIsModalOpen(true)}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg px-4 py-2"
+          >
+            New Product
+          </Button>
+          <Button
+            type="default"
+            icon={<ShopOutlined />}
+            onClick={() => setIsEditShopModalOpen(true)} // Open Edit Shop modal
+            className="border-blue-600 text-blue-600 hover:bg-blue-50 font-semibold rounded-lg px-4 py-2"
+          >
+            Edit Shop
+          </Button>
+        </div>
       </div>
 
       {loading ? (
@@ -282,6 +313,18 @@ const StorePage: React.FC = () => {
           product={editingProduct}
           onClose={() => setIsEditModalOpen(false)}
           refreshProducts={fetchProducts}
+        />
+      </Modal>
+      <Modal
+        title="Edit Shop"
+        open={isEditShopModalOpen}
+        onCancel={() => setIsEditShopModalOpen(false)}
+        footer={null}
+      >
+        <EditShop
+          shop={shopData}
+          onClose={() => setIsEditShopModalOpen(false)}
+          refreshShop={fetchShopData}
         />
       </Modal>
     </div>
