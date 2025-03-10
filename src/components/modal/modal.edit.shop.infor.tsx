@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useContext } from "react";
-import { Modal, Input, Button, message } from "antd";
+import { Input, Button, message } from "antd";
 import { AuthContext } from "@/context/AuthContext";
 
 const EditShop = ({

@@ -41,7 +41,7 @@ const EditProduct: React.FC<EditProductProps> = ({
 
     const parsedPrice = parseFloat(price);
 
-    if (isNaN(parsedPrice) || parsedPrice < 0) {
+    if (isNaN(parsedPrice) || parsedPrice <= 0) {
       setError("Price must be a non-negative number.");
       notification.error({ message: "Price must be a non-negative number." });
       return;
