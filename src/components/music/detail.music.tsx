@@ -48,7 +48,7 @@ const DisplayMusicDetail = ({ item }: IProps) => {
 
   const handleLike = async () => {
     try {
-      const res = await handleLikeMusicAction(item._id)
+      const res = await handleLikeMusicAction(item._id);
       setIsLiked(!isLiked);
       setTotalFavorite(isLiked ? totalFavorite - 1 : totalFavorite + 1);
     } catch (error) {
@@ -85,7 +85,7 @@ const DisplayMusicDetail = ({ item }: IProps) => {
   const handleShareClick = () => {
     router.push(`/page/shareMusic/${item._id}`);
   };
-  console.log(item);
+  // console.log(item);
 
   return (
     <div className="h-[40vh] w-full bg-gray-900 rounded-sm shadow-gray-400/50 flex items-center px-16 relative">
@@ -110,11 +110,15 @@ const DisplayMusicDetail = ({ item }: IProps) => {
             </div>
             <div className="flex flex-col gap-2">
               <div className="flex items-center">
-
                 {item.musicTag?.map((tag, index) => (
                   <div key={index} className="text-white flex items-center">
                     {index !== 0 && <LuDot size={40} />}
-                    <div onClick={() => router.push(`/page/detail_user/${item.userId._id}`)} className="relative group">
+                    <div
+                      onClick={() =>
+                        router.push(`/page/detail_user/${item.userId._id}`)
+                      }
+                      className="relative group"
+                    >
                       <span className="cursor-pointer after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-full after:h-[2px] after:bg-white after:scale-x-0 after:transition-transform after:duration-300 group-hover:after:scale-x-100">
                         {capitalizeWords(tag)}
                       </span>
