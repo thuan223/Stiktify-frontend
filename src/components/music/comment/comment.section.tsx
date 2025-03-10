@@ -152,11 +152,12 @@ const CommentSection = ({
     try {
       const res = await handleCreateCommentAction(musicId, newComment);
 
-      if (res) {
+      const comment = res.data;
+      if (comment) {
         setComments([
           ...comments,
           {
-            _id: res._id,
+            _id: comment._id,
             username: user.name,
             musicId,
             CommentDescription: newComment,
@@ -167,6 +168,7 @@ const CommentSection = ({
             },
           },
         ]);
+
         setNewComment("");
         onNewComment(); // Gọi hàm callback để tăng số lượng bình luận
       }
