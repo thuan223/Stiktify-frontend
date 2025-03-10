@@ -3,6 +3,7 @@ import { MdFavorite, MdFavoriteBorder } from "react-icons/md";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
 import { sendRequest } from "@/utils/api";
 import { AuthContext } from "@/context/AuthContext";
+import TickedUser from "@/components/ticked-user/TickedUser";
 
 interface CommentProps {
   comment: {
@@ -60,6 +61,8 @@ const Comment = ({
 
   // Xác nhận xóa
   const handleConfirmDelete = async () => {
+    console.log("comment ?>>>>", comment._id);
+
     try {
       const res = await sendRequest<IBackendRes<any>>({
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/comments/deleteMusicComment`,
@@ -89,7 +92,7 @@ const Comment = ({
         />
         <div className="flex-1">
           <p className="text-sm font-semibold text-blue-600">
-            {comment.username}
+            {comment.username} <TickedUser userId={comment.userId._id} />
           </p>
 
           {/* Nếu đang edit thì hiển thị ô nhập */}

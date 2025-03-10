@@ -6,6 +6,7 @@ import { formatDistanceToNow } from "date-fns";
 import { AuthContext } from "@/context/AuthContext";
 import { useContext, useState } from "react";
 import { useRouter } from "next/navigation";
+import TickedUser from "../ticked-user/TickedUser";
 
 interface FriendRequestProps {
   notification: {
@@ -91,7 +92,8 @@ const FriendRequest: React.FC<FriendRequestProps> = ({
             onClick={handleProfileClick}
             className="font-bold cursor-pointer"
           >
-            {notification.sender.fullname}
+            {notification.sender.fullname}{" "}
+            <TickedUser userId={notification.sender._id} />
           </span>{" "}
           <span className="text-gray-600">sent friend request.</span>
         </p>

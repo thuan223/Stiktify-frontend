@@ -15,6 +15,7 @@ import { useGlobalContext } from "@/library/global.context";
 import Image from "next/image";
 import { handleListenNeo4j, handleUpdateListenerAction } from "@/actions/music.action";
 import { AuthContext } from "@/context/AuthContext";
+import Cookies from "js-cookie";
 
 const MusicPlayer = () => {
   const {
@@ -33,8 +34,14 @@ const MusicPlayer = () => {
   const [duration, setDuration] = useState(0);
   const [count, setCount] = useState(0);
   const [second, setSecond] = useState(0);
+  const [isMusicPaused, setIsMusicPaused] = useState(false);
   const [countTrack, setCountTrack] = useState(0);
   const { user, accessToken } = useContext(AuthContext) ?? {};
+
+  useEffect(() => {
+    const pauseStatus = Cookies.get("isMusicPause") === "true";
+    setIsMusicPaused(pauseStatus);
+  }, []);
 
   const togglePlay = () => {
     setIsPlaying(!isPlaying);
@@ -56,20 +63,22 @@ const MusicPlayer = () => {
           if (!flag) {
             if (user) {
               await handleListenNeo4j(trackCurrent?._id!, user._id)
-              await fetch(
-                `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/listeninghistory/create-listening-history`,
-                {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${accessToken}`,
-                  },
-                  body: JSON.stringify({
-                    userId: user._id,
-                    musicId: trackCurrent?._id,
-                  }),
-                }
-              );
+              if (!isMusicPaused) {
+                await fetch(
+                  `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/listeninghistory/create-listening-history`,
+                  {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                      Authorization: `Bearer ${accessToken}`,
+                    },
+                    body: JSON.stringify({
+                      userId: user._id,
+                      musicId: trackCurrent?._id,
+                    }),
+                  }
+                );
+              }
             }
             await handleUpdateListenerAction(trackCurrent?._id!);
             setFlag(true);
@@ -82,7 +91,7 @@ const MusicPlayer = () => {
         setSecond(0);
       }
     })();
-  }, [seek]);
+  }, [seek, isMusicPaused]);
 
   useEffect(() => {
     if (isPlaying) {

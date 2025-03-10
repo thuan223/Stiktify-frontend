@@ -20,6 +20,8 @@ import ListMyMusic from "@/components/page/mymusic/list-my-music";
 import { useRouter } from "next/navigation";
 import { CheckCircleTwoTone } from "@ant-design/icons";
 import BusinessAccountModal from "@/components/modal/modal.upgrade.to.business.account";
+import FollowerModal from "@/components/modal/modal.follower";
+import FollowingModal from "@/components/modal/modal.following";
 
 // ======= Interfaces for User & Video =======
 interface User {
@@ -33,6 +35,7 @@ interface User {
   accountType: string;
   isActive: boolean;
   totalFollowers: number;
+  totalFollowings: number;
   isShop: boolean;
 }
 
@@ -51,8 +54,9 @@ const UserDetail = () => {
     "video" | "music" | "likedVideo" | "likedMusic"
   >("video");
   const isCurrent = user?._id === id;
+  const [isFollowersModalVisible, setIsFollowersModalVisible] = useState(false);
+  const [isFollowingModalVisible, setIsFollowingModalVisible] = useState(false);
   const [friendRequestSent, setFriendRequestSent] = useState(false);
-
   useEffect(() => {
     if (id && accessToken) fetchUserDetail();
   }, [id, accessToken]);
@@ -163,7 +167,6 @@ const UserDetail = () => {
       router.push(`/page/store/${id}`);
     }
   };
-
   const canAccessStore = userData.totalFollowers >= 1000 && userData.isShop;
 
   const tabLabels: Record<
@@ -251,6 +254,42 @@ const UserDetail = () => {
                 text="Share"
                 className="bg-gray-200 hover:bg-gray-300 text-gray-700"
               />
+              <div>
+                <div>
+                  <div
+                    className="flex items-center justify-between"
+                    onClick={() => setIsFollowersModalVisible(true)}
+                  >
+                    <p className="text-ellipsis font-bold text-black">
+                      {userData.totalFollowers || 0}
+                    </p>
+                    <p className="text-gray-600">Followers</p>
+                  </div>
+                  {isFollowersModalVisible && (
+                    <FollowerModal
+                      visible={isFollowersModalVisible}
+                      onClose={() => setIsFollowersModalVisible(false)}
+                    />
+                  )}
+                </div>
+                <div>
+                  <div
+                    className="flex items-center justify-between"
+                    onClick={() => setIsFollowingModalVisible(true)} // Đổi modal tương ứng cho "following"
+                  >
+                    <p className="text-nowrap font-bold text-black">
+                      {userData.totalFollowings || 0}
+                    </p>
+                    <p className="text-gray-600">Following</p>
+                  </div>
+                  {isFollowingModalVisible && (
+                    <FollowingModal
+                      visible={isFollowingModalVisible}
+                      onClose={() => setIsFollowingModalVisible(false)} // Đóng modal "following"
+                    />
+                  )}
+                </div>
+              </div>
               {userData.totalFollowers >= 1000 &&
                 !isUpgraded &&
                 !userData.isShop && (
