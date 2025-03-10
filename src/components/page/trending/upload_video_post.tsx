@@ -19,6 +19,11 @@ interface ICategory {
   categoryName: string;
 }
 
+interface IMusic {
+  _id: string;
+  musicDescription?: string;
+}
+
 const UploadVideoPost: React.FC = () => {
   const { accessToken, user } = useContext(AuthContext) ?? {};
   const router = useRouter();
@@ -27,6 +32,8 @@ const UploadVideoPost: React.FC = () => {
   const [videoThumbnail, setVideoThumbnail] = useState<File | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [allCategories, setAllCategories] = useState<ICategory[]>([]);
+  const [selectedMusic, setSelectedMusic] = useState<string>("");
+  const [allMusic, setAllMusic] = useState<IMusic[]>([]);
   const [loading, setLoading] = useState(false);
   const [hashtagsInput, setHashtagsInput] = useState("");
 
@@ -40,14 +47,18 @@ const UploadVideoPost: React.FC = () => {
           headers: { Authorization: `Bearer ${accessToken}` },
         });
 
+        console.log("Categories API response:", res);
         if (res.statusCode === 200 && Array.isArray(res.data)) {
-          setAllCategories(res.data);
+          const categoryData = res.data.map((item: any) => ({
+            _id: item._id || "unknown",
+            categoryName: item.categoryName || "Unnamed Category",
+          }));
+          setAllCategories(categoryData);
         } else {
-          notification.error({
-            message: "Failed to fetch categories.",
-          });
+          notification.error({ message: "Failed to fetch categories." });
         }
-      } catch {
+      } catch (error) {
+        console.error("Error fetching categories:", error);
         notification.error({
           message: "An error occurred while retrieving categories.",
         });
@@ -55,6 +66,45 @@ const UploadVideoPost: React.FC = () => {
     };
 
     fetchCategories();
+  }, [accessToken]);
+
+  useEffect(() => {
+    const fetchMusic = async () => {
+      if (!accessToken) return;
+      try {
+        const res = await sendRequest<{ statusCode: number; data: any }>({
+          url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics`,
+          method: "GET",
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+
+        console.log("Music API response:", res);
+        if (res.statusCode === 200 && Array.isArray(res.data)) {
+          const musicData = res.data.map((item: any) => {
+            const id = typeof item === "string" ? item : item._id || "unknown";
+            const description =
+              typeof item === "string"
+                ? id
+                : item.musicDescription || item.name || item.title || id; // Thêm các trường khác nếu cần
+            return {
+              _id: id,
+              musicDescription: description,
+            };
+          });
+          setAllMusic(musicData);
+          console.log("Mapped allMusic:", musicData); // Log để kiểm tra dữ liệu
+        } else {
+          notification.error({ message: "Failed to fetch music." });
+        }
+      } catch (error) {
+        console.error("Error fetching music:", error);
+        notification.error({
+          message: "An error occurred while retrieving music.",
+        });
+      }
+    };
+
+    fetchMusic();
   }, [accessToken]);
 
   const handleFileChange = (
@@ -90,11 +140,11 @@ const UploadVideoPost: React.FC = () => {
         body: uploadVideoForm,
       });
 
-      if (videoUploadRes.statusCode !== 201)
-        throw new Error("Video upload failed");
+      if (videoUploadRes.statusCode !== 201) {
+        throw new Error(videoUploadRes.message || "Video upload failed");
+      }
 
       const videoUrl = videoUploadRes.data;
-      console.log(videoUrl);
       let thumbnailUrl = "";
 
       if (videoThumbnail) {
@@ -111,6 +161,8 @@ const UploadVideoPost: React.FC = () => {
 
         if (thumbnailUploadRes.statusCode === 201) {
           thumbnailUrl = thumbnailUploadRes.data;
+        } else {
+          console.warn("Thumbnail upload failed, proceeding without thumbnail");
         }
       }
 
@@ -125,6 +177,7 @@ const UploadVideoPost: React.FC = () => {
         userId: user._id,
         videoTag,
         categories: [selectedCategory],
+        musicId: selectedMusic || undefined,
       };
 
       const postRes = await sendRequest<IUploadResponse>({
@@ -140,6 +193,7 @@ const UploadVideoPost: React.FC = () => {
         setVideoFile(null);
         setVideoThumbnail(null);
         setSelectedCategory("");
+        setSelectedMusic("");
         setHashtagsInput("");
         router.push(`/page/detail_user/${user._id}`);
       } else {
@@ -147,8 +201,14 @@ const UploadVideoPost: React.FC = () => {
           message: postRes.message || "Post creation failed.",
         });
       }
-    } catch {
-      notification.error({ message: "An error occurred during upload." });
+    } catch (error) {
+      console.error("Upload error:", error);
+      notification.error({
+        message:
+          error instanceof Error
+            ? error.message
+            : "An error occurred during upload.",
+      });
     } finally {
       setLoading(false);
     }
@@ -169,9 +229,7 @@ const UploadVideoPost: React.FC = () => {
       </div>
 
       <div className="mb-4">
-        <label className="block font-medium mb-1">
-          Choose Thumbnail (Optional)
-        </label>
+        <label className="block font-medium mb-1">Choose Thumbnail</label>
         <input
           type="file"
           accept="image/*"
@@ -211,6 +269,29 @@ const UploadVideoPost: React.FC = () => {
           {allCategories.map((category) => (
             <Option key={category._id} value={category._id}>
               {category.categoryName}
+            </Option>
+          ))}
+        </Select>
+      </div>
+
+      <div className="mb-4">
+        <label className="block font-medium mb-1">Add Music</label>
+        <Select
+          showSearch
+          placeholder="Search and select music"
+          optionFilterProp="children"
+          style={{ width: "100%" }}
+          value={selectedMusic || undefined}
+          onChange={(value) => setSelectedMusic(value)}
+          filterOption={(input, option) =>
+            (option?.children as unknown as string)
+              ?.toLowerCase()
+              .includes(input.toLowerCase())
+          }
+        >
+          {allMusic.map((music) => (
+            <Option key={music._id} value={music._id}>
+              {music.musicDescription || "Unnamed Music"}
             </Option>
           ))}
         </Select>
