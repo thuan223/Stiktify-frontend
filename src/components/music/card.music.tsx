@@ -19,10 +19,11 @@ interface IProps {
     handlePlayer: (v: any) => void
     isPlaying: boolean,
     item: IMusic
+    ref?: any
 }
 
 const CardMusic = (props: IProps) => {
-    const { handlePlayer, isPlaying, item } = props
+    const { handlePlayer, isPlaying, item, ref } = props
     const { trackCurrent, playlist, listPlaylist } = useGlobalContext()!
     const { user } = useContext(AuthContext)!
     const [hoverPlayer, setHoverPlayer] = useState(false)
@@ -101,7 +102,7 @@ const CardMusic = (props: IProps) => {
     }
     return (
         <>
-            <div
+            <div ref={ref}
                 onClick={() => handleNavigate(item._id)}
                 onMouseLeave={() => {
                     trackCurrent?._id !== item._id && setHoverPlayer(false)
@@ -121,12 +122,12 @@ const CardMusic = (props: IProps) => {
                 </Dropdown>
                 <Image
                     alt="thumbnail"
-                    className="rounded-lg"
+                    className="rounded-lg select-none"
                     width={200}
                     height={200}
                     src={item ? item.musicThumbnail : image} />
                 <Tooltip title={item.musicDescription}>
-                    <div className="mt-2 text-[20px] font-semibold font-roboto truncate w-[10vw]">{item.musicDescription}</div>
+                    <div className="mt-2 text-[20px] font-semibold font-roboto truncate w-[10vw] select-none">{item.musicDescription}</div>
                 </Tooltip>
                 <ButtonPlayer
                     current={item._id}

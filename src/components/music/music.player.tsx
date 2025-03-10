@@ -13,7 +13,7 @@ import { FaShuffle, FaRepeat } from "react-icons/fa6";
 import ButtonPlayer from "./button.player";
 import { useGlobalContext } from "@/library/global.context";
 import Image from "next/image";
-import { handleUpdateListenerAction } from "@/actions/music.action";
+import { handleListenNeo4j, handleUpdateListenerAction } from "@/actions/music.action";
 import { AuthContext } from "@/context/AuthContext";
 
 const MusicPlayer = () => {
@@ -55,6 +55,7 @@ const MusicPlayer = () => {
         if (second === 15) {
           if (!flag) {
             if (user) {
+              await handleListenNeo4j(trackCurrent?._id!, user._id)
               await fetch(
                 `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/listeninghistory/create-listening-history`,
                 {
