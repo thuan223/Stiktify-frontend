@@ -83,12 +83,26 @@ const UploadVideoPost: React.FC = () => {
       const uploadVideoForm = new FormData();
       uploadVideoForm.append("file", videoFile);
 
-      const videoUploadRes = await sendRequestFile<IUploadResponse>({
-        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/upload/upload-video`,
-        method: "POST",
-        headers: { Authorization: `Bearer ${accessToken}` },
-        body: uploadVideoForm,
-      });
+      const videoUploadForm = new FormData();
+      videoUploadForm.append("file", videoFile);
+
+      const tagVideoForm = new FormData();
+      tagVideoForm.append("file", videoFile);
+
+      const [videoUploadRes, getTagByAIRes] = await Promise.all([
+        sendRequestFile<IUploadResponse>({
+          url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/upload/upload-video`,
+          method: "POST",
+          headers: { Authorization: `Bearer ${accessToken}` },
+          body: videoUploadForm,
+        }),
+        sendRequestFile<IUploadResponse>({
+          url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/get-tag-by-ai`,
+          method: "POST",
+          headers: { Authorization: `Bearer ${accessToken}` },
+          body: tagVideoForm,
+        }),
+      ]);
 
       if (videoUploadRes.statusCode !== 201)
         throw new Error("Video upload failed");
@@ -114,10 +128,11 @@ const UploadVideoPost: React.FC = () => {
         }
       }
 
-      const videoTag = hashtagsInput
+      const videoInputTag = hashtagsInput
         .split(" ")
         .map((tag) => tag.trim())
         .filter(Boolean);
+      const videoTag = [...new Set([...videoInputTag, ...getTagByAIRes.data])];
       const postData = {
         videoDescription,
         videoUrl,
