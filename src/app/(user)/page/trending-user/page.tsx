@@ -308,7 +308,7 @@ const TrendingPage = () => {
           searchValue={searchValue}
           setSearchValue={setSearchValue}
         />
-        {/* {currentVideo ? (
+        {currentVideo ? (
           <MainVideo
             videoUrl={currentVideo.videoUrl}
             onVideoWatched={handleVideoWatched}
@@ -316,7 +316,7 @@ const TrendingPage = () => {
           />
         ) : (
           <p>Loading video...</p>
-        )} */}
+        )}
         <VideoFooter
           videoDescription={currentVideo?.videoDescription || ""}
           totalView={currentVideo?.totalViews || 0}

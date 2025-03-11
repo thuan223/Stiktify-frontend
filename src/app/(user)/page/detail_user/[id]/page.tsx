@@ -212,11 +212,11 @@ const UserDetail = () => {
                   disabled={requestData?.status === "pending"}
                 >
                   <CheckCircleTwoTone />{" "}
-                  {requestData?.status !== "pending" ||
-                  requestData?.status !== "rejected" ? (
-                    <span>Request for Tick</span>
-                  ) : (
+                  {requestData?.status === "pending" ? (
                     <span>Request processing...</span>
+
+                  ) : (
+                    <span>Request for Tick</span>
                   )}
                 </button>
               )}
@@ -225,9 +225,8 @@ const UserDetail = () => {
           </div>
           <p className="flex items-center text-lg font-medium mt-1">
             <span
-              className={`w-3 h-3 mr-2 rounded-full ${
-                userData.isActive ? "bg-green-500" : "bg-gray-400"
-              }`}
+              className={`w-3 h-3 mr-2 rounded-full ${userData.isActive ? "bg-green-500" : "bg-gray-400"
+                }`}
             ></span>
             {userData.isActive ? "Online" : "Offline"}
           </p>
@@ -316,11 +315,10 @@ const UserDetail = () => {
               <Button
                 icon={<FiUserPlus />}
                 text={friendRequestSent ? "Request Sent" : "Add Friend"}
-                className={`${
-                  friendRequestSent
-                    ? "bg-gray-400"
-                    : "bg-blue-500 hover:bg-blue-600"
-                } text-white`}
+                className={`${friendRequestSent
+                  ? "bg-gray-400"
+                  : "bg-blue-500 hover:bg-blue-600"
+                  } text-white`}
                 onClick={sendFriendRequest}
                 disabled={friendRequestSent}
               />
@@ -359,11 +357,10 @@ const UserDetail = () => {
             (tab) => (
               <button
                 key={tab}
-                className={`text-lg font-semibold p-2 flex-1 text-center ${
-                  activeTab === tab
-                    ? "border-b-4 border-blue-500 text-blue-600"
-                    : "text-gray-600"
-                }`}
+                className={`text-lg font-semibold p-2 flex-1 text-center ${activeTab === tab
+                  ? "border-b-4 border-blue-500 text-blue-600"
+                  : "text-gray-600"
+                  }`}
                 onClick={() => setActiveTab(tab)}
               >
                 {tabLabels[tab]}

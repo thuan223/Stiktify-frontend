@@ -313,15 +313,15 @@ const FollowPage = () => {
           searchValue={searchValue}
           setSearchValue={setSearchValue}
         />
-        {/* {currentVideo ? (
-                    <MainVideo
-                        videoUrl={currentVideo.videoUrl}
-                        onVideoWatched={handleVideoWatched}
-                        onVideoDone={nextVideo}
-                    />
-                ) : (
-                    <p>Loading video...</p>
-                )} */}
+        {currentVideo ? (
+          <MainVideo
+            videoUrl={currentVideo.videoUrl}
+            onVideoWatched={handleVideoWatched}
+            onVideoDone={nextVideo}
+          />
+        ) : (
+          <p>Loading video...</p>
+        )}
 
         <VideoFooter
           videoDescription={currentVideo?.videoDescription || ""}
