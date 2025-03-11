@@ -164,9 +164,6 @@ const EditShopOwnerDetail = ({
   return (
     <div>
       <Title level={4}>Shop Information</Title>
-      <p style={{ marginBottom: 20 }}>
-        Fill in the details below to update your shop information.
-      </p>
 
       <div style={{ marginBottom: 10 }}>
         <label style={{ fontWeight: "bold" }}>Shop Name:</label>
