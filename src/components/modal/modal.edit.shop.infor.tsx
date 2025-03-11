@@ -1,45 +1,98 @@
 "use client";
 
 import React, { useState, useEffect, useContext } from "react";
-import { Input, Button, message, Typography } from "antd";
+import { Input, Button, message, Typography, Spin } from "antd";
 import { AuthContext } from "@/context/AuthContext";
 
 const { Title } = Typography;
 
-interface EditShopProps {
-  shop?: {
-    _id: string;
-    shopName: string;
-    taxCode: string;
-    shopBrandsAddress: string;
-    shopDescription: string;
-  };
-  onClose: () => void;
-  refreshShop?: () => void;
+interface ShopOwnerDetail {
+  shopName: string;
+  taxCode: string;
+  shopBrandsAddress: string;
+  shopDescription: string;
 }
 
-const EditShop = ({ shop, onClose, refreshShop = () => {} }: EditShopProps) => {
+interface UserData {
+  _id: string;
+  shopOwnerDetail?: ShopOwnerDetail;
+}
+
+interface EditShopOwnerDetailProps {
+  onClose: () => void;
+  refreshData?: () => void;
+}
+
+const EditShopOwnerDetail = ({
+  onClose,
+  refreshData = () => {},
+}: EditShopOwnerDetailProps) => {
   const { accessToken, user } = useContext(AuthContext) ?? {};
-  const [formData, setFormData] = useState({
-    shopName: shop?.shopName || "",
-    taxCode: shop?.taxCode || "",
-    shopBrandsAddress: shop?.shopBrandsAddress || "",
-    shopDescription: shop?.shopDescription || "",
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [formData, setFormData] = useState<ShopOwnerDetail>({
+    shopName: "",
+    taxCode: "",
+    shopBrandsAddress: "",
+    shopDescription: "",
   });
 
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
   const [isChanged, setIsChanged] = useState(false);
 
   useEffect(() => {
-    if (shop) {
-      setFormData({
-        shopName: shop.shopName,
-        taxCode: shop.taxCode,
-        shopBrandsAddress: shop.shopBrandsAddress,
-        shopDescription: shop.shopDescription,
-      });
-    }
-  }, [shop]);
+    const fetchUserData = async () => {
+      if (!accessToken || !user?._id) {
+        message.error(
+          "User ID or access token not found. Please log in again."
+        );
+        setFetching(false);
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/get-user/${user._id}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+
+        const responseData = await response.json();
+        if (!response.ok) {
+          throw new Error(
+            responseData?.message || "Failed to fetch user information."
+          );
+        }
+
+        setUserData(responseData.data);
+
+        // Initialize form data with shopOwnerDetail if it exists
+        const shopDetails =
+          responseData.data.shopOwnerDetail || responseData.data;
+        setFormData({
+          shopName: shopDetails.shopName || "",
+          taxCode: shopDetails.taxCode || "",
+          shopBrandsAddress: shopDetails.shopBrandsAddress || "",
+          shopDescription: shopDetails.shopDescription || "",
+        });
+      } catch (error) {
+        message.error(
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred while fetching user data."
+        );
+      } finally {
+        setFetching(false);
+      }
+    };
+
+    fetchUserData();
+  }, [accessToken, user?._id]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -74,7 +127,7 @@ const EditShop = ({ shop, onClose, refreshShop = () => {} }: EditShopProps) => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${accessToken}`,
           },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(formData), // Send flat data
         }
       );
 
@@ -85,12 +138,14 @@ const EditShop = ({ shop, onClose, refreshShop = () => {} }: EditShopProps) => {
         );
       }
 
-      message.success("Shop updated successfully!");
-      refreshShop();
+      message.success("Shop information updated successfully!");
+      refreshData();
       onClose();
     } catch (error) {
       message.error(
-        error instanceof Error ? error.message : "An unexpected error occurred."
+        error instanceof Error
+          ? error.message
+          : "An error occurred while updating shop information."
       );
     } finally {
       setLoading(false);
@@ -98,10 +153,20 @@ const EditShop = ({ shop, onClose, refreshShop = () => {} }: EditShopProps) => {
     }
   };
 
+  if (fetching) {
+    return (
+      <div style={{ textAlign: "center", padding: "20px" }}>
+        <Spin tip="Loading information..." />
+      </div>
+    );
+  }
+
   return (
     <div>
-      <Title level={4}>Current Shop Information</Title>
-      <p style={{ marginBottom: 20 }}></p>
+      <Title level={4}>Shop Information</Title>
+      <p style={{ marginBottom: 20 }}>
+        Fill in the details below to update your shop information.
+      </p>
 
       <div style={{ marginBottom: 10 }}>
         <label style={{ fontWeight: "bold" }}>Shop Name:</label>
@@ -110,6 +175,7 @@ const EditShop = ({ shop, onClose, refreshShop = () => {} }: EditShopProps) => {
           placeholder="Enter shop name"
           value={formData.shopName}
           onChange={handleChange}
+          disabled={loading}
         />
       </div>
 
@@ -120,16 +186,18 @@ const EditShop = ({ shop, onClose, refreshShop = () => {} }: EditShopProps) => {
           placeholder="Enter tax code"
           value={formData.taxCode}
           onChange={handleChange}
+          disabled={loading}
         />
       </div>
 
       <div style={{ marginBottom: 10 }}>
-        <label style={{ fontWeight: "bold" }}>Shop Brand Address:</label>
+        <label style={{ fontWeight: "bold" }}>Shop Address:</label>
         <Input
           name="shopBrandsAddress"
-          placeholder="Enter shop brand address"
+          placeholder="Enter shop address"
           value={formData.shopBrandsAddress}
           onChange={handleChange}
+          disabled={loading}
         />
       </div>
 
@@ -141,6 +209,7 @@ const EditShop = ({ shop, onClose, refreshShop = () => {} }: EditShopProps) => {
           value={formData.shopDescription}
           onChange={handleChange}
           rows={4}
+          disabled={loading}
         />
       </div>
 
@@ -159,11 +228,11 @@ const EditShop = ({ shop, onClose, refreshShop = () => {} }: EditShopProps) => {
           loading={loading}
           disabled={!isChanged}
         >
-          Save
+          Save Changes
         </Button>
       </div>
     </div>
   );
 };
 
-export default EditShop;
+export default EditShopOwnerDetail;
