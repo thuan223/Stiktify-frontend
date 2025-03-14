@@ -269,10 +269,40 @@ const UploadVideoPost: React.FC = () => {
               className="form-select"
               value={selectedMusic || undefined}
               onChange={(value) => setSelectedMusic(value)}
-              filterOption={(input, option) =>
-                (option?.children as unknown as string)
-                  ?.toLowerCase()
-                  .includes(input.toLowerCase())
+              filterOption={(input, option) => {
+                const musicDescription =
+                  (option?.children as unknown as string) || "Unnamed Music";
+                const searchInput = input;
+
+                // Hàm chuẩn hóa chuỗi để loại bỏ dấu
+                const removeDiacritics = (str: string) =>
+                  str
+                    .normalize("NFD") // Phân tách ký tự và dấu
+                    .replace(/[\u0300-\u036f]/g, "") // Xóa các dấu
+                    .toLowerCase();
+
+                const normalizedMusicDescription =
+                  removeDiacritics(musicDescription);
+                const normalizedSearchInput = removeDiacritics(searchInput);
+
+                // Nếu searchInput khớp hoàn toàn với musicDescription, chỉ hiển thị music đó
+                if (normalizedMusicDescription === normalizedSearchInput) {
+                  return true;
+                }
+
+                // Nếu không khớp hoàn toàn, tìm kiếm theo startsWith
+                return normalizedMusicDescription.startsWith(
+                  normalizedSearchInput
+                );
+              }}
+              filterSort={(optionA, optionB) =>
+                ((optionA?.children as unknown as string) || "")
+                  .toLowerCase()
+                  .localeCompare(
+                    (
+                      (optionB?.children as unknown as string) || ""
+                    ).toLowerCase()
+                  )
               }
             >
               {allMusic.map((music) => (
