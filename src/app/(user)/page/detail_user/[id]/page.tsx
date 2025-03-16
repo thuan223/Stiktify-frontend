@@ -375,7 +375,7 @@ const UserDetail = () => {
         {/* Tab Content */}
         <div className="flex-1 p-4 overflow-y-auto">
           {activeTab === "video" && <VideoTab />}
-          {activeTab === "music" && <MusicTab userId={user._id} />}
+          {activeTab === "music" && <MusicTab />}
           {activeTab === "likedVideo" && <LikedVideoTab />}
           {activeTab === "likedMusic" && <LikedMusicTab userId={user._id} />}
         </div>
@@ -412,9 +412,9 @@ const VideoTab = () => (
   </div>
 );
 
-const MusicTab = ({ userId }: { userId: string }) => (
+const MusicTab = () => (
   <div>
-    <ListMyMusic userId={userId} />
+    <ListMyMusic />
   </div>
 );
 
@@ -425,7 +425,7 @@ const LikedVideoTab = () => (
 );
 const LikedMusicTab = ({ userId }: { userId: string }) => (
   <div>
-    <ListFavoriteMusic userId={userId} />
+    <ListFavoriteMusic />
   </div>
 );
 
