@@ -69,14 +69,16 @@ const ListFavoriteMusic = () => {
       ) : !areItemsHidden ? (
         favoriteMusic.length > 0 ? (
           <div className="flex flex-wrap justify-start gap-5 my-3 mx-20">
-            {favoriteMusic.map((item: any) => (
-              <CardMusic
-                key={item._id}
-                handlePlayer={() => {}}
-                isPlaying={false}
-                item={item}
-              />
-            ))}
+            {favoriteMusic
+              .filter((item) => item && item._id) // Lọc bỏ phần tử null hoặc không có _id
+              .map((item) => (
+                <CardMusic
+                  key={item._id}
+                  handlePlayer={() => {}}
+                  isPlaying={false}
+                  item={item}
+                />
+              ))}
           </div>
         ) : (
           <p className="text-gray-500 text-center w-full">
