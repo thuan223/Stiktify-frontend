@@ -12,9 +12,10 @@ const roleRoutes: Record<string, (string | RegExp)[]> = {
     /^\/page\/share\/[\w-]+$/,
     /^\/page\/shareMusic\/[\w-]+$/,
     /^\/page\/music\/[\w-]+$/,
+    /^\/page\/store\/[\w-]+$/,
     "/page/playlist",
     "/page/music",
-    /^\/page\/store\/[\w-]+$/,
+    "/page/detail_cart",
     "/personal/musichistory",
   ],
   GUEST: [
@@ -28,6 +29,7 @@ const roleRoutes: Record<string, (string | RegExp)[]> = {
     /^\/page\/music\/[\w-]+$/,
     /^\/page\/shareMusic\/[\w-]+$/,
     /^\/page\/detail_user\/[\w-]+$/,
+    /^\/page\/store\/[\w-]+$/,
   ],
   ADMIN: [
     "/dashboard/user",

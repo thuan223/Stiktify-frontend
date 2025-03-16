@@ -17,10 +17,17 @@ interface UserData {
   _id: string;
   shopOwnerDetail?: ShopOwnerDetail;
 }
-
 interface EditShopOwnerDetailProps {
   onClose: () => void;
-  refreshData?: () => void;
+  onViewCart: () => void;
+  visible: boolean;
+  refreshData: () => void;
+  product: {
+    image: string;
+    name: string;
+    description: string;
+    price: number;
+  };
 }
 
 const EditShopOwnerDetail = ({
