@@ -35,17 +35,17 @@ const RecommendMusicList = (props: IProps) => {
     const handlePlayer = (track: IMusic) => {
         if (trackCurrent?._id !== track._id) {
             setFlag(false)
-            const data = {
-                _id: track._id,
-                musicDescription: track.musicDescription,
-                musicThumbnail: track.musicThumbnail,
-                musicUrl: track.musicUrl,
-            };
-            setTrackCurrent(data);
+            // const data = {
+            //     _id: track._id,
+            //     musicDescription: track.musicDescription,
+            //     musicThumbnail: track.musicThumbnail,
+            //     musicUrl: track.musicUrl,
+            // };
+            setTrackCurrent(track);
             if (listPlaylist && listPlaylist.length > 0) {
                 setListPlayList([])
             }
-            localStorage.setItem("trackCurrent", JSON.stringify(data));
+            localStorage.setItem("trackCurrent", JSON.stringify(track));
             return setIsPlaying(isPlaying ? true : !isPlaying);
         }
         return setIsPlaying(!isPlaying);

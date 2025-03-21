@@ -63,14 +63,14 @@ const DisplayMusicDetail = ({ item }: IProps) => {
   const handlePlayer = (track: IMusic) => {
     if (trackCurrent?._id !== track._id) {
       setFlag(false)
-      const data = {
-        _id: track._id,
-        musicDescription: track.musicDescription,
-        musicThumbnail: track.musicThumbnail,
-        musicUrl: track.musicUrl,
-      };
-      setTrackCurrent(data);
-      localStorage.setItem("trackCurrent", JSON.stringify(data));
+      // const data = {
+      //   _id: track._id,
+      //   musicDescription: track.musicDescription,
+      //   musicThumbnail: track.musicThumbnail,
+      //   musicUrl: track.musicUrl,
+      // };
+      setTrackCurrent(track);
+      localStorage.setItem("trackCurrent", JSON.stringify(track));
       return setIsPlaying(true);
     }
     setIsPlaying(!isPlaying);
@@ -121,7 +121,7 @@ const DisplayMusicDetail = ({ item }: IProps) => {
                       className="relative group"
                     >
                       <span className="cursor-pointer after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-full after:h-[2px] after:bg-white after:scale-x-0 after:transition-transform after:duration-300 group-hover:after:scale-x-100">
-                        {capitalizeWords(tag)}
+                        {/* {capitalizeWords(tag?.fullname)} */}
                       </span>
                     </div>
                   </div>

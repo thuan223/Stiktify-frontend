@@ -1,6 +1,6 @@
 "use client";
 import { formatTime } from "@/utils/utils";
-import { useState, useRef, useEffect, useContext } from "react";
+import { useState, useRef, useEffect, useContext, useCallback } from "react";
 import ReactHowler from "react-howler";
 import {
   FaStepForward,
@@ -39,110 +39,104 @@ const MusicPlayer = () => {
   const { user, accessToken } = useContext(AuthContext) ?? {};
 
   useEffect(() => {
-    const pauseStatus = Cookies.get("isMusicPause") === "true";
-    setIsMusicPaused(pauseStatus);
+    setIsMusicPaused(Cookies.get("isMusicPause") === "true");
   }, []);
 
-  const togglePlay = () => {
-    setIsPlaying(!isPlaying);
-  };
-  const toggleMute = () => setVolume(volume > 0 ? 0 : 1);
-  const nextTrack = () =>
-    setCountTrack((prev) => (prev + 1) % listPlaylist.length);
-  const prevTrack = () =>
-    setCountTrack(
-      (prev) => (prev - 1 + listPlaylist.length) % listPlaylist.length
-    );
+  const togglePlay = useCallback(() => setIsPlaying(!isPlaying), [isPlaying, setIsPlaying]);
+  const toggleMute = useCallback(() => setVolume((prev) => (prev > 0 ? 0 : 1)), []);
+  const nextTrack = useCallback(() => setCountTrack((prev) => (prev + 1) % listPlaylist.length), [listPlaylist.length]);
+  const prevTrack = useCallback(() => setCountTrack((prev) => (prev - 1 + listPlaylist.length) % listPlaylist.length), [listPlaylist.length]);
 
   useEffect(() => {
-    (async () => {
-      setCount(count + 1);
-      if (count === +seek.toFixed(0)) {
-        setSecond(second + 1);
-        if (second === 15) {
-          if (!flag) {
-            if (user) {
-              await handleListenNeo4j(trackCurrent?._id!, user._id)
-              if (!isMusicPaused) {
-                await fetch(
-                  `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/listeninghistory/create-listening-history`,
-                  {
-                    method: "POST",
-                    headers: {
-                      "Content-Type": "application/json",
-                      Authorization: `Bearer ${accessToken}`,
-                    },
-                    body: JSON.stringify({
-                      userId: user._id,
-                      musicId: trackCurrent?._id,
-                    }),
-                  }
-                );
-              }
-            }
-            await handleUpdateListenerAction(trackCurrent?._id!);
-            setFlag(true);
-          }
-          setSecond(0);
-        }
-      }
-      if (+seek.toFixed(0) !== count) {
-        setCount(+seek.toFixed(0) + 1);
-        setSecond(0);
-      }
-    })();
-  }, [seek, isMusicPaused]);
-
-  useEffect(() => {
-    if (isPlaying) {
-      intervalRef.current = setInterval(() => {
-        if (playerRef.current) {
-          setSeek(playerRef.current.seek());
-        }
-      }, 1000);
-    } else {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
+    if (!isPlaying) {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      return;
     }
+
+    intervalRef.current = setInterval(() => {
+      if (playerRef.current) setSeek(playerRef.current.seek());
+    }, 1000);
+
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [isPlaying]);
-
-  const handleLoad = () => {
-    if (playerRef.current) {
-      setDuration(playerRef.current.duration());
-    }
-  };
+  }, [isPlaying, seek]);
 
   useEffect(() => {
-    if (listPlaylist && listPlaylist.length > 0) {
-      localStorage.setItem(
-        "trackCurrent",
-        JSON.stringify(listPlaylist[countTrack].musicId)
-      );
-      setTrackCurrent(listPlaylist[countTrack].musicId);
+    if (!trackCurrent || flag || second < 15) return;
+    (async () => {
+      if (!flag) {
+        if (user) {
+          await handleListenNeo4j(trackCurrent._id, user._id);
+
+          if (!isMusicPaused) {
+            await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/listeninghistory/create-listening-history`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}` },
+              body: JSON.stringify({ userId: user._id, musicId: trackCurrent._id }),
+            });
+          }
+        }
+        await handleUpdateListenerAction(trackCurrent._id);
+        setFlag(true);
+      }
+      setSecond(0);
+    })();
+  }, [second, trackCurrent, user, isMusicPaused, accessToken, flag]);
+
+  useEffect(() => {
+    setCount((prev) => prev + 1);
+
+    if (count === Math.round(seek)) {
+      setSecond((prev) => prev + 1);
     }
-  }, [listPlaylist, countTrack]);
+
+    if (Math.round(seek) !== count) {
+      setCount(Math.round(seek) + 1);
+      setSecond(0);
+    }
+  }, [seek]);
+
+  useEffect(() => {
+    if (listPlaylist.length > 0) {
+      const newTrack = listPlaylist[countTrack]?.musicId;
+      if (newTrack) {
+        localStorage.setItem("trackCurrent", JSON.stringify(newTrack));
+        setTrackCurrent(newTrack);
+      }
+    }
+  }, [listPlaylist, countTrack, setTrackCurrent]);
 
   const handleSeekChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newSeek = parseFloat(e.target.value);
     setSeek(newSeek);
-    playerRef.current?.seek(newSeek);
-  };
 
-  const handleEndMusic = () => {
-    setSecond(0);
-    setFlag(false);
-    if (listPlaylist && listPlaylist.length > 0) {
-      if (+listPlaylist.length - 1 === countTrack) {
-        setCountTrack(0);
-        return;
-      }
-      setCountTrack((prev) => prev + 1);
+    if (playerRef.current) {
+      playerRef.current.seek(newSeek);
+
+      // Tạm dừng nhạc trước khi tua để tránh phát song song
+      setIsPlaying(false);
+      setTimeout(() => {
+        setIsPlaying(true);
+      }, 100);
     }
   };
+
+  const handleLoad = useCallback(() => {
+    if (playerRef.current) setDuration(playerRef.current.duration());
+  }, []);
+
+  const handleEndMusic = useCallback(() => {
+    setSecond(0);
+    setFlag(false);
+    if (listPlaylist.length > 0) {
+      setCountTrack((prev) => (prev + 1) % listPlaylist.length);
+    }
+  }, [listPlaylist.length, setFlag]);
+
+
+  console.log("seek>>>>", seek);
+  console.log("playerRef>>>>", playerRef);
 
   return (
     <div className="w-full h-full  bg-gray-900/80 backdrop-blur-md text-white p-4 rounded-2xl shadow-lg">
