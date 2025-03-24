@@ -8,7 +8,6 @@ import MainVideo from "@/components/page/trending/main_video";
 import OtherVideos from "@/components/page/trending/otherVideo";
 import VideoFooter from "@/components/page/trending/video-footer";
 import { sendRequest } from "@/utils/api";
-import { div } from "framer-motion/client";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
@@ -177,7 +176,7 @@ const TrendingPage = () => {
               videoDescription={currentVideo?.videoDescription || ""}
               totalView={currentVideo?.totalViews || 0}
               videoTag={currentVideo?.videoTag || []}
-              createAt={currentVideo?.createAt.toString() || ""}
+              createdAt={currentVideo?.createdAt.toString() || ""}
             />
             {isShowOtherVideos ? (
               <OtherVideos
