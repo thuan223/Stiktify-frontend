@@ -13,7 +13,7 @@ import { FaShuffle, FaRepeat } from "react-icons/fa6";
 import ButtonPlayer from "./button.player";
 import { useGlobalContext } from "@/library/global.context";
 import Image from "next/image";
-import { handleListenNeo4j, handleUpdateListenerAction } from "@/actions/music.action";
+import { getTrackRelatedAction, handleListenNeo4j, handleUpdateListenerAction } from "@/actions/music.action";
 import { AuthContext } from "@/context/AuthContext";
 import Cookies from "js-cookie";
 
@@ -25,7 +25,13 @@ const MusicPlayer = () => {
     listPlaylist,
     setTrackCurrent,
     flag,
-    setFlag
+    setFlag,
+    trackRelatedId,
+    setTrackRelatedId,
+    prevList,
+    setPrevList,
+    musicTagRelated,
+    setMusicTagRelated
   } = useGlobalContext()!;
   const [volume, setVolume] = useState(1);
   const playerRef = useRef<ReactHowler | null>(null);
@@ -39,13 +45,51 @@ const MusicPlayer = () => {
   const { user, accessToken } = useContext(AuthContext) ?? {};
 
   useEffect(() => {
+    if (trackCurrent) {
+      if (!trackRelatedId.some((x: any) => x === trackCurrent._id)) {
+        setTrackRelatedId([...trackRelatedId, trackCurrent._id])
+        setPrevList([...prevList, trackCurrent])
+
+        const newTags = trackCurrent.musicTag.filter(
+          (tag) => !musicTagRelated.some((existingTag) => existingTag._id === tag._id)
+        );
+
+        if (newTags.length > 0) {
+          setMusicTagRelated([...musicTagRelated, ...newTags]);
+        }
+
+
+      }
+    }
+  }, [trackCurrent])
+
+  useEffect(() => {
     setIsMusicPaused(Cookies.get("isMusicPause") === "true");
   }, []);
 
   const togglePlay = useCallback(() => setIsPlaying(!isPlaying), [isPlaying, setIsPlaying]);
   const toggleMute = useCallback(() => setVolume((prev) => (prev > 0 ? 0 : 1)), []);
-  const nextTrack = useCallback(() => setCountTrack((prev) => (prev + 1) % listPlaylist.length), [listPlaylist.length]);
-  const prevTrack = useCallback(() => setCountTrack((prev) => (prev - 1 + listPlaylist.length) % listPlaylist.length), [listPlaylist.length]);
+  // const nextTrack = useCallback(() => setCountTrack((prev) => (prev + 1) % listPlaylist.length), [listPlaylist.length]);
+  // const prevTrack = useCallback(() => setCountTrack((prev) => (prev - 1 + listPlaylist.length) % listPlaylist.length), [listPlaylist.length]);
+
+  const nextTrack = useCallback(() => {
+    setCountTrack((prev) => (prev + 1) % listPlaylist.length);
+
+    if (listPlaylist.length > 0) {
+      const nextTrack = listPlaylist[(countTrack + 1) % listPlaylist.length];
+
+    }
+  }, [listPlaylist, countTrack]);
+  console.log(prevList);
+
+  const prevTrack = useCallback(async () => {
+    if (listPlaylist.length > 0) {
+      setCountTrack((prev) => (prev - 1 + listPlaylist.length) % listPlaylist.length)
+    } else if (prevList.length > 0) {
+      setCountTrack((prev) => (prev - 1 + prevList.length) % prevList.length)
+    }
+
+  }, [listPlaylist.length]);
 
   useEffect(() => {
     if (!isPlaying) {
@@ -96,6 +140,21 @@ const MusicPlayer = () => {
       setSecond(0);
     }
   }, [seek]);
+  console.log(seek.toFixed(0));
+  console.log(+duration.toFixed(0) - 2);
+
+  useEffect(() => {
+    if (+seek.toFixed(0) === +duration.toFixed(0)) {
+      (async () => {
+        if (listPlaylist.length > 0) {
+          setCountTrack((prev) => (prev + 1) % listPlaylist.length);
+        } else if (prevList.length > 0) {
+          const res = await getTrackRelatedAction(trackRelatedId, musicTagRelated);
+          setTrackCurrent(res?.data);
+        }
+      })()
+    }
+  }, [second, duration])
 
   useEffect(() => {
     if (listPlaylist.length > 0) {
@@ -113,8 +172,6 @@ const MusicPlayer = () => {
 
     if (playerRef.current) {
       playerRef.current.seek(newSeek);
-
-      // Tạm dừng nhạc trước khi tua để tránh phát song song
       setIsPlaying(false);
       setTimeout(() => {
         setIsPlaying(true);
@@ -126,17 +183,11 @@ const MusicPlayer = () => {
     if (playerRef.current) setDuration(playerRef.current.duration());
   }, []);
 
-  const handleEndMusic = useCallback(() => {
+  const handleEndMusic = useCallback(async () => {
     setSecond(0);
     setFlag(false);
-    if (listPlaylist.length > 0) {
-      setCountTrack((prev) => (prev + 1) % listPlaylist.length);
-    }
-  }, [listPlaylist.length, setFlag]);
+  }, [prevList, listPlaylist.length, trackRelatedId, musicTagRelated, setTrackCurrent]);
 
-
-  console.log("seek>>>>", seek);
-  console.log("playerRef>>>>", playerRef);
 
   return (
     <div className="w-full h-full  bg-gray-900/80 backdrop-blur-md text-white p-4 rounded-2xl shadow-lg">

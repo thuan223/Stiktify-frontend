@@ -15,7 +15,17 @@ interface IGlobalContext {
     flag: boolean,
     setFlag: (v: boolean) => void,
     trackRelatedId: string[],
-    setTrackRelatedId: (v: string[]) => void
+    setTrackRelatedId: (v: string[]) => void,
+    prevList: IMusic[],
+    setPrevList: (v: IMusic[]) => void
+    musicTagRelated: {
+        _id: string,
+        fullname: string
+    }[],
+    setMusicTagRelated: (v: {
+        _id: string,
+        fullname: string
+    }[]) => void,
 }
 
 export const GlobalContext = createContext<IGlobalContext | null>(null);
@@ -28,6 +38,12 @@ export const GlobalContextProvider = ({ children }: { children: React.ReactNode 
     const [listPlaylist, setListPlayList] = useState<IMusicInPlaylist[] | []>([])
     const [flag, setFlag] = useState(false);
     const [trackRelatedId, setTrackRelatedId] = useState<string[] | []>([])
+    const [prevList, setPrevList] = useState<IMusic[]>([])
+    const [musicTagRelated, setMusicTagRelated] = useState<{
+        _id: string,
+        fullname: string
+    }[] | []>([])
+
 
     useEffect(() => {
         if (typeof window !== "undefined") {
@@ -45,11 +61,19 @@ export const GlobalContextProvider = ({ children }: { children: React.ReactNode 
             refreshPlaylist, setRefreshPlaylist,
             listPlaylist, setListPlayList,
             flag, setFlag,
-            trackRelatedId, setTrackRelatedId
+            trackRelatedId, setTrackRelatedId,
+            prevList, setPrevList,
+            musicTagRelated, setMusicTagRelated
         }}>
             {children}
         </GlobalContext.Provider>
     )
 };
 
-export const useGlobalContext = () => useContext(GlobalContext);
+export const useGlobalContext = () => {
+    const context = useContext(GlobalContext);
+    if (!context) {
+        throw new Error("useGlobalContext must be used within a GlobalContextProvider");
+    }
+    return context;
+};
