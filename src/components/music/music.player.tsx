@@ -1,6 +1,6 @@
 "use client";
 import { formatTime } from "@/utils/utils";
-import { useState, useRef, useEffect, useContext, useCallback } from "react";
+import { useState, useRef, useEffect, useContext, useCallback, Dispatch, SetStateAction } from "react";
 import ReactHowler from "react-howler";
 import {
   FaStepForward,
@@ -16,8 +16,13 @@ import Image from "next/image";
 import { getTrackRelatedAction, handleListenNeo4j, handleUpdateListenerAction } from "@/actions/music.action";
 import { AuthContext } from "@/context/AuthContext";
 import Cookies from "js-cookie";
+import { sendRequest } from "@/utils/api";
 
-const MusicPlayer = () => {
+interface MusicPlayerProps {
+  setIsDonePlaying?: Dispatch<SetStateAction<boolean>>;
+}
+
+const MusicPlayer = (p: MusicPlayerProps) => {
   const {
     isPlaying,
     setIsPlaying,
@@ -43,6 +48,13 @@ const MusicPlayer = () => {
   const [isMusicPaused, setIsMusicPaused] = useState(false);
   const [countTrack, setCountTrack] = useState(0);
   const { user, accessToken } = useContext(AuthContext) ?? {};
+  const { setIsDonePlaying } = p;
+
+  useEffect(() => {
+    if (seek >= duration - 1.3 && setIsDonePlaying && duration > 0) {
+      setIsDonePlaying(true);
+    }
+  }, [seek]);
 
   const handleTriggerWishListScore = async (musicId: string) => {
     const res = await sendRequest<IBackendRes<IVideo[]>>({
@@ -72,7 +84,7 @@ const MusicPlayer = () => {
       console.error("Error add reaction:", error);
     }
   };
-  
+
   useEffect(() => {
     if (trackCurrent) {
       if (!trackRelatedId.some((x: any) => x === trackCurrent._id)) {
@@ -152,9 +164,9 @@ const MusicPlayer = () => {
         await handleUpdateListenerAction(trackCurrent._id);
         setFlag(true);
         if (trackCurrent) {
-              await handleTriggerWishListScore(trackCurrent?._id);
-              await handleAddUserAction(trackCurrent?._id);
-           }
+          await handleTriggerWishListScore(trackCurrent?._id);
+          await handleAddUserAction(trackCurrent?._id);
+        }
       }
       setSecond(0);
     })();
