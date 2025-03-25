@@ -169,7 +169,7 @@ const Comment: React.FC<CommentProps> = ({
             <TickedUser userId={comment.user._id} />
           </p>
           <p>{thisComment.CommentDescription}</p>
-          {comment?.user?._id === user._id ? (
+          {user && comment?.user?._id === user?._id ? (
             <div className="flex justify-end w-full opacity-0 group-hover:opacity-100">
               <button
                 className="flex  p-1 hover:bg-gray-200"
@@ -185,30 +185,34 @@ const Comment: React.FC<CommentProps> = ({
               </button>
             </div>
           ) : (
-            <div className="flex justify-start opacity-0 group-hover:opacity-100">
-              <button className="text-blue-500 flex items-center">
-                <ReactSection
-                  commentId={comment._id}
-                  onReactionAdded={onReactionAdded}
-                  onReactionRemove={onReactionRemove}
-                />
-                <p className="text-gray-400 text-xl">
-                  {thisComment.totalReactions ? thisComment.totalReactions : 0}
-                </p>
-              </button>
+            user && (
+              <div className="flex justify-start opacity-0 group-hover:opacity-100">
+                <button className="text-blue-500 flex items-center">
+                  <ReactSection
+                    commentId={comment._id}
+                    onReactionAdded={onReactionAdded}
+                    onReactionRemove={onReactionRemove}
+                  />
+                  <p className="text-gray-400 text-xl">
+                    {thisComment.totalReactions
+                      ? thisComment.totalReactions
+                      : 0}
+                  </p>
+                </button>
 
-              <button
-                className="text-green-500 flex items-center ml-5 text-2xl"
-                onClick={handleReplyClick}
-              >
-                <FiMessageCircle />
-                <p className="text-gray-400 text-xl ">
-                  {thisComment.totalOfChildComments
-                    ? thisComment.totalOfChildComments
-                    : 0}
-                </p>
-              </button>
-            </div>
+                <button
+                  className="text-green-500 flex items-center ml-5 text-2xl"
+                  onClick={handleReplyClick}
+                >
+                  <FiMessageCircle />
+                  <p className="text-gray-400 text-xl ">
+                    {thisComment.totalOfChildComments
+                      ? thisComment.totalOfChildComments
+                      : 0}
+                  </p>
+                </button>
+              </div>
+            )
           )}
 
           {/* {comment.totalOfChildComments > 0 && (
@@ -235,7 +239,7 @@ const Comment: React.FC<CommentProps> = ({
               <div>
                 <p className="font-medium">{child.username}</p>
                 <p>{child.CommentDescription}</p>
-                <div className="flex justify-between mt-2 space-x-10 opacity-0 group-hover:opacity-100">
+                {/* <div className="flex justify-between mt-2 space-x-10 opacity-0 group-hover:opacity-100">
                   {comment.username !== user.username ? (
                     <div className="flex">
                       <button className="text-blue-500 flex items-center">
@@ -255,7 +259,7 @@ const Comment: React.FC<CommentProps> = ({
                       </button>
                     </div>
                   )}
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
@@ -332,7 +336,7 @@ const Comment: React.FC<CommentProps> = ({
         </div>
       )}
 
-      {isReplyModalOpen && (
+      {user && isReplyModalOpen && (
         <ReplyCommentModal
           onCancel={handleCancel}
           parentId={comment._id}

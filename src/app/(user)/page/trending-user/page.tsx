@@ -272,6 +272,14 @@ const TrendingPage = () => {
         ...currentVideo,
         totalComment: (currentVideo.totalComment || 0) + 1,
       });
+
+      setVideoData((prevVideos) =>
+        prevVideos.map((video) =>
+          video._id === currentVideo._id
+            ? { ...video, totalComment: (video.totalComment || 0) + 1 }
+            : video
+        )
+      );
     }
   };
 
@@ -281,6 +289,14 @@ const TrendingPage = () => {
         ...currentVideo,
         totalComment: (currentVideo.totalComment || 0) - 1,
       });
+
+      setVideoData((prevVideos) =>
+        prevVideos.map((video) =>
+          video._id === currentVideo._id
+            ? { ...video, totalComment: (video.totalComment || 0) - 1 }
+            : video
+        )
+      );
     }
   };
   const onReactionAdded = () => {
@@ -289,6 +305,14 @@ const TrendingPage = () => {
         ...currentVideo,
         totalReaction: (currentVideo.totalReaction || 0) + 1,
       });
+
+      setVideoData((prevVideos) =>
+        prevVideos.map((video) =>
+          video._id === currentVideo._id
+            ? { ...video, totalComment: (video.totalReaction || 0) + 1 }
+            : video
+        )
+      );
     }
   };
   const onReactionRemove = () => {
@@ -297,6 +321,14 @@ const TrendingPage = () => {
         ...currentVideo,
         totalReaction: (currentVideo.totalReaction || 0) - 1,
       });
+
+      setVideoData((prevVideos) =>
+        prevVideos.map((video) =>
+          video._id === currentVideo._id
+            ? { ...video, totalComment: (video.totalReaction || 0) + 1 }
+            : video
+        )
+      );
     }
   };
 

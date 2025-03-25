@@ -5,7 +5,7 @@ import CommentSection from "@/components/music/comment/comment.section";
 import DisplayMusicDetail from "@/components/music/detail.music";
 
 const MusicDetailClient = ({ data, id }: { data: any; id: string }) => {
-  const [totalComment, setTotalComment] = useState(data.totalComment || 0);
+  const [totalComment, setTotalComment] = useState(data?.totalComment || 0);
 
   const handleNewComment = () => {
     setTotalComment(totalComment + 1);

@@ -10,6 +10,8 @@ interface AuthContextType {
   logout: () => void;
   listFollow: string[];
   setListFollow?: (v: any) => void;
+  flag: boolean;
+  setFlag: (v: boolean) => void;
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);
@@ -18,6 +20,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
   const [listFollow, setListFollow] = useState<string[] | []>([]);
+  const [flag, setFlag] = useState<any>(false);
 
   const login = (token: string) => {
     setAccessToken(token);
@@ -50,7 +53,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         });
         setUser(res.data);
       } catch (error) {
-        console.error("Lỗi khi lấy thông tin user:", error);
+        console.error("Error in get user:", error);
         logout();
       }
     };
@@ -67,7 +70,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider
-      value={{ accessToken, user, login, logout, listFollow, setListFollow }}
+      value={{
+        accessToken,
+        user,
+        login,
+        logout,
+        listFollow,
+        setListFollow,
+        flag,
+        setFlag,
+      }}
     >
       {children}
     </AuthContext.Provider>
