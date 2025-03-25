@@ -112,7 +112,7 @@ const ListMusic = (props: IProps) => {
           </div>
         </div>
         <div>
-          {user &&
+          {user && dataRecommend && dataRecommend.length > 0 &&
             <div className="my-3 mx-20">
               <h1 className="font-bold text-2xl">Recommend Music</h1>
               <RecommendMusicList data={dataRecommend} />

@@ -50,13 +50,13 @@ const MusicPlayer = () => {
         setTrackRelatedId([...trackRelatedId, trackCurrent._id])
         setPrevList([...prevList, trackCurrent])
 
-        const newTags = trackCurrent.musicTag.filter(
-          (tag) => !musicTagRelated.some((existingTag) => existingTag._id === tag._id)
-        );
+        // const newTags = trackCurrent.musicTag.filter(
+        //   (tag) => !musicTagRelated.some((existingTag) => existingTag._id === tag._id)
+        // );
 
-        if (newTags.length > 0) {
-          setMusicTagRelated([...musicTagRelated, ...newTags]);
-        }
+        // if (newTags.length > 0) {
+        //   setMusicTagRelated([...musicTagRelated, ...newTags]);
+        // }
 
 
       }
@@ -140,9 +140,6 @@ const MusicPlayer = () => {
       setSecond(0);
     }
   }, [seek]);
-  console.log(seek.toFixed(0));
-  console.log(+duration.toFixed(0) - 2);
-
   useEffect(() => {
     if (+seek.toFixed(0) === +duration.toFixed(0)) {
       (async () => {

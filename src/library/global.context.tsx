@@ -26,6 +26,10 @@ interface IGlobalContext {
         _id: string,
         fullname: string
     }[]) => void,
+    progressUploadMusic: number,
+    setProgressUploadMusic: (v: number) => void
+    informationUpload: { image: string, name: string },
+    setInformationUpload: (v: { image: string, name: string }) => void
 }
 
 export const GlobalContext = createContext<IGlobalContext | null>(null);
@@ -43,6 +47,9 @@ export const GlobalContextProvider = ({ children }: { children: React.ReactNode 
         _id: string,
         fullname: string
     }[] | []>([])
+    const [progressUploadMusic, setProgressUploadMusic] = useState<number>(0);
+    const [informationUpload, setInformationUpload] = useState<{ image: string, name: string }>({ image: "", name: "" });
+
 
 
     useEffect(() => {
@@ -63,7 +70,9 @@ export const GlobalContextProvider = ({ children }: { children: React.ReactNode 
             flag, setFlag,
             trackRelatedId, setTrackRelatedId,
             prevList, setPrevList,
-            musicTagRelated, setMusicTagRelated
+            musicTagRelated, setMusicTagRelated,
+            progressUploadMusic, setProgressUploadMusic,
+            informationUpload, setInformationUpload
         }}>
             {children}
         </GlobalContext.Provider>

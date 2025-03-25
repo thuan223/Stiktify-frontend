@@ -5,11 +5,16 @@ import {
     Space,
     Upload,
     UploadProps,
+    Select,
+    message,
 } from 'antd';
 import { useContext, useEffect, useState } from 'react';
 import { MinusCircleOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
 import { AuthContext } from '@/context/AuthContext';
 import { handleCreateMusicAction } from '@/actions/music.action';
+import { handleFilterAndSearchAction } from '@/actions/manage.user.action';
+import { lyricMusicAction, separateMusicAction } from '@/actions/ai.action';
+import { useGlobalContext } from '@/library/global.context';
 
 interface IProps {
     isCreateModalOpen: boolean;
@@ -21,12 +26,47 @@ const AddMusicModal = (props: IProps) => {
     const {
         isCreateModalOpen, setIsCreateModalOpen, listCate
     } = props;
+    const { progressUploadMusic, setInformationUpload, setProgressUploadMusic } = useGlobalContext()!
     const [form] = Form.useForm();
     const [urlUploadMp3, setUrlUploadMp3] = useState<string>("")
+    const [mp3File, setMp3File] = useState<File | null>(null)
     const [loading, setLoading] = useState(false);
     const [listCateChoose, setListCateChoose] = useState<{ _id: string, categoryName: string }[] | []>([])
     const { accessToken, user } = useContext(AuthContext)!
     const [urlUploadImage, setUrlUploadImage] = useState<string>("")
+    const [dataSearch, setDataSearch] = useState<{ value: string, label: JSX.Element, text: string }[]>([]);
+    const [separate, setSeparate] = useState<string[]>([])
+    const [lyrics, setLyrics] = useState<any[]>([])
+    const [isLoading, setIsLoading] = useState(false)
+    const [dataCreate, setDataCreate] = useState<any>(null)
+
+    const handleSearch = async (value: string) => {
+        if (value.length > 0) {
+            const res = await handleFilterAndSearchAction(1, 10, value, "USERS");
+            if (res?.statusCode === 200) {
+                const data: IUser[] = res.data.result;
+                if (data && data.length > 0) {
+                    const formattedData = data.map(item => ({
+                        value: JSON.stringify({ _id: item._id, fullname: item.fullname }),
+                        label: (
+                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                <img src={item.image} alt={item.fullname} style={{ width: 24, height: 24, borderRadius: "50%" }} />
+                                <span>{item.fullname}</span>
+                            </div>
+                        ),
+                        text: item.fullname.toLowerCase(),
+                    }));
+                    setDataSearch(formattedData);
+                } else {
+                    setDataSearch([]);
+                }
+            } else {
+                setDataSearch([]);
+            }
+        } else {
+            setDataSearch([]);
+        }
+    };
 
 
     const handleCloseCreateModal = () => {
@@ -40,31 +80,73 @@ const AddMusicModal = (props: IProps) => {
         if (listCateChoose.length <= 0) {
             notification.warning({ message: "Please choose category of music!" })
         }
+        setInformationUpload({ image: urlUploadImage, name: values.musicDescription })
+
         const newListCate = listCateChoose.map(category => category._id);
+        const selectedValues = values.musicTag.map((tag: string) => JSON.parse(tag));
 
         const data = {
             musicUrl: urlUploadMp3,
             userId: user._id,
             musicDescription: values.musicDescription,
             musicThumbnail: urlUploadImage,
-            musicTag: values.musicTag,
-            musicLyric: values.musicLyric,
+            musicTag: selectedValues,
             categoryId: newListCate
         }
+        setDataCreate(data)
+        setIsLoading(true);
+        form.resetFields()
+        setIsCreateModalOpen(false);
+        try {
+            setProgressUploadMusic(15);
 
-        const res = await handleCreateMusicAction(data)
-        if (res?.statusCode === 201) {
-            notification.success({ message: "Created successfully" })
-            form.resetFields()
-            setIsCreateModalOpen(false);
-            setUrlUploadImage("")
-            setUrlUploadImage("")
-            setListCateChoose([])
-            return
+            console.log("Đang tách nhạc.....");
+            const dataSeparate = await separateMusicAction(mp3File!)
+            setSeparate(dataSeparate.files)
+            console.log("dataSeparate>>>>", dataSeparate);
+            setProgressUploadMusic(46);
+
+
+            console.log("Đang lấy lyric.....");
+
+            const dataLyric = await lyricMusicAction(mp3File!)
+            setLyrics(dataLyric)
+            console.log("dataLyric>>>>", dataLyric);
+            setProgressUploadMusic(77);
+
+
+        } catch (error) {
+            console.error("Error:", error);
+        } finally {
+            setProgressUploadMusic(100);
         }
-        notification.error({ message: res?.message })
-
     };
+
+    useEffect(() => {
+        if (isLoading && progressUploadMusic === 100 && dataCreate) {
+            (async () => {
+                const configData = { ...dataCreate, musicSeparate: separate, musicLyric: lyrics }
+                const res = await handleCreateMusicAction(configData)
+                if (res?.statusCode === 201) {
+                    notification.success({ message: "Created successfully" })
+                    setUrlUploadImage("")
+                    setListCateChoose([])
+                    setIsLoading(false)
+                    setLyrics([])
+                    setDataCreate(null)
+                    setSeparate([])
+                    setDataSearch([])
+                    setUrlUploadMp3("")
+                    setTimeout(() => setProgressUploadMusic(0), 1000);
+                    setInformationUpload({ image: "", name: "" })
+                    return
+                }
+                notification.error({ message: res?.message })
+            })()
+        }
+    }, [isLoading, progressUploadMusic])
+
+
 
     const normFile = (e: any) => {
         console.log('Upload event:', e);
@@ -84,13 +166,23 @@ const AddMusicModal = (props: IProps) => {
             authorization: `Bearer ${accessToken}`,
         },
         withCredentials: true,
-        onChange(info) {
+        onChange: async (info) => {
             if (info.file.status !== 'uploading') {
                 console.log(info.file, info.fileList);
             }
             if (info.file.status === 'done') {
+                const uploadedUrl = info.file.response.data;
+                setUrlUploadMp3(uploadedUrl)
+
+
+                const file = info.file.originFileObj as File;
+
+                setMp3File(file)
+
+
                 // message.success(`${info.file.name} file uploaded successfully`);
-                setUrlUploadMp3(info.file.response.data)
+                // notification.success({ message: `${info.file.name} file uploaded successfully.` })
+
             } else if (info.file.status === 'error') {
                 // message.error(`${info.file.name} file upload failed.`);
                 notification.error({ message: `${info.file.name} file upload failed.` })
@@ -146,10 +238,9 @@ const AddMusicModal = (props: IProps) => {
         return listCateChoose?.some(item => item._id === id) ?? false;
     };
 
-    console.log("list>>>>", listCateChoose);
-
     return (
         <div>
+
             <Modal
                 style={{ top: 50 }}
                 title="Add new music"
@@ -167,6 +258,7 @@ const AddMusicModal = (props: IProps) => {
                     </Button>,
                 ]}
             >
+                <p>geegee</p>
                 <Form
                     name="basic"
                     onFinish={onFinish}
@@ -254,14 +346,38 @@ const AddMusicModal = (props: IProps) => {
                                         >
                                             <Space
                                                 style={{ position: "relative" }}>
-                                                <Form.Item
+                                                {/* <Form.Item
                                                     hasFeedback
                                                     {...field}
                                                     validateTrigger={['onChange', 'onBlur']}
                                                     rules={[{ required: true, message: 'Please input your music tag!' }]}
                                                     noStyle
+                                                > */}
+                                                {/* <Input style={{ width: 100 }} placeholder="Enter tag" type='text' /> */}
+                                                {/* </Form.Item> */}
+                                                <Form.Item
+                                                    style={{ minWidth: "150px" }}
+
+                                                    hasFeedback
+                                                    {...field}
+                                                    validateTrigger={['onChange', 'onBlur']}
+                                                    rules={[{ required: true, message: 'Please choose your music tag!' }]}
                                                 >
-                                                    <Input style={{ width: 100 }} placeholder="Enter tag" type='text' />
+                                                    <Select
+                                                        style={{ minWidth: "50px" }}
+                                                        showSearch
+                                                        placeholder="Search tag"
+                                                        onSearch={handleSearch}
+                                                        filterOption={(input, option) => option && "text" in option ? option.text.includes(input.toLowerCase()) : false}
+                                                        options={dataSearch}
+                                                    />
+
+
+                                                    {/* <Option value="demo">Demo</Option>
+                                                        <Option value="example">Example</Option>
+                                                        <Option value="test">Test</Option>
+                                                    </Select> */}
+
                                                 </Form.Item>
                                                 {fields.length > 1 && <MinusCircleOutlined
                                                     style={{
@@ -278,15 +394,6 @@ const AddMusicModal = (props: IProps) => {
                             </div>
                         )}
                     </Form.List>
-
-
-                    <Form.Item
-                        label="Lyric"
-                        name="musicLyric"
-                        rules={[{ required: true, message: 'Please input music lyric!' }]}
-                    >
-                        <Input.TextArea />
-                    </Form.Item>
                     <Form.Item
                         label="Description"
                         name="musicDescription"

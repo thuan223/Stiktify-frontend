@@ -7,8 +7,10 @@ import { AuthContext, AuthProvider } from "@/context/AuthContext";
 import { useContext, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { ShowCommentProvider } from "@/context/ShowCommentContext";
-import { GlobalContextProvider } from "@/library/global.context";
+import { GlobalContextProvider, useGlobalContext } from "@/library/global.context";
 import { roleRoutes, defaultRoutes } from "@/utils/roleRoute";
+import CircularProgress from "@/components/music/progress";
+import Image from "next/image";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -16,7 +18,7 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
   const { user } = useContext(AuthContext) ?? {};
   const router = useRouter();
   const pathname = usePathname();
-
+  const { progressUploadMusic, informationUpload } = useGlobalContext()!
   useEffect(() => {
     if (typeof window !== "undefined") {
       const userRole = user?.role ?? "GUEST";
@@ -33,7 +35,25 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
     }
   }, [user, pathname]);
 
-  return <>{children}</>;
+  return (
+    <div>
+      {progressUploadMusic !== 0 && <div className="absolute gap-4 top-2 left-28 z-30 flex items-center justify-start bg-white border border-zinc-200 rounded-lg shadow-lg w-fit h-20 p-4">
+        <CircularProgress progress={progressUploadMusic} size={50} strokeWidth={3} />
+        <img
+          alt="image"
+          style={{
+            width: 50,
+            height: 50,
+            borderRadius: 5
+          }}
+          src={informationUpload.image}
+        />
+        <h5 className="text-1xl font-medium">{informationUpload.name} Ac Quy</h5>
+      </div>}
+
+      {children}
+    </div>
+  )
 }
 
 export default function RootLayout({
