@@ -2,13 +2,14 @@
 import { handleSearchShortVideos } from "@/actions/manage.short.video.action";
 import TagMusic from "@/components/music/tag.music";
 import SearchCard from "@/components/page/search/searchCard";
+import CommentSection from "@/components/page/trending/comments/comment_section";
 import Header from "@/components/page/trending/header";
 import InteractSideBar from "@/components/page/trending/interact_sidebar";
 import MainVideo from "@/components/page/trending/main_video";
 import OtherVideos from "@/components/page/trending/otherVideo";
 import VideoFooter from "@/components/page/trending/video-footer";
+import { useShowComment } from "@/context/ShowCommentContext";
 import { sendRequest } from "@/utils/api";
-import { div } from "framer-motion/client";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
@@ -24,7 +25,11 @@ const TrendingPage = () => {
   const [isShowOtherVideos, setIsShowOtherVideos] = useState(false);
   const [currentMusic, setCurrentMusic] = useState<IMusic | null>(null);
   const router = useRouter();
+  const { showComments, setShowComments, showNotification } = useShowComment();
 
+  const toggleComments = () => {
+    setShowComments((prev) => !prev);
+  };
   useEffect(() => {
     if (currentVideo) {
       const data = currentVideo?.musicId;
@@ -164,7 +169,7 @@ const TrendingPage = () => {
           </>
         ) : (
           <>
-            {/* {currentVideo ? (
+            {currentVideo ? (
               <MainVideo
                 videoUrl={currentVideo.videoUrl}
                 onVideoDone={nextVideo}
@@ -172,12 +177,12 @@ const TrendingPage = () => {
               />
             ) : (
               <p>Loading video...</p>
-            )} */}
+            )}
             <VideoFooter
               videoDescription={currentVideo?.videoDescription || ""}
               totalView={currentVideo?.totalViews || 0}
               videoTag={currentVideo?.videoTag || []}
-              createAt={currentVideo?.createAt.toString() || ""}
+              createdAt={currentVideo?.createdAt.toString() || ""}
             />
             {isShowOtherVideos ? (
               <OtherVideos
@@ -195,6 +200,7 @@ const TrendingPage = () => {
                 numberComment={currentVideo?.totalComment}
                 numberReaction={currentVideo?.totalReaction}
                 isHidden={isShowOtherVideos}
+                onCommentClick={toggleComments}
               />
             )}
             {!isShowOtherVideos ? (
@@ -212,6 +218,13 @@ const TrendingPage = () => {
               ""
             )}
           </>
+        )}
+        {showComments && (
+          <CommentSection
+            onCommentClick={toggleComments}
+            videoId={currentVideo?._id}
+            showComments={showComments}
+          />
         )}
       </div>
       {currentMusic ? (

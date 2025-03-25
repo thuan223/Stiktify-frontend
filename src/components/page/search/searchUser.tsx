@@ -1,110 +1,107 @@
 "use client";
 
-import { handleSearchUserByName } from "@/actions/search.user.action";
+import { handleSearchUserAndVideo } from "@/actions/search.user.action";
 import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import VideoCustomize from "@/components/video/video.customize";
 
 const SearchUser = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [users, setUsers] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [followedUsers, setFollowedUsers] = useState<{
-    [key: string]: boolean;
-  }>({});
+  const searchParams = useSearchParams();
+  const searchTerm = searchParams.get("q") || ""; // Lấy dữ liệu từ URL (?q=keyword)
 
-  const fetchUsers = async (search = "") => {
-    setLoading(true);
-    const response: any = await handleSearchUserByName(search, 1, 10);
-    setUsers(response?.data?.result || []);
-    setLoading(false);
+  const [users, setUsers] = useState<any[]>([]);
+  const [videos, setVideos] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
+  const handleNavigateToUser = (userId: string) => {
+    router.push(`/page/detail_user/${userId}`);
   };
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    if (!searchTerm) return;
+    const fetchResults = async () => {
+      setLoading(true);
+      const response: any = await handleSearchUserAndVideo(searchTerm, 1, 10);
+      const usersData = response?.data?.users?.result || [];
+      const videosData = response?.data?.videos?.result || [];
+      setUsers(usersData);
+      setVideos(videosData);
+      setLoading(false);
+    };
 
-  const handleSearch = () => {
-    fetchUsers(searchTerm);
-  };
-
-  const handleFollow = (userId: string) => {
-    setFollowedUsers((prev) => ({
-      ...prev,
-      [userId]: !prev[userId],
-    }));
-  };
+    fetchResults();
+  }, [searchTerm]);
 
   return (
-    <div className="flex flex-col items-center w-full h-[95vh] bg-gray-100 py-10 overflow-hidden">
-      <div className="w-full max-w-4xl bg-white shadow-md rounded-lg p-6">
-        <h2 className="text-3xl font-bold text-gray-700 text-center mb-6">
-          Search User
-        </h2>
-        <div className="relative w-full max-w-lg mx-auto mb-6">
-          <input
-            type="text"
-            placeholder="Enter username..."
-            className="w-full p-3 pl-10 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-red-500"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-          />
-          <button
-            onClick={handleSearch}
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-red-500"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-            >
-              <path d="M10 2a8 8 0 0 1 5.293 13.707l4.977 4.977-1.414 1.414-4.977-4.977A8 8 0 1 1 10 2m0 2a6 6 0 1 0 0 12A6 6 0 0 0 10 4Z" />
-            </svg>
-          </button>
-        </div>
-        <div className="overflow-y-auto max-h-[300px] border border-gray-300 rounded-lg w-full">
+    <div className="flex flex-col items-center w-full h-[97vh] bg-gray-100 py-10 overflow-hidden">
+      <div className="w-full max-w-5xl bg-white shadow-md rounded-lg p-6">
+        {/* Search Results */}
+        <div className="overflow-y-auto max-h-[600px] border border-gray-300 rounded-lg w-full p-4">
           {loading ? (
-            <p className="mt-4 text-gray-500 text-center">Loading...</p>
-          ) : users.length > 0 ? (
-            <table className="w-full border-collapse">
-              <thead className="bg-gray-100 sticky top-0">
-                <tr>
-                  <th className="border p-3 text-left w-20">Avatar</th>
-                  <th className="border p-3 text-left">Full Name</th>
-                  <th className="border p-3 text-left">Username</th>
-                  <th className="border p-3 text-center w-32">Follow</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((user) => (
-                  <tr key={user._id} className="hover:bg-gray-50">
-                    <td className="border p-3 text-center">
-                      <img
-                        src={`https://api.dicebear.com/7.x/initials/svg?seed=${user.fullname}`}
-                        alt="Avatar"
-                        className="w-12 h-12 rounded-full border mx-auto"
-                      />
-                    </td>
-                    <td className="border p-3">{user.fullname}</td>
-                    <td className="border p-3">@{user.userName}</td>
-                    <td className="border p-3 text-center">
-                      <button
-                        onClick={() => handleFollow(user._id)}
-                        className={`px-4 py-2 rounded-lg transition-all ${
-                          followedUsers[user._id]
-                            ? "bg-gray-400 text-white"
-                            : "bg-blue-500 text-white hover:bg-blue-600"
-                        }`}
-                      >
-                        {followedUsers[user._id] ? "Following" : "Follow"}
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <p className="text-gray-500 text-center">Loading...</p>
           ) : (
-            <p className="mt-4 text-gray-500 text-center">No users found.</p>
+            <>
+              {users.length > 0 && (
+                <>
+                  <h3 className="text-lg font-semibold mb-2">Users</h3>
+                  <ul>
+                    {users.map((user) => (
+                      <li
+                        key={user._id}
+                        className="flex items-center space-x-4 p-2 border-b"
+                        onClick={() => handleNavigateToUser(user._id)}
+                      >
+                        <img
+                          src={user.image}
+                          alt={user.fullname}
+                          className="w-10 h-10 rounded-full object-cover"
+                          onClick={() => handleNavigateToUser(user._id)}
+                        />
+                        <span>
+                          {user.fullname} (@{user.userName})
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
+
+              {/* Videos */}
+              {videos.length > 0 && (
+                <>
+                  <h3 className="text-lg font-semibold mb-2">Videos</h3>
+                  <div className="grid grid-cols-4 gap-4">
+                    {videos.map((video) => (
+                      <div
+                        key={video._id}
+                        className="bg-gray-50 p-4 rounded-lg shadow-md"
+                      >
+                        <div className="w-50 h-20 ml-3 rounded-md overflow-hidden relative">
+                          <div className="absolute inset-0 w-full h-full">
+                            <VideoCustomize
+                              videoThumbnail={video.videoThumbnail}
+                              videoUrl={video.videoUrl}
+                            />
+                          </div>
+                        </div>
+                        <p className="mt-2 text-sm font-semibold">
+                          {video.videoDescription}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          Views: {video.totalViews}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {/* No results */}
+              {users.length === 0 && videos.length === 0 && (
+                <p className="text-gray-500 text-center">No results found.</p>
+              )}
+            </>
           )}
         </div>
       </div>

@@ -73,7 +73,7 @@ const ListenedHistory = () => {
                 <img
                   src={music.musicThumbnail}
                   className="w-32 h-32 object-cover rounded-md shadow-sm cursor-pointer"
-                  alt={music.musicDescription}
+                  alt={music.musicDescription}  
                   onClick={() => handleNavigateToMusic(music._id)}
                 />
                 <div className="ml-4">

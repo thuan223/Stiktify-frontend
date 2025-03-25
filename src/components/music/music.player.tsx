@@ -44,6 +44,35 @@ const MusicPlayer = () => {
   const [countTrack, setCountTrack] = useState(0);
   const { user, accessToken } = useContext(AuthContext) ?? {};
 
+  const handleTriggerWishListScore = async (musicId: string) => {
+    const res = await sendRequest<IBackendRes<IVideo[]>>({
+      url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/wishlist`,
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: {
+        userId: user._id,
+        id: musicId,
+        triggerAction: "ListenMusic",
+      },
+    });
+  };
+
+  const handleAddUserAction = async (musicId: string) => {
+    try {
+      const res = await sendRequest<IBackendRes<any>>({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/kafka/action?action=reaction&id=${musicId}&`,
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+    } catch (error) {
+      console.error("Error add reaction:", error);
+    }
+  };
+  
   useEffect(() => {
     if (trackCurrent) {
       if (!trackRelatedId.some((x: any) => x === trackCurrent._id)) {
@@ -57,7 +86,6 @@ const MusicPlayer = () => {
         // if (newTags.length > 0) {
         //   setMusicTagRelated([...musicTagRelated, ...newTags]);
         // }
-
 
       }
     }
@@ -123,6 +151,10 @@ const MusicPlayer = () => {
         }
         await handleUpdateListenerAction(trackCurrent._id);
         setFlag(true);
+        if (trackCurrent) {
+              await handleTriggerWishListScore(trackCurrent?._id);
+              await handleAddUserAction(trackCurrent?._id);
+           }
       }
       setSecond(0);
     })();

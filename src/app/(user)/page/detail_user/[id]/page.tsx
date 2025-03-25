@@ -7,10 +7,11 @@ import { sendRequest } from "@/utils/api";
 import { FaUser, FaRegEnvelope, FaEllipsisH } from "react-icons/fa";
 import {
   FiEdit,
-  FiMessageSquare,
+  // FiMessageSquare,
   FiShare2,
   FiShoppingBag,
   FiUserPlus,
+  FiUserX,
 } from "react-icons/fi";
 import { LuBellRing } from "react-icons/lu";
 import MyVideo from "@/components/page/myvideo/MyVideo";
@@ -57,8 +58,13 @@ const UserDetail = () => {
   const [isFollowersModalVisible, setIsFollowersModalVisible] = useState(false);
   const [isFollowingModalVisible, setIsFollowingModalVisible] = useState(false);
   const [friendRequestSent, setFriendRequestSent] = useState(false);
+  const [isFriend, setIsFriend] = useState(false);
+
   useEffect(() => {
-    if (id && accessToken) fetchUserDetail();
+    if (id && accessToken) {
+      fetchUserDetail();
+      checkFriend();
+    }
   }, [id, accessToken]);
 
   const fetchRequestById = async () => {
@@ -157,6 +163,51 @@ const UserDetail = () => {
     }
   };
 
+  const checkFriend = async () => {
+    if (!accessToken) {
+      console.error("User not authenticated");
+      return;
+    }
+    try {
+      const res = await sendRequest<any>({
+        url: `http://localhost:8080/api/v1/friend-requests/check-friendship/${id}`,
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      if (res.data.isFriend) {
+        setIsFriend(true);
+      }
+    } catch (error) {
+      console.error("Failed to send friend request", error);
+    }
+  };
+
+  const unfriend = async () => {
+    if (!accessToken) {
+      console.error("User not authenticated");
+      return;
+    }
+    try {
+      const res = await sendRequest<any>({
+        url: `http://localhost:8080/api/v1/friend-requests/unfriend/${id}`,
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      if (res.data.isFriend) {
+        setIsFriend(false);
+        setFriendRequestSent(false);
+      }
+    } catch (error) {
+      console.error("Failed to send friend request", error);
+    }
+  };
+
   if (loading) return <p className="text-center text-gray-600">Loading...</p>;
   if (error) return <p className="text-center text-red-600">{error}</p>;
   if (!userData)
@@ -214,7 +265,6 @@ const UserDetail = () => {
                   <CheckCircleTwoTone />{" "}
                   {requestData?.status === "pending" ? (
                     <span>Request processing...</span>
-
                   ) : (
                     <span>Request for Tick</span>
                   )}
@@ -225,8 +275,9 @@ const UserDetail = () => {
           </div>
           <p className="flex items-center text-lg font-medium mt-1">
             <span
-              className={`w-3 h-3 mr-2 rounded-full ${userData.isActive ? "bg-green-500" : "bg-gray-400"
-                }`}
+              className={`w-3 h-3 mr-2 rounded-full ${
+                userData.isActive ? "bg-green-500" : "bg-gray-400"
+              }`}
             ></span>
             {userData.isActive ? "Online" : "Offline"}
           </p>
@@ -313,13 +364,20 @@ const UserDetail = () => {
           ) : (
             <div className="flex space-x-4 mt-3">
               <Button
-                icon={<FiUserPlus />}
-                text={friendRequestSent ? "Request Sent" : "Add Friend"}
-                className={`${friendRequestSent
-                  ? "bg-gray-400"
-                  : "bg-blue-500 hover:bg-blue-600"
-                  } text-white`}
-                onClick={sendFriendRequest}
+                icon={isFriend ? <FiUserX /> : <FiUserPlus />}
+                text={
+                  isFriend
+                    ? "Unfriend"
+                    : friendRequestSent
+                    ? "Request Sent"
+                    : "Add Friend"
+                }
+                className={`${
+                  friendRequestSent
+                    ? "bg-gray-400"
+                    : "bg-blue-500 hover:bg-blue-600"
+                } text-white`}
+                onClick={isFriend ? unfriend : sendFriendRequest}
                 disabled={friendRequestSent}
               />
               <Button
@@ -357,10 +415,11 @@ const UserDetail = () => {
             (tab) => (
               <button
                 key={tab}
-                className={`text-lg font-semibold p-2 flex-1 text-center ${activeTab === tab
-                  ? "border-b-4 border-blue-500 text-blue-600"
-                  : "text-gray-600"
-                  }`}
+                className={`text-lg font-semibold p-2 flex-1 text-center ${
+                  activeTab === tab
+                    ? "border-b-4 border-blue-500 text-blue-600"
+                    : "text-gray-600"
+                }`}
                 onClick={() => setActiveTab(tab)}
               >
                 {tabLabels[tab]}
@@ -372,7 +431,7 @@ const UserDetail = () => {
         {/* Tab Content */}
         <div className="flex-1 p-4 overflow-y-auto">
           {activeTab === "video" && <VideoTab />}
-          {activeTab === "music" && <MusicTab userId={user._id} />}
+          {activeTab === "music" && <MusicTab />}
           {activeTab === "likedVideo" && <LikedVideoTab />}
           {activeTab === "likedMusic" && <LikedMusicTab userId={user._id} />}
         </div>
@@ -409,9 +468,9 @@ const VideoTab = () => (
   </div>
 );
 
-const MusicTab = ({ userId }: { userId: string }) => (
+const MusicTab = () => (
   <div>
-    <ListMyMusic userId={userId} />
+    <ListMyMusic />
   </div>
 );
 
@@ -422,7 +481,7 @@ const LikedVideoTab = () => (
 );
 const LikedMusicTab = ({ userId }: { userId: string }) => (
   <div>
-    <ListFavoriteMusic userId={userId} />
+    <ListFavoriteMusic />
   </div>
 );
 

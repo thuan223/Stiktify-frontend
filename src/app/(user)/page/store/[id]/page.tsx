@@ -20,14 +20,15 @@ import {
   ShoppingCartOutlined,
   DollarCircleOutlined,
   MoreOutlined,
-  ProductOutlined,
-  ShopOutlined, // Added for Edit Shop button icon
+  ShopOutlined,
 } from "@ant-design/icons";
 import UploadProduct from "@/components/modal/modal.add.product";
 import EditProduct from "@/components/modal/modal.edit.product";
-import EditShop from "@/components/modal/modal.edit.shop.infor"; // Import the EditShop component
+import EditShopOwnerDetail from "@/components/modal/modal.edit.shop.infor";
+import ShoppingCartModal from "@/components/modal/modal.shopping.cart"; // Import ShoppingCartModal
 import { sendRequest } from "@/utils/api";
 import { AuthContext } from "@/context/AuthContext";
+import CartPreview from "@/components/modal/modal.shopping.cart";
 
 const { confirm } = Modal;
 const { Option } = Select;
@@ -35,9 +36,10 @@ const { Option } = Select;
 const StorePage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isEditShopModalOpen, setIsEditShopModalOpen] = useState(false); // State for Edit Shop modal
+  const [isEditShopModalOpen, setIsEditShopModalOpen] = useState(false);
+  const [isCartModalOpen, setIsCartModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any>(null);
-  const [shopData, setShopData] = useState<any>(null); // State to store shop data
+  const [shopData, setShopData] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>(
     undefined
@@ -45,6 +47,7 @@ const StorePage: React.FC = () => {
   const [products, setProducts] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [cart, setCart] = useState<any[]>([]);
   const authContext = useContext(AuthContext);
 
   if (!authContext) {
@@ -53,22 +56,37 @@ const StorePage: React.FC = () => {
 
   const { accessToken, user } = authContext;
 
+  // Load cart from session storage on mount
   useEffect(() => {
     fetchCategories();
     fetchProducts();
     fetchShopData();
+    const savedCart = sessionStorage.getItem("cart");
+    if (savedCart) {
+      try {
+        setCart(JSON.parse(savedCart));
+      } catch (error) {
+        console.error("Error parsing cart from session storage:", error);
+        setCart([]);
+      }
+    } else {
+      setCart([]);
+    }
   }, [accessToken, user?._id]);
+
+  // Save cart to session storage when it changes
+  useEffect(() => {
+    sessionStorage.setItem("cart", JSON.stringify(cart));
+  }, [cart]);
 
   const fetchCategories = async () => {
     if (!accessToken || !user?._id) return;
-
     try {
       const res = await sendRequest<{ statusCode: number; data: any[] }>({
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/category-for-products`,
         method: "GET",
         headers: { Authorization: `Bearer ${accessToken}` },
       });
-
       if (res.statusCode === 200) {
         setCategories(res.data);
       }
@@ -79,7 +97,6 @@ const StorePage: React.FC = () => {
 
   const fetchProducts = async () => {
     if (!accessToken || !user?._id) return;
-
     setLoading(true);
     try {
       const res = await sendRequest<{ statusCode: number; data: any[] }>({
@@ -87,7 +104,6 @@ const StorePage: React.FC = () => {
         method: "GET",
         headers: { Authorization: `Bearer ${accessToken}` },
       });
-
       if (res.statusCode === 200) {
         setProducts(res.data);
       }
@@ -100,20 +116,41 @@ const StorePage: React.FC = () => {
 
   const fetchShopData = async () => {
     if (!accessToken || !user?._id) return;
-
     try {
       const res = await sendRequest<{ statusCode: number; data: any }>({
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/shop/${user._id}`,
         method: "GET",
         headers: { Authorization: `Bearer ${accessToken}` },
       });
-
       if (res.statusCode === 200) {
         setShopData(res.data);
       }
     } catch (error) {
       console.error("Error fetching shop data:", error);
     }
+  };
+
+  // Function to add product to cart
+  const addToCart = (productId: string) => {
+    setCart((prevCart) => {
+      const existingProduct = prevCart.find(
+        (item) => item.productId === productId
+      );
+      if (existingProduct) {
+        return prevCart.map((item) =>
+          item.productId === productId
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        );
+      } else {
+        return [...prevCart, { productId, quantity: 1 }];
+      }
+    });
+
+    notification.success({
+      message: "Product added to cart",
+      placement: "bottomRight",
+    });
   };
 
   const handleEdit = (product: any) => {
@@ -129,7 +166,6 @@ const StorePage: React.FC = () => {
         setProducts((prevProducts) =>
           prevProducts.filter((product) => product._id !== productId)
         );
-
         try {
           await sendRequest({
             url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/products/${productId}`,
@@ -143,15 +179,24 @@ const StorePage: React.FC = () => {
     });
   };
 
+  // Handle category selection
+  const handleCategoryChange = (value: string | undefined) => {
+    setSelectedCategory(value);
+  };
+
   const filteredProducts = products.filter((product) => {
     const matchesSearchQuery = (product.productName || "")
       .toLowerCase()
       .includes(searchQuery.toLowerCase());
     const matchesCategory =
       !selectedCategory || product.productCategory === selectedCategory;
-
     return matchesSearchQuery && matchesCategory;
   });
+
+  // Hàm tính toán tổng số sản phẩm trong giỏ hàng
+  const getTotalCartItems = () => {
+    return cart.reduce((total, item) => total + item.quantity, 0);
+  };
 
   return (
     <div className="p-8 bg-gray-100 min-h-screen">
@@ -182,7 +227,7 @@ const StorePage: React.FC = () => {
         <Select
           placeholder="Select Category"
           value={selectedCategory}
-          onChange={(value) => setSelectedCategory(value)}
+          onChange={handleCategoryChange}
           className="w-1/4"
         >
           <Option value={undefined}>All</Option>
@@ -192,12 +237,6 @@ const StorePage: React.FC = () => {
             </Option>
           ))}
         </Select>
-        <div className="Cart">
-          <ProductOutlined />
-          <span className="text-gray-500 ml-2">
-            Current product quantity ({products.length})
-          </span>
-        </div>
 
         <div className="flex gap-2">
           <Button
@@ -211,12 +250,33 @@ const StorePage: React.FC = () => {
           <Button
             type="default"
             icon={<ShopOutlined />}
-            onClick={() => setIsEditShopModalOpen(true)} // Open Edit Shop modal
+            onClick={() => setIsEditShopModalOpen(true)}
             className="border-blue-600 text-blue-600 hover:bg-blue-50 font-semibold rounded-lg px-4 py-2"
           >
             Edit Shop
           </Button>
         </div>
+        <CartPreview
+          cart={cart}
+          products={products}
+          isOpen={isCartModalOpen}
+          onClose={() => setIsCartModalOpen(false)}
+          onQuantityChange={(productId, quantity) => {
+            setCart((prevCart) =>
+              prevCart.map((item) =>
+                item.productId === productId
+                  ? { ...item, quantity: quantity }
+                  : item
+              )
+            );
+          }}
+          onRemoveItem={(productId) => {
+            setCart((prevCart) =>
+              prevCart.filter((item) => item.productId !== productId)
+            );
+          }}
+          userId={user?._id || ""}
+        />
       </div>
 
       {loading ? (
@@ -269,16 +329,17 @@ const StorePage: React.FC = () => {
                 ${product.productPrice}
               </span>
               <div className="flex gap-2 mt-3 w-full">
-                {/* <Button className="flex-1" icon={<DollarCircleOutlined />}>
+                <Button className="flex-1" icon={<DollarCircleOutlined />}>
                   Buy Now
                 </Button>
                 <Button
                   type="default"
                   className="flex-1"
                   icon={<ShoppingCartOutlined />}
+                  onClick={() => addToCart(product._id)}
                 >
                   Add to Cart
-                </Button> */}
+                </Button>
               </div>
             </div>
           ))}
@@ -315,20 +376,57 @@ const StorePage: React.FC = () => {
           refreshProducts={fetchProducts}
         />
       </Modal>
+
       <Modal
         title="Edit Shop"
         open={isEditShopModalOpen}
         onCancel={() => setIsEditShopModalOpen(false)}
         footer={null}
       >
-        <EditShop
-          shop={shopData}
+        <EditShopOwnerDetail
           onClose={() => setIsEditShopModalOpen(false)}
-          refreshShop={fetchShopData}
+          refreshData={fetchShopData}
+          visible={isEditShopModalOpen}
+          onViewCart={() => setIsCartModalOpen(true)}
+          product={{
+            image: "",
+            name: "",
+            description: "",
+            price: 0,
+          }}
+        />
+      </Modal>
+
+      <Modal
+        title="Shopping Cart"
+        open={isCartModalOpen}
+        onCancel={() => setIsCartModalOpen(false)}
+        footer={null}
+      >
+        <CartPreview
+          cart={cart}
+          products={products}
+          isOpen={isCartModalOpen}
+          onClose={() => setIsCartModalOpen(false)}
+          onQuantityChange={(productId, quantity) => {
+            setCart((prevCart) =>
+              prevCart.map((item) =>
+                item.productId === productId
+                  ? { ...item, quantity: quantity }
+                  : item
+              )
+            );
+          }}
+          onRemoveItem={(productId) => {
+            setCart((prevCart) =>
+              prevCart.filter((item) => item.productId !== productId)
+            );
+          }}
+          userId={user?._id || ""}
         />
       </Modal>
     </div>
   );
 };
 
-export default StorePage;
+export default StorePage; 

@@ -24,13 +24,24 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
       const userRole = user?.role ?? "GUEST";
       const allowedRoutes = roleRoutes[userRole] || [];
 
-      // Kiểm tra route
       const isAllowed = allowedRoutes.some((route) =>
         route instanceof RegExp ? route.test(pathname) : route === pathname
       );
 
       if (!isAllowed) {
-        router.replace(defaultRoutes[userRole] || "/page/trending-guest");
+        const timeout = setTimeout(() => {
+          if (
+            !allowedRoutes.some((route) =>
+              route instanceof RegExp
+                ? route.test(pathname)
+                : route === pathname
+            )
+          ) {
+            router.replace(defaultRoutes[userRole] || "/page/trending-guest");
+          }
+        }, 500);
+
+        return () => clearTimeout(timeout);
       }
     }
   }, [user, pathname]);

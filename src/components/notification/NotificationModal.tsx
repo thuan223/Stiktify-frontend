@@ -7,6 +7,12 @@ import { AuthContext } from "@/context/AuthContext";
 import { sendRequest } from "@/utils/api";
 import FriendRequest from "./FriendRequest";
 import { useShowComment } from "@/context/ShowCommentContext";
+import PostNotification from "./NewPost";
+import CommentPostNotification from "./NewPostComment";
+import ReactPostNotification from "./NewPostReact";
+import CommentMusicNotification from "./NewMusicComment";
+import FavoriteMusicNotification from "./NewMusicFavorite";
+import NewMusicNotification from "./NewMusic";
 
 interface Notification {
   _id: string;
@@ -16,6 +22,8 @@ interface Notification {
   createdAt: string;
   friendRequestId: string;
   status: string;
+  postId?: string;
+  musicId?: string;
 }
 
 const NotificationModel = () => {
@@ -36,6 +44,8 @@ const NotificationModel = () => {
       fetchNotifications();
     }
   }, [page]);
+  console.log(notifications);
+
   const fetchNotifications = async (reset = false) => {
     try {
       const res = await sendRequest<{
@@ -79,6 +89,9 @@ const NotificationModel = () => {
     // Kết nối WebSocket
     const socket = io("http://localhost:8081", {
       transports: ["websocket", "polling"],
+      auth: {
+        userId: user._id,
+      },
     });
     socket.emit("registerUser", user._id);
 
@@ -140,8 +153,45 @@ const NotificationModel = () => {
                   key={notification._id}
                   className="p-2 text-sm border-b bg-white"
                 >
-                  {notification.type === "friend-request" ? (
+                  {notification.type === "friend-request" ||
+                  notification.type === "accept-friend-request" ? (
                     <FriendRequest
+                      notification={notification}
+                      setNotifications={setNotifications}
+                      setUnreadCount={setUnreadCount}
+                    />
+                  ) : notification.type === "new-video" ? (
+                    <PostNotification
+                      notification={notification}
+                      setNotifications={setNotifications}
+                      setUnreadCount={setUnreadCount}
+                    />
+                  ) : notification.type === "new-comment" ? (
+                    <CommentPostNotification
+                      notification={notification}
+                      setNotifications={setNotifications}
+                      setUnreadCount={setUnreadCount}
+                    />
+                  ) : notification.type === "new-react" ? (
+                    <ReactPostNotification
+                      notification={notification}
+                      setNotifications={setNotifications}
+                      setUnreadCount={setUnreadCount}
+                    />
+                  ) : notification.type === "new-music-comment" ? (
+                    <CommentMusicNotification
+                      notification={notification}
+                      setNotifications={setNotifications}
+                      setUnreadCount={setUnreadCount}
+                    />
+                  ) : notification.type === "new-music-favorite" ? (
+                    <FavoriteMusicNotification
+                      notification={notification}
+                      setNotifications={setNotifications}
+                      setUnreadCount={setUnreadCount}
+                    />
+                  ) : notification.type === "new-music" ? (
+                    <NewMusicNotification
                       notification={notification}
                       setNotifications={setNotifications}
                       setUnreadCount={setUnreadCount}
