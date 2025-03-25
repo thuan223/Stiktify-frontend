@@ -3,6 +3,7 @@ import Layout from "antd/es/layout";
 import Menu from "antd/es/menu";
 import {
   AppstoreOutlined,
+  BarChartOutlined,
   ExceptionOutlined,
   InfoCircleOutlined,
   MailOutlined,
@@ -83,6 +84,35 @@ const DashboardSideBar = () => {
           key: "/dashboard/ticked",
           label: <Link href={"/dashboard/ticked"}>Manage Ticked User</Link>,
           icon: <ReconciliationOutlined />,
+        },
+        {
+          key: "sub2",
+          label: "Statistic",
+          icon: <BarChartOutlined />,
+          children: [
+            {
+              key: "/dashboard/statistic/users",
+              label: (
+                <Link href={"/dashboard/statistic/users"}>User Statistics</Link>
+              ),
+            },
+            {
+              key: "/dashboard/statistic/videos",
+              label: (
+                <Link href={"/dashboard/statistic/videos"}>
+                  Video Statistics
+                </Link>
+              ),
+            },
+            {
+              key: "/dashboard/statistic/musics",
+              label: (
+                <Link href={"/dashboard/statistic/musics"}>
+                  Music Statistics
+                </Link>
+              ),
+            },
+          ],
         },
         {
           type: "divider",

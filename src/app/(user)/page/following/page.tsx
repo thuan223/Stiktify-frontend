@@ -327,7 +327,7 @@ const FollowPage = () => {
           videoDescription={currentVideo?.videoDescription || ""}
           totalView={currentVideo?.totalViews || 0}
           videoTag={currentVideo?.videoTag || []}
-          createAt={currentVideo?.createAt?.toString() || ""}
+          createdAt={currentVideo?.createdAt?.toString() || ""}
         />
         {isShowOtherVideos ? (
           <OtherVideos

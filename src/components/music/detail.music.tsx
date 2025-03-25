@@ -28,7 +28,7 @@ const DisplayMusicDetail = ({ item }: IProps) => {
 
   const [isLiked, setIsLiked] = useState(false);
   const [totalFavorite, setTotalFavorite] = useState(item.totalFavorite);
-  const { accessToken } = useContext(AuthContext) || {};
+  const { accessToken, user } = useContext(AuthContext) || {};
 
   useEffect(() => {
     const checkLikeStatus = async () => {
@@ -46,11 +46,42 @@ const DisplayMusicDetail = ({ item }: IProps) => {
     checkLikeStatus();
   }, [item._id]);
 
+  const handleTriggerWishListScore = async (musicId: string) => {
+    const res = await sendRequest<IBackendRes<IVideo[]>>({
+      url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/wishlist`,
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: {
+        userId: user._id,
+        id: musicId,
+        triggerAction: "ReactionAboutVideo",
+      },
+    });
+  };
+
+  const handleAddUserAction = async (musicId: string) => {
+    try {
+      const res = await sendRequest<IBackendRes<any>>({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/kafka/action?action=reaction&id=${musicId}&`,
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+    } catch (error) {
+      console.error("Error add action:", error);
+    }
+  };
+
   const handleLike = async () => {
     try {
       const res = await handleLikeMusicAction(item._id);
       setIsLiked(!isLiked);
       setTotalFavorite(isLiked ? totalFavorite - 1 : totalFavorite + 1);
+      await handleAddUserAction(item._id);
+      await handleTriggerWishListScore(item._id);
     } catch (error) {
       console.error("Error toggling like:", error);
     }
@@ -62,7 +93,7 @@ const DisplayMusicDetail = ({ item }: IProps) => {
 
   const handlePlayer = (track: IMusic) => {
     if (trackCurrent?._id !== track._id) {
-      setFlag(false)
+      setFlag(false);
       const data = {
         _id: track._id,
         musicDescription: track.musicDescription,

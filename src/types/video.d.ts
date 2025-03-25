@@ -19,7 +19,7 @@ interface IVideo {
   videoTag: string[];
   totalComment: number;
   videoType: string;
-  createAt: Date;
+  createdAt: Date;
   isDelete: boolean;
   flag: boolean;
 }

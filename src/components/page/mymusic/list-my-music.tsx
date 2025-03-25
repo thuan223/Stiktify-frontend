@@ -1,52 +1,62 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 import CardMusic from "@/components/music/card.music";
 import { handleGetMyMusic } from "@/actions/music.action";
+import { AuthContext } from "@/context/AuthContext";
 
-interface IProps {
-  userId: string;
-}
+const MyMusic = () => {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const { user } = useContext(AuthContext) ?? {};
+  const userIdFromURL = pathname.split("/").pop();
+  const queryUserId = searchParams.get("userId");
+  const currentUserId = userIdFromURL || queryUserId || user?._id;
 
-const ListMyMusic = ({ userId }: IProps) => {
-  const [myMusic, setMyMusic] = useState<any[]>([]); 
-
-  const currentPage = "1"; 
-  const pageSize = "30"; 
+  const [myMusic, setMyMusic] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchMyMusic = async () => {
-      const response = await handleGetMyMusic(userId, currentPage, pageSize);
-      if (response?.data) {
-        setMyMusic(response.data.result); 
-      } else {
-        setMyMusic([]);
+      if (!currentUserId) return;
+      setLoading(true);
+      try {
+        const response = await handleGetMyMusic(currentUserId, "1", "30");
+        if (response?.data?.result) {
+          setMyMusic(response.data.result);
+        } else {
+          setMyMusic([]);
+        }
+      } catch (error) {
+        console.error("Error fetching music:", error);
       }
+      setLoading(false);
     };
-    if (userId) {
-      fetchMyMusic();
-    }
-  }, [userId]);
+
+    fetchMyMusic();
+  }, [currentUserId]);
 
   return (
-    <div className="flex flex-wrap justify-start gap-5 my-3 mx-20">
-      {myMusic.length > 0 ? (
-        myMusic.map((item: any) => (
-          <CardMusic
-            key={item._id}
-            handlePlayer={() => {}}
-            isPlaying={false}
-            item={item}
-          />
-        ))
+    <div className="p-6 bg-white shadow-md rounded-lg mb-40 mt-[-22px]">
+      {loading ? (
+        <p className="text-gray-500 text-center">Loading...</p>
+      ) : myMusic.length > 0 ? (
+        <div className="flex flex-wrap justify-start gap-5 my-3 mx-20">
+          {myMusic.map((item: any) => (
+            <CardMusic
+              key={item._id}
+              handlePlayer={() => {}}
+              isPlaying={false}
+              item={item}
+            />
+          ))}
+        </div>
       ) : (
-        <p className="text-gray-500 text-center w-full">
-          Not music!
-        </p>
+        <p className="text-gray-500 text-center w-full">No music found.</p>
       )}
     </div>
   );
 };
 
-export default ListMyMusic;
-
+export default MyMusic;

@@ -271,7 +271,7 @@ const ReactSection: React.FC<ReactionSectionProp> = ({
   onReactionRemove,
   numberReaction,
 }) => {
-  const { accessToken } = useContext(AuthContext) ?? {};
+  const { user, accessToken } = useContext(AuthContext) ?? {};
   const [selectedReaction, setSelectedReaction] = useState<Reaction | null>(
     null
   );
@@ -280,7 +280,6 @@ const ReactSection: React.FC<ReactionSectionProp> = ({
 
   const [thisReactions, setThisReactions] = useState<Reaction[]>([]);
   const [thisFirstReactions, setFirstThisReactions] = useState<Reaction[]>([]);
-
   useEffect(() => {
     if (!videoId) return;
 
@@ -341,6 +340,35 @@ const ReactSection: React.FC<ReactionSectionProp> = ({
     fetchUserReaction();
   }, [videoId, accessToken]);
 
+  const handleTriggerWishListScore = async (videoId: string) => {
+    const res = await sendRequest<IBackendRes<IVideo[]>>({
+      url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/wishlist`,
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: {
+        userId: user._id,
+        id: videoId,
+        triggerAction: "ReactionAboutVideo",
+      },
+    });
+  };
+
+  const handleAddUserAction = async (videoId: string) => {
+    try {
+      const res = await sendRequest<IBackendRes<any>>({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/kafka/action?action=reaction&id=${videoId}&`,
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+    } catch (error) {
+      console.error("Error add reaction:", error);
+    }
+  };
+
   const handleAddReaction = async (reaction: Reaction) => {
     if (!videoId || !accessToken) return;
     const oldSelectedReaction = selectedReaction;
@@ -389,6 +417,8 @@ const ReactSection: React.FC<ReactionSectionProp> = ({
           return prevReactions;
         });
       }
+      await handleAddUserAction(videoId);
+      await handleTriggerWishListScore(videoId);
     } catch (error) {
       console.error("Error updating reaction:", error);
     }

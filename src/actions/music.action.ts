@@ -145,7 +145,7 @@ export const handleGetMyMusic = async (
     const cookieStore = cookies();
     const token = cookieStore.get("token")?.value;
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/my-musics?userId=${userId}&current=${current}&pageSize=${pageSize}`,
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/my-musics/${userId}?current=${current}&pageSize=${pageSize}`,
       {
         method: "GET",
         headers: {

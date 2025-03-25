@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect, useContext } from "react";
 import { notification, Select } from "antd";
 import { sendRequestFile, sendRequest } from "@/utils/api";
@@ -103,20 +105,6 @@ const UploadProduct: React.FC<UploadProductProps> = ({
       notification.error({ message: "Please upload an image." });
       return false;
     }
-    // if (image) {
-    //   const allowedTypes = [
-    //     "image/jpeg",
-    //     "image/png",
-    //     "image/jpg",
-    //     "image/webp",
-    //   ];
-    //   if (!allowedTypes.includes(image.type)) {
-    //     notification.error({
-    //       message: "Only JPG, JPEG, or PNG images are allowed.",
-    //     });
-    //     return false;
-    //   }
-    // }
     return true;
   };
 
@@ -206,65 +194,65 @@ const UploadProduct: React.FC<UploadProductProps> = ({
   };
 
   return (
-    <div className="max-w-md mx-auto my-10 bg-white p-6 rounded-md shadow-md">
-      <h2 className="text-2xl font-bold mb-4 text-center">
-        {isEditMode ? "Edit Product" : "Add Product"}
-      </h2>
+    <div className="form-container">
+      <h2 className="form-title">{isEditMode ? "Edit Product" : ""}</h2>
 
-      <div className="mb-4">
-        <label className="block font-medium mb-1">Product Name</label>
+      <div className="form-field">
+        <label className="form-label">Product Name</label>
         <input
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full border p-2 rounded"
+          className="form-input"
         />
       </div>
 
-      <div className="mb-4">
-        <label className="block font-medium mb-1">Product Description</label>
+      <div className="form-field">
+        <label className="form-label">Description</label>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="w-full border p-2 rounded"
+          className="form-textarea"
+          placeholder="Enter description..."
         />
       </div>
 
-      <div className="mb-4">
-        <label className="block font-medium mb-1">Price</label>
-        <input
-          type="number"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          className="w-full border p-2 rounded"
-        />
+      <div className="form-row">
+        <div className="form-field">
+          <label className="form-label">Price</label>
+          <input
+            type="number"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            className="form-input"
+          />
+        </div>
+        <div className="form-field">
+          <label className="form-label">Stock</label>
+          <input
+            type="number"
+            value={stock}
+            onChange={(e) => setStock(e.target.value)}
+            className="form-input"
+          />
+        </div>
       </div>
 
-      <div className="mb-4">
-        <label className="block font-medium mb-1">Stock</label>
-        <input
-          type="number"
-          value={stock}
-          onChange={(e) => setStock(e.target.value)}
-          className="w-full border p-2 rounded"
-        />
-      </div>
-
-      <div className="mb-4">
-        <label className="block font-medium mb-1">Choose Image</label>
+      <div className="form-field">
+        <label className="form-label">Image</label>
         <input
           type="file"
           accept="image/*"
           onChange={handleFileChange}
-          className="w-full"
+          className="form-input-file"
         />
       </div>
 
-      <div className="mb-4">
-        <label className="block font-medium mb-1">Category</label>
+      <div className="form-field">
+        <label className="form-label">Category</label>
         <Select
           placeholder="Select Category"
-          style={{ width: "100%" }}
+          className="form-select"
           value={category || undefined}
           onChange={setCategory}
         >
@@ -282,10 +270,101 @@ const UploadProduct: React.FC<UploadProductProps> = ({
       <button
         onClick={handleUpload}
         disabled={loading}
-        className="w-full bg-blue-500 text-white py-2 rounded mt-4"
+        className={`form-button ${
+          loading ? "button-disabled" : "button-active"
+        }`}
       >
         {loading ? "Saving..." : isEditMode ? "Save Changes" : "Add Product"}
       </button>
+
+      <style jsx>{`
+        .form-container {
+          max-width: 400px; /* Giảm chiều rộng */
+          margin: 20px auto; /* Giảm margin */
+          background-color: #ffffff;
+          padding: 16px; /* Giảm padding */
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-title {
+          font-size: 18px; /* Giảm kích thước tiêu đề */
+          font-weight: 600;
+          color: #1f2937;
+          text-align: center;
+          margin-bottom: 12px; /* Giảm khoảng cách */
+        }
+
+        .form-row {
+          display: flex;
+          gap: 10px; /* Giảm khoảng cách giữa các field */
+          margin-bottom: 8px; /* Giảm khoảng cách dưới */
+        }
+
+        .form-field {
+          margin-bottom: 8px; /* Giảm khoảng cách giữa các trường */
+        }
+
+        .form-label {
+          display: block;
+          font-size: 12px; /* Giảm kích thước font */
+          font-weight: 500;
+          color: #374151;
+          margin-bottom: 2px; /* Giảm khoảng cách với input */
+        }
+
+        .form-input,
+        .form-textarea,
+        .form-input-file {
+          width: 100%;
+          padding: 6px; /* Giảm padding */
+          border: 1px solid #d1d5db;
+          border-radius: 4px; /* Giảm bo góc */
+          font-size: 12px; /* Giảm kích thước font */
+          color: #1f2937;
+          transition: border-color 0.2s ease;
+        }
+
+        .form-input:focus,
+        .form-textarea:focus,
+        .form-input-file:focus {
+          border-color: #3b82f6;
+          outline: none;
+        }
+
+        .form-textarea {
+          min-height: 40px; /* Giảm chiều cao textarea */
+          resize: vertical;
+        }
+
+        .form-select {
+          width: 100%;
+          height: 28px; /* Giảm chiều cao Select */
+        }
+
+        .form-button {
+          width: 100%;
+          padding: 8px; /* Giảm padding */
+          border-radius: 4px;
+          font-size: 13px; /* Giảm kích thước font */
+          font-weight: 500;
+          color: #ffffff;
+          transition: background-color 0.2s ease;
+        }
+
+        .button-active {
+          background-color: #3b82f6;
+        }
+
+        .button-active:hover {
+          background-color: #2563eb;
+        }
+
+        .button-disabled {
+          background-color: #9ca3af;
+          cursor: not-allowed;
+        }
+      `}</style>
     </div>
   );
 };
