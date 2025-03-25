@@ -176,9 +176,22 @@ const TrendingPage = () => {
   useEffect(() => {
     if (currentVideo === null) setCurrentVideo(videoData[0] || null);
   }, [videoData]);
-
+  const handleAddUserAction = async (videoId: string) => {
+    if (!accessToken) return;
+    try {
+      const res = await sendRequest<IBackendRes<any>>({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/kafka/action?action=view&id=${videoId}&`,
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+    } catch (error) {
+      console.error("Error add action:", error);
+    }
+  };
   const handleVideoWatched = async () => {
-    if (isWatched) return;
+    if (isWatched || !accessToken) return;
     setIsWatched(true);
     try {
       const res = await sendRequest<IBackendRes<IVideo[]>>({
@@ -213,6 +226,7 @@ const TrendingPage = () => {
       });
 
       if (isPause == "true") return;
+      if (currentVideo?._id) handleAddUserAction(currentVideo?._id);
       createViewingHistory();
     } catch (error) {
       console.error("Failed to fetch wishlist videos:", error);
@@ -327,7 +341,7 @@ const TrendingPage = () => {
           videoDescription={currentVideo?.videoDescription || ""}
           totalView={currentVideo?.totalViews || 0}
           videoTag={currentVideo?.videoTag || []}
-          createAt={currentVideo?.createAt?.toString() || ""}
+          createdAt={currentVideo?.createdAt?.toString() || ""}
         />
         {isShowOtherVideos ? (
           <OtherVideos

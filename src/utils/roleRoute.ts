@@ -13,12 +13,20 @@ const roleRoutes: Record<string, (string | RegExp)[]> = {
     /^\/page\/shareMusic\/[\w-]+$/,
     /^\/page\/music\/[\w-]+$/,
     "/page/playlist",
+    "/page/rankings",
+    /^\/page\/rankings\/music\/[\w-]+$/,
+    /^\/page\/rankings\/video\/[\w-]+$/,
+    /^\/page\/rankings\/creator\/[\w-]+$/,
     "/page/music",
     /^\/page\/store\/[\w-]+$/,
     "/personal/musichistory",
   ],
   GUEST: [
     "/page/trending-guest",
+    "/page/rankings",
+    /^\/page\/rankings\/music\/[\w-]+$/,
+    /^\/page\/rankings\/video\/[\w-]+$/,
+    /^\/page\/rankings\/creator\/[\w-]+$/,
     "/auth/login",
     "/auth/forgotpassword",
     "/auth/register",
@@ -39,6 +47,9 @@ const roleRoutes: Record<string, (string | RegExp)[]> = {
     "/dashboard/algorithm",
     /^\/page\/detail_user\/[\w-]+$/,
     "/dashboard/ticked",
+    "/dashboard/statistic/users",
+    "/dashboard/statistic/videos",
+    "/dashboard/statistic/musics"
   ],
 };
 

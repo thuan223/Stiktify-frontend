@@ -1,6 +1,13 @@
 "use client";
 import { formatTime } from "@/utils/utils";
-import { useState, useRef, useEffect, useContext } from "react";
+import {
+  useState,
+  useRef,
+  useEffect,
+  useContext,
+  Dispatch,
+  SetStateAction,
+} from "react";
 import ReactHowler from "react-howler";
 import {
   FaStepForward,
@@ -13,11 +20,19 @@ import { FaShuffle, FaRepeat } from "react-icons/fa6";
 import ButtonPlayer from "./button.player";
 import { useGlobalContext } from "@/library/global.context";
 import Image from "next/image";
-import { handleListenNeo4j, handleUpdateListenerAction } from "@/actions/music.action";
+import {
+  handleListenNeo4j,
+  handleUpdateListenerAction,
+} from "@/actions/music.action";
 import { AuthContext } from "@/context/AuthContext";
 import Cookies from "js-cookie";
+import { sendRequest } from "@/utils/api";
 
-const MusicPlayer = () => {
+interface MusicPlayerProps {
+  setIsDonePlaying?: Dispatch<SetStateAction<boolean>>;
+}
+
+const MusicPlayer = (p: MusicPlayerProps) => {
   const {
     isPlaying,
     setIsPlaying,
@@ -25,7 +40,7 @@ const MusicPlayer = () => {
     listPlaylist,
     setTrackCurrent,
     flag,
-    setFlag
+    setFlag,
   } = useGlobalContext()!;
   const [volume, setVolume] = useState(1);
   const playerRef = useRef<ReactHowler | null>(null);
@@ -37,7 +52,7 @@ const MusicPlayer = () => {
   const [isMusicPaused, setIsMusicPaused] = useState(false);
   const [countTrack, setCountTrack] = useState(0);
   const { user, accessToken } = useContext(AuthContext) ?? {};
-
+  const { setIsDonePlaying } = p;
   useEffect(() => {
     const pauseStatus = Cookies.get("isMusicPause") === "true";
     setIsMusicPaused(pauseStatus);
@@ -53,7 +68,11 @@ const MusicPlayer = () => {
     setCountTrack(
       (prev) => (prev - 1 + listPlaylist.length) % listPlaylist.length
     );
-
+  useEffect(() => {
+    if (seek >= duration - 1.3 && setIsDonePlaying && duration > 0) {
+      setIsDonePlaying(true);
+    }
+  }, [seek]);
   useEffect(() => {
     (async () => {
       setCount(count + 1);
@@ -62,7 +81,7 @@ const MusicPlayer = () => {
         if (second === 15) {
           if (!flag) {
             if (user) {
-              await handleListenNeo4j(trackCurrent?._id!, user._id)
+              await handleListenNeo4j(trackCurrent?._id!, user._id);
               if (!isMusicPaused) {
                 await fetch(
                   `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/listeninghistory/create-listening-history`,
@@ -82,6 +101,10 @@ const MusicPlayer = () => {
             }
             await handleUpdateListenerAction(trackCurrent?._id!);
             setFlag(true);
+            if (trackCurrent) {
+              await handleTriggerWishListScore(trackCurrent?._id);
+              await handleAddUserAction(trackCurrent?._id);
+            }
           }
           setSecond(0);
         }
@@ -143,7 +166,34 @@ const MusicPlayer = () => {
       setCountTrack((prev) => prev + 1);
     }
   };
+  const handleTriggerWishListScore = async (musicId: string) => {
+    const res = await sendRequest<IBackendRes<IVideo[]>>({
+      url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/wishlist`,
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: {
+        userId: user._id,
+        id: musicId,
+        triggerAction: "ListenMusic",
+      },
+    });
+  };
 
+  const handleAddUserAction = async (musicId: string) => {
+    try {
+      const res = await sendRequest<IBackendRes<any>>({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/kafka/action?action=reaction&id=${musicId}&`,
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+    } catch (error) {
+      console.error("Error add reaction:", error);
+    }
+  };
   return (
     <div className="w-full h-full  bg-gray-900/80 backdrop-blur-md text-white p-4 rounded-2xl shadow-lg">
       <div className="flex items-center">

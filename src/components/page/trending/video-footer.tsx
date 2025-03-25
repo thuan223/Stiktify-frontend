@@ -5,14 +5,14 @@ interface VideoFooterProps {
   videoDescription: string;
   totalView: number;
   videoTag: string[];
-  createAt: string;
+  createdAt: string;
 }
 
 const VideoFooter: React.FC<VideoFooterProps> = ({
   videoDescription,
   totalView,
   videoTag,
-  createAt,
+  createdAt,
 }) => {
   return (
     <div className="w-[73%] bg-white  absolute left-30 top-[87vh] h-[90px] pl-2">
@@ -23,8 +23,7 @@ const VideoFooter: React.FC<VideoFooterProps> = ({
         <div className="flex space-x-4">
           <span>{`#${videoTag.join(" #")}`}</span>
           <span>{`${totalView} views`}</span>
-          <span>{`Uploaded on: ${formatDateTimeVn(
-            createAt)}`}</span>
+          <span>{`Uploaded on: ${formatDateTimeVn(createdAt)}`}</span>
         </div>
       </div>
     </div>

@@ -21,7 +21,8 @@ const SideBar: React.FC<SideBarProps> = ({ isHidden }) => {
   }, [user]);
 
   const getLinkClass = (path: string) => {
-    return pathname === path
+    const isActive = pathname === path || pathname.startsWith(`${path}/`);
+    return isActive
       ? "text-lg font-bold text-red-500"
       : "text-lg text-gray-700 hover:text-red-500";
   };
@@ -78,11 +79,20 @@ const SideBar: React.FC<SideBarProps> = ({ isHidden }) => {
             ""
           ) : (
             <li>
-              <Link href="/page/chat" className={getLinkClass("/page/chat")}>
-                Chat
+              <Link
+                href="/page/search-user"
+                className={getLinkClass("/page/search-user")}
+              >
+                Search user
               </Link>
             </li>
           )}
+            <li>
+              <Link href="/page/rankings" className={getLinkClass("/page/rankings")}>
+                Rankings
+
+              </Link>
+            </li>
           {isGuest ? (
             ""
           ) : (
