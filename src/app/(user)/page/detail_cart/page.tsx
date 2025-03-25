@@ -154,15 +154,6 @@ const DetailCart: React.FC = () => {
     return cartItems.reduce((total, item) => total + item.quantity, 0);
   };
 
-  // Proceed to checkout
-  const handleCheckout = () => {
-    notification.success({
-      message: "Proceeding to checkout...",
-      placement: "bottomRight",
-    });
-    router.push("/checkout");
-  };
-
   // Continue shopping - go back to previous page
   const handleContinueShopping = () => {
     router.back();
@@ -302,10 +293,10 @@ const DetailCart: React.FC = () => {
                   <Button
                     type="link"
                     icon={<DollarCircleOutlined />}
-                    onClick={handleCheckout}
+                    onClick={() => router.push("/page/order")}
                     className="w-full mt-6 h-12 text-lg"
                   >
-                    Proceed to Checkout
+                    Payment
                   </Button>
                 </div>
                 <Button

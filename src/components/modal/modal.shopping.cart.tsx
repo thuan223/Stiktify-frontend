@@ -105,10 +105,8 @@ const CartPreview: React.FC<CartPreviewProps> = ({
           className="flex items-center cursor-pointer hover:text-blue-600"
           onClick={viewCartClick}
         >
-          <ShoppingCartOutlined style={{ fontSize: "20px" }} />
-          <span className="text-gray-500 ml-2 hover:text-blue-600">
-            {totalItems}
-          </span>
+          <ShoppingCartOutlined style={{ fontSize: "30px" }} />
+          <span className="text-gray-500 ml-2 hover:text-blue-600"></span>
         </div>
       </Badge>
 
