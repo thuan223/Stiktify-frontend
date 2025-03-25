@@ -66,17 +66,17 @@ const ListMusic = (props: IProps) => {
   const handlePlayer = (track: IMusic) => {
     if (trackCurrent?._id !== track._id) {
       setFlag(false)
-      const data = {
-        _id: track._id,
-        musicDescription: track.musicDescription,
-        musicThumbnail: track.musicThumbnail,
-        musicUrl: track.musicUrl,
-      };
-      setTrackCurrent(data);
+      // const data = {
+      //   _id: track._id,
+      //   musicDescription: track.musicDescription,
+      //   musicThumbnail: track.musicThumbnail,
+      //   musicUrl: track.musicUrl,
+      // };
+      setTrackCurrent(track);
       if (listPlaylist && listPlaylist.length > 0) {
         setListPlayList([])
       }
-      localStorage.setItem("trackCurrent", JSON.stringify(data));
+      localStorage.setItem("trackCurrent", JSON.stringify(track));
       return setIsPlaying(isPlaying ? true : !isPlaying);
     }
     return setIsPlaying(!isPlaying);
@@ -112,7 +112,7 @@ const ListMusic = (props: IProps) => {
           </div>
         </div>
         <div>
-          {user &&
+          {user && dataRecommend && dataRecommend.length > 0 &&
             <div className="my-3 mx-20">
               <h1 className="font-bold text-2xl">Recommend Music</h1>
               <RecommendMusicList data={dataRecommend} />

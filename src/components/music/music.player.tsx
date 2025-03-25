@@ -1,13 +1,6 @@
 "use client";
 import { formatTime } from "@/utils/utils";
-import {
-  useState,
-  useRef,
-  useEffect,
-  useContext,
-  Dispatch,
-  SetStateAction,
-} from "react";
+import { useState, useRef, useEffect, useContext, useCallback } from "react";
 import ReactHowler from "react-howler";
 import {
   FaStepForward,
@@ -20,19 +13,11 @@ import { FaShuffle, FaRepeat } from "react-icons/fa6";
 import ButtonPlayer from "./button.player";
 import { useGlobalContext } from "@/library/global.context";
 import Image from "next/image";
-import {
-  handleListenNeo4j,
-  handleUpdateListenerAction,
-} from "@/actions/music.action";
+import { getTrackRelatedAction, handleListenNeo4j, handleUpdateListenerAction } from "@/actions/music.action";
 import { AuthContext } from "@/context/AuthContext";
 import Cookies from "js-cookie";
-import { sendRequest } from "@/utils/api";
 
-interface MusicPlayerProps {
-  setIsDonePlaying?: Dispatch<SetStateAction<boolean>>;
-}
-
-const MusicPlayer = (p: MusicPlayerProps) => {
+const MusicPlayer = () => {
   const {
     isPlaying,
     setIsPlaying,
@@ -41,6 +26,12 @@ const MusicPlayer = (p: MusicPlayerProps) => {
     setTrackCurrent,
     flag,
     setFlag,
+    trackRelatedId,
+    setTrackRelatedId,
+    prevList,
+    setPrevList,
+    musicTagRelated,
+    setMusicTagRelated
   } = useGlobalContext()!;
   const [volume, setVolume] = useState(1);
   const playerRef = useRef<ReactHowler | null>(null);
@@ -52,120 +43,7 @@ const MusicPlayer = (p: MusicPlayerProps) => {
   const [isMusicPaused, setIsMusicPaused] = useState(false);
   const [countTrack, setCountTrack] = useState(0);
   const { user, accessToken } = useContext(AuthContext) ?? {};
-  const { setIsDonePlaying } = p;
-  useEffect(() => {
-    const pauseStatus = Cookies.get("isMusicPause") === "true";
-    setIsMusicPaused(pauseStatus);
-  }, []);
 
-  const togglePlay = () => {
-    setIsPlaying(!isPlaying);
-  };
-  const toggleMute = () => setVolume(volume > 0 ? 0 : 1);
-  const nextTrack = () =>
-    setCountTrack((prev) => (prev + 1) % listPlaylist.length);
-  const prevTrack = () =>
-    setCountTrack(
-      (prev) => (prev - 1 + listPlaylist.length) % listPlaylist.length
-    );
-  useEffect(() => {
-    if (seek >= duration - 1.3 && setIsDonePlaying && duration > 0) {
-      setIsDonePlaying(true);
-    }
-  }, [seek]);
-  useEffect(() => {
-    (async () => {
-      setCount(count + 1);
-      if (count === +seek.toFixed(0)) {
-        setSecond(second + 1);
-        if (second === 15) {
-          if (!flag) {
-            if (user) {
-              await handleListenNeo4j(trackCurrent?._id!, user._id);
-              if (!isMusicPaused) {
-                await fetch(
-                  `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/listeninghistory/create-listening-history`,
-                  {
-                    method: "POST",
-                    headers: {
-                      "Content-Type": "application/json",
-                      Authorization: `Bearer ${accessToken}`,
-                    },
-                    body: JSON.stringify({
-                      userId: user._id,
-                      musicId: trackCurrent?._id,
-                    }),
-                  }
-                );
-              }
-            }
-            await handleUpdateListenerAction(trackCurrent?._id!);
-            setFlag(true);
-            if (trackCurrent) {
-              await handleTriggerWishListScore(trackCurrent?._id);
-              await handleAddUserAction(trackCurrent?._id);
-            }
-          }
-          setSecond(0);
-        }
-      }
-      if (+seek.toFixed(0) !== count) {
-        setCount(+seek.toFixed(0) + 1);
-        setSecond(0);
-      }
-    })();
-  }, [seek, isMusicPaused]);
-
-  useEffect(() => {
-    if (isPlaying) {
-      intervalRef.current = setInterval(() => {
-        if (playerRef.current) {
-          setSeek(playerRef.current.seek());
-        }
-      }, 1000);
-    } else {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    }
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, [isPlaying]);
-
-  const handleLoad = () => {
-    if (playerRef.current) {
-      setDuration(playerRef.current.duration());
-    }
-  };
-
-  useEffect(() => {
-    if (listPlaylist && listPlaylist.length > 0) {
-      localStorage.setItem(
-        "trackCurrent",
-        JSON.stringify(listPlaylist[countTrack].musicId)
-      );
-      setTrackCurrent(listPlaylist[countTrack].musicId);
-    }
-  }, [listPlaylist, countTrack]);
-
-  const handleSeekChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newSeek = parseFloat(e.target.value);
-    setSeek(newSeek);
-    playerRef.current?.seek(newSeek);
-  };
-
-  const handleEndMusic = () => {
-    setSecond(0);
-    setFlag(false);
-    if (listPlaylist && listPlaylist.length > 0) {
-      if (+listPlaylist.length - 1 === countTrack) {
-        setCountTrack(0);
-        return;
-      }
-      setCountTrack((prev) => prev + 1);
-    }
-  };
   const handleTriggerWishListScore = async (musicId: string) => {
     const res = await sendRequest<IBackendRes<IVideo[]>>({
       url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/wishlist`,
@@ -194,6 +72,152 @@ const MusicPlayer = (p: MusicPlayerProps) => {
       console.error("Error add reaction:", error);
     }
   };
+  
+  useEffect(() => {
+    if (trackCurrent) {
+      if (!trackRelatedId.some((x: any) => x === trackCurrent._id)) {
+        setTrackRelatedId([...trackRelatedId, trackCurrent._id])
+        setPrevList([...prevList, trackCurrent])
+
+        // const newTags = trackCurrent.musicTag.filter(
+        //   (tag) => !musicTagRelated.some((existingTag) => existingTag._id === tag._id)
+        // );
+
+        // if (newTags.length > 0) {
+        //   setMusicTagRelated([...musicTagRelated, ...newTags]);
+        // }
+
+      }
+    }
+  }, [trackCurrent])
+
+  useEffect(() => {
+    setIsMusicPaused(Cookies.get("isMusicPause") === "true");
+  }, []);
+
+  const togglePlay = useCallback(() => setIsPlaying(!isPlaying), [isPlaying, setIsPlaying]);
+  const toggleMute = useCallback(() => setVolume((prev) => (prev > 0 ? 0 : 1)), []);
+  // const nextTrack = useCallback(() => setCountTrack((prev) => (prev + 1) % listPlaylist.length), [listPlaylist.length]);
+  // const prevTrack = useCallback(() => setCountTrack((prev) => (prev - 1 + listPlaylist.length) % listPlaylist.length), [listPlaylist.length]);
+
+  const nextTrack = useCallback(() => {
+    setCountTrack((prev) => (prev + 1) % listPlaylist.length);
+
+    if (listPlaylist.length > 0) {
+      const nextTrack = listPlaylist[(countTrack + 1) % listPlaylist.length];
+
+    }
+  }, [listPlaylist, countTrack]);
+  console.log(prevList);
+
+  const prevTrack = useCallback(async () => {
+    if (listPlaylist.length > 0) {
+      setCountTrack((prev) => (prev - 1 + listPlaylist.length) % listPlaylist.length)
+    } else if (prevList.length > 0) {
+      setCountTrack((prev) => (prev - 1 + prevList.length) % prevList.length)
+    }
+
+  }, [listPlaylist.length]);
+
+  useEffect(() => {
+    if (!isPlaying) {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      return;
+    }
+
+    intervalRef.current = setInterval(() => {
+      if (playerRef.current) setSeek(playerRef.current.seek());
+    }, 1000);
+
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [isPlaying, seek]);
+
+  useEffect(() => {
+    if (!trackCurrent || flag || second < 15) return;
+    (async () => {
+      if (!flag) {
+        if (user) {
+          await handleListenNeo4j(trackCurrent._id, user._id);
+
+          if (!isMusicPaused) {
+            await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/listeninghistory/create-listening-history`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}` },
+              body: JSON.stringify({ userId: user._id, musicId: trackCurrent._id }),
+            });
+          }
+        }
+        await handleUpdateListenerAction(trackCurrent._id);
+        setFlag(true);
+        if (trackCurrent) {
+              await handleTriggerWishListScore(trackCurrent?._id);
+              await handleAddUserAction(trackCurrent?._id);
+           }
+      }
+      setSecond(0);
+    })();
+  }, [second, trackCurrent, user, isMusicPaused, accessToken, flag]);
+
+  useEffect(() => {
+    setCount((prev) => prev + 1);
+
+    if (count === Math.round(seek)) {
+      setSecond((prev) => prev + 1);
+    }
+
+    if (Math.round(seek) !== count) {
+      setCount(Math.round(seek) + 1);
+      setSecond(0);
+    }
+  }, [seek]);
+  useEffect(() => {
+    if (+seek.toFixed(0) === +duration.toFixed(0)) {
+      (async () => {
+        if (listPlaylist.length > 0) {
+          setCountTrack((prev) => (prev + 1) % listPlaylist.length);
+        } else if (prevList.length > 0) {
+          const res = await getTrackRelatedAction(trackRelatedId, musicTagRelated);
+          setTrackCurrent(res?.data);
+        }
+      })()
+    }
+  }, [second, duration])
+
+  useEffect(() => {
+    if (listPlaylist.length > 0) {
+      const newTrack = listPlaylist[countTrack]?.musicId;
+      if (newTrack) {
+        localStorage.setItem("trackCurrent", JSON.stringify(newTrack));
+        setTrackCurrent(newTrack);
+      }
+    }
+  }, [listPlaylist, countTrack, setTrackCurrent]);
+
+  const handleSeekChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newSeek = parseFloat(e.target.value);
+    setSeek(newSeek);
+
+    if (playerRef.current) {
+      playerRef.current.seek(newSeek);
+      setIsPlaying(false);
+      setTimeout(() => {
+        setIsPlaying(true);
+      }, 100);
+    }
+  };
+
+  const handleLoad = useCallback(() => {
+    if (playerRef.current) setDuration(playerRef.current.duration());
+  }, []);
+
+  const handleEndMusic = useCallback(async () => {
+    setSecond(0);
+    setFlag(false);
+  }, [prevList, listPlaylist.length, trackRelatedId, musicTagRelated, setTrackCurrent]);
+
+
   return (
     <div className="w-full h-full  bg-gray-900/80 backdrop-blur-md text-white p-4 rounded-2xl shadow-lg">
       <div className="flex items-center">

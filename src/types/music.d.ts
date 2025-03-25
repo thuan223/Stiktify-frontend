@@ -12,7 +12,7 @@ interface IMusic {
     musicDescription: string,
     isBlock: boolean,
     musicThumbnail: string,
-    musicTag: string[],
+    musicTag: { _id: string, fullname: string }[],
     totalListener: number,
     totalComment: number,
     totalReactions: number,

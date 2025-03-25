@@ -10,6 +10,7 @@ import { IoIosMusicalNotes } from "react-icons/io";
 import ButtonPlayer from "./button.player";
 import { Tooltip } from "antd";
 import noImagePlaylist from "@/assets/images/playlist-no-image.jpg"
+import WaveAnimation from "../wave/wave.animation";
 interface IProps {
   item: IMusicInPlaylist[] | []
   playlist: IPlaylist

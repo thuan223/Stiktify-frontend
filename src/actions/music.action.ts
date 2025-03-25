@@ -367,3 +367,28 @@ export const handleSearchHistory = async (search: string) => {
     return null;
   }
 };
+
+export const getTrackRelatedAction = async (musicId: string[] | [], musicTag: { _id: string, fullname: string }[]) => {
+  try {
+    const cookieStore = cookies();
+    const token = cookieStore.get("token")?.value;
+
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/track-related`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ musicId, musicTag }),
+      }
+    );
+
+    const result: IBackendRes<any> = await res.json();
+    return result;
+  } catch (error) {
+    console.error("Error fetching search history:", error);
+    return null;
+  }
+}
