@@ -9,8 +9,8 @@ interface CommentSectionProps {
   videoId: string | undefined;
   onCommentClick: () => void;
   showComments: boolean;
-  onCommentAdded: () => void;
-  onCommentRemove: () => void;
+  onCommentAdded?: () => void;
+  onCommentRemove?: () => void;
 }
 
 interface Comment {
@@ -90,7 +90,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
     }
 
     // Gọi hàm onCommentRemove từ props (nếu có)
-    onCommentRemove();
+    onCommentRemove!();
   };
 
   const handlePostComment = async () => {
@@ -156,7 +156,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
     showComments && (
       <div
         ref={commentSectionRef}
-        className="w-[25%] bg-white shadow-lg absolute right-0 top-[95px] pt-10 pl-2 h-[87%] flex flex-col justify-between"
+        className="w-[25%] bg-white shadow-lg absolute right-0 top-[95px] pt-10 pl-2 h-[87%] flex flex-col justify-between z-50"
       >
         <div className="flex justify-between items-center p-4 border-b">
           <h3 className="text-xl font-semibold">Comments</h3>
@@ -181,7 +181,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
                 videoId={videoId}
                 setChildComments={setChildComments}
                 onDeleteComment={handleRemoveComment}
-                onCommentAdded={onCommentAdded}
+                onCommentAdded={onCommentAdded!}
               />
             ))
           ) : (
@@ -189,12 +189,14 @@ const CommentSection: React.FC<CommentSectionProps> = ({
           )}
         </div>
 
-        <CreateCommentModal
-          handlePostComment={handlePostComment}
-          newComment={newComment}
-          setNewComment={setNewComment}
-          userAvatar={userAvatar}
-        />
+        {user && (
+          <CreateCommentModal
+            handlePostComment={handlePostComment}
+            newComment={newComment}
+            setNewComment={setNewComment}
+            userAvatar={userAvatar}
+          />
+        )}
       </div>
     )
   );

@@ -16,6 +16,7 @@ interface FriendRequestProps {
     createdAt: string;
     friendRequestId: string;
     status: string;
+    type: string;
   };
   setNotifications: React.Dispatch<React.SetStateAction<any[]>>;
   setUnreadCount: any;
@@ -51,13 +52,13 @@ const FriendRequest: React.FC<FriendRequestProps> = ({
           )
         );
 
-        setUnreadCount((prev: any) => Math.max(0, prev - 1));
+        // setUnreadCount((prev: any) => Math.max(0, prev - 1));
 
         if (action === "accept") setStatus("accepted");
         else setStatus("rejected");
       }
     } catch (error) {
-      console.error("Lỗi xử lý yêu cầu kết bạn:", error);
+      console.error("Error in send friend request:", error);
     }
   };
   const formattedTime = formatDistanceToNow(new Date(notification.createdAt), {
@@ -65,6 +66,9 @@ const FriendRequest: React.FC<FriendRequestProps> = ({
   });
 
   const handleProfileClick = () => {
+    if (status === "pending")
+      setUnreadCount((prev: any) => Math.max(0, prev - 1));
+    setStatus("read");
     router.push(`/page/detail_user/${notification.sender._id}`);
   };
 
@@ -95,12 +99,17 @@ const FriendRequest: React.FC<FriendRequestProps> = ({
             {notification.sender.fullname}{" "}
             <TickedUser userId={notification.sender._id} />
           </span>{" "}
-          <span className="text-gray-600">sent friend request.</span>
+          <span className="text-gray-600">
+            {notification.type === "friend-request"
+              ? "sent friend request."
+              : "accept your friend request."}
+          </span>
         </p>
         <p className="text-xs text-blue-500 mt-1">{formattedTime}</p>
 
         {/* Nút hành động */}
-        {status === "pending" ? (
+        {status === "pending" &&
+        notification.type !== "accept-friend-request" ? (
           <div className="flex flex-row justify-between">
             <div className="flex gap-2 mt-2">
               <button
@@ -120,9 +129,12 @@ const FriendRequest: React.FC<FriendRequestProps> = ({
           </div>
         ) : (
           <p className="text-xs font-semibold text-gray-600">
-            {status === "accepted"
+            {status === "accepted" &&
+            notification.type !== "accept-friend-request"
               ? "✅ You have accepted the friend request."
-              : "❌ You have rejected the friend request."}
+              : notification.type !== "accept-friend-request"
+              ? "❌ You have rejected the friend request."
+              : ""}
           </p>
         )}
       </div>
