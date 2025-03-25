@@ -1,36 +1,30 @@
 "use server";
 
-import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 
 const cookieStore = cookies();
 const token = cookieStore.get("token")?.value;
 
-export const handleSearchUserByName = async (
-  search: string,
-  current: number,
-  pageSize: number
+export const handleSearchUserAndVideo = async (
+  searchText: string,
+  current: number = 1,
+  pageSize: number = 10
 ) => {
-  const res = await fetch(
-    `${
-      process.env.NEXT_PUBLIC_BACKEND_URL
-    }/api/v1/users/search-name?search=${search}&current=${current}&pageSize=${pageSize}&sort=${encodeURIComponent(
-      JSON.stringify({ fullname: 1 })
-    )}`,
-    {
+  try {
+    const apiUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/search-user-video?searchText=${searchText}&current=${current}&pageSize=${pageSize}`;
+    const res = await fetch(apiUrl, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      next: { tags: ["search-user"] },
+    });
+    if (!res.ok) {
+      return { users: [], videos: [] };
     }
-  );
-
-  if (!res.ok) {
-    console.error("Error fetching data:", res.statusText);
-    return { data: [] };
+    const result: IBackendRes<any> = await res.json();
+    return result.data;
+  } catch (error) {
+    return { users: [], videos: [] };
   }
-  const result: IBackendRes<any> = await res.json();
-  return result;
 };

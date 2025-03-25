@@ -8,7 +8,7 @@ import { AuthContext } from "@/context/AuthContext";
 const ProfilePage = () => {
   const [profileData, setProfileData] = useState<any>(null); // Chắc chắn profileData là một object hợp lệ
   const [loading, setLoading] = useState(true);
-  const { accessToken} = useContext(AuthContext) ?? {};
+  const { accessToken } = useContext(AuthContext) ?? {};
   useEffect(() => {
     const fetchProfileData = async () => {
       if (!accessToken) {
@@ -58,8 +58,7 @@ const ProfilePage = () => {
         body: updatedProfile, // Gửi dữ liệu từ user profile đã có _id
       });
       setProfileData(res.data); // Cập nhật lại dữ liệu sau khi lưu
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   return (
@@ -71,8 +70,9 @@ const ProfilePage = () => {
         <p className="text-gray-500">Loading profile...</p>
       ) : profileData ? (
         <UserProfile
-            profile={profileData}
-            onUpdateProfile={handleUpdateProfile}/>
+          profile={profileData}
+          onUpdateProfile={handleUpdateProfile}
+        />
       ) : (
         <p className="text-red-500">User profile not found</p>
       )}
