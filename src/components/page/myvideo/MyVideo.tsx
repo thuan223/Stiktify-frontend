@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useContext } from "react";
+import { usePathname, useSearchParams } from "next/navigation"; 
 import { fetchMyVideos } from "@/actions/videoPosted.video.action";
 import { formatNumber } from "@/utils/utils";
 import VideoCustomize from "@/components/video/video.customize";
@@ -22,9 +23,14 @@ interface IShortVideo {
 const DELETED_VIDEOS_KEY = "deletedVideos";
 
 const MyVideo = () => {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const { user, accessToken } = useContext(AuthContext) ?? {};
+  const userIdFromURL = pathname.split("/").pop();
+  const queryUserId = searchParams.get("userId");
+  const currentUserId = userIdFromURL || queryUserId || user?._id;
   const [videos, setVideos] = useState<IShortVideo[]>([]);
   const [loading, setLoading] = useState(true);
-  const { user, accessToken } = useContext(AuthContext) ?? {};
 
   // Lấy danh sách video đã xóa từ localStorage
   const getDeletedVideoIds = (): string[] => {
@@ -43,13 +49,12 @@ const MyVideo = () => {
 
   useEffect(() => {
     const loadVideos = async () => {
-      if (!user?._id) return;
+      if (!currentUserId) return;
       setLoading(true);
       try {
-        const response = await fetchMyVideos(user._id, 1, 30);
-        if (response && response.data && response.data.result) {
+        const response = await fetchMyVideos(currentUserId, 1, 30);
+        if (response?.data?.result) {
           const fetchedVideos: IShortVideo[] = response.data.result;
-          // Cập nhật thuộc tính isDelete dựa trên danh sách video đã xóa từ localStorage
           const deletedIds = getDeletedVideoIds();
           const updatedVideos = fetchedVideos.map((video) => ({
             ...video,
@@ -63,12 +68,10 @@ const MyVideo = () => {
       setLoading(false);
     };
 
-    if (user?._id) {
-      loadVideos();
-    }
-  }, [user]);
+    loadVideos();
+  }, [currentUserId]);
 
-  // Hàm gọi API DELETE từ phía server để cập nhật isDelete
+  // Hàm gọi API DELETE từ phía server
   const deleteVideoAPI = async (videoId: string, userId: string) => {
     try {
       const response = await sendRequest<{ data: any }>({
@@ -77,7 +80,6 @@ const MyVideo = () => {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
-        // Gửi body dưới dạng đối tượng chứa userId (không cần stringify)
         body: { userId },
       });
       return response;
@@ -95,26 +97,23 @@ const MyVideo = () => {
     if (confirmed && user?._id) {
       try {
         await deleteVideoAPI(videoId, user._id);
-        // Cập nhật lại state của video (set isDelete thành true)
         setVideos((prevVideos) =>
           prevVideos.map((video) =>
             video._id === videoId ? { ...video, isDelete: true } : video
           )
         );
-        // Lưu video đã xóa vào localStorage
-        addDeletedVideoId(videoId);
+        addDeletedVideoId(videoId); 
       } catch (error) {
         console.error("Error in handleDelete:", error);
       }
     }
   };
 
-  // Lọc danh sách video hiển thị (chỉ hiển thị video chưa bị xóa)
+  // Lọc danh sách video hiển thị (ẩn video đã xóa)
   const visibleVideos = videos.filter((video) => !video.isDelete);
 
   return (
     <div className="p-6 bg-white shadow-md rounded-lg mb-40 mt-[-22px]">
-      <h2 className="text-2xl font-bold text-gray-800 mb-20">My Videos</h2>
       {loading ? (
         <p className="text-gray-500 text-center">Loading...</p>
       ) : visibleVideos.length > 0 ? (
@@ -127,7 +126,9 @@ const MyVideo = () => {
                 <th className="border px-4 py-2 text-left">Reactions</th>
                 <th className="border px-4 py-2 text-left">Comments</th>
                 <th className="border px-4 py-2 text-left">Description</th>
-                <th className="border px-4 py-2 text-left">Action</th>
+                {user?._id === currentUserId && (
+                  <th className="border px-4 py-2 text-left">Action</th>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -151,14 +152,16 @@ const MyVideo = () => {
                   <td className="border px-4 py-2 text-gray-700">
                     {video.videoDescription || "No description"}
                   </td>
-                  <td className="border px-4 py-2 text-gray-700">
-                    <button
-                      onClick={() => handleDelete(video._id)}
-                      className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
-                    >
-                      Delete
-                    </button>
-                  </td>
+                  {user?._id === currentUserId && (
+                    <td className="border px-4 py-2 text-gray-700">
+                      <button
+                        onClick={() => handleDelete(video._id)}
+                        className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>

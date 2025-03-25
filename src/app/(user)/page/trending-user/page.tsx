@@ -300,6 +300,11 @@ const TrendingPage = () => {
     }
   };
 
+  const handleSearch = () => {
+    if (!searchValue.trim()) return;
+    router.push(`/page/search-user-video?q=${encodeURIComponent(searchValue)}`);
+  };
+
   return (
     <div>
       <div onWheel={handleScroll}>
@@ -307,6 +312,7 @@ const TrendingPage = () => {
           isGuest={false}
           searchValue={searchValue}
           setSearchValue={setSearchValue}
+          onClick={handleSearch}
         />
         {currentVideo ? (
           <MainVideo

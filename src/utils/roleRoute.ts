@@ -7,7 +7,7 @@ const roleRoutes: Record<string, (string | RegExp)[]> = {
     "/page/my-video",
     "/page/following",
     "/page/profile",
-    "/page/search-user",
+    "/page/search-user-video",
     "/personal/videohistory",
     /^\/page\/share\/[\w-]+$/,
     /^\/page\/shareMusic\/[\w-]+$/,

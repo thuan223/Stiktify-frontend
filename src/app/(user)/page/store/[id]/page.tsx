@@ -25,7 +25,7 @@ import {
 } from "@ant-design/icons";
 import UploadProduct from "@/components/modal/modal.add.product";
 import EditProduct from "@/components/modal/modal.edit.product";
-import EditShop from "@/components/modal/modal.edit.shop.infor"; // Import the EditShop component
+import EditShop from "@/components/modal/modal.edit.shop.infor";
 import { sendRequest } from "@/utils/api";
 import { AuthContext } from "@/context/AuthContext";
 

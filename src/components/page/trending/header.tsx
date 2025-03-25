@@ -65,7 +65,7 @@ const Header: React.FC<HeaderProps> = ({
       key: "3",
       label: (
         <a target="_blank" rel="" onClick={handleLogout}>
-          <p className=" text-red-500 hover:text-red-600">Logout</p>
+          <p className="text-red-500 hover:text-red-600">Logout</p>
         </a>
       ),
     },
@@ -78,7 +78,7 @@ const Header: React.FC<HeaderProps> = ({
           type="text"
           onKeyDown={(e) => {
             if (e.key === "Enter") {
-              if (onClick) onClick();
+              if (onClick) onClick(searchValue);
             }
           }}
           placeholder="Search"
