@@ -84,3 +84,28 @@ export const handleFlagMusicAction = async (id: string, flag: boolean) => {
         return null;
     }
 };
+
+    export const handleSearchMusicReportAction = async (
+        search: string, 
+        startDate?: string, 
+    ) => {
+        try {
+        const query = new URLSearchParams();
+        query.append('search', search);
+        if (startDate) query.append('startDate', startDate);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/report/search-music?${query.toString()}`, {
+            method: 'GET',
+            headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+            },
+            next: { tags: ['list-report-music'] },
+        });
+        const result: IBackendRes<any> = await res.json();
+        return result;
+        } catch (error) {
+        console.error('Error searching music report:', error);
+        return null;
+        }
+    }
+  
