@@ -19,7 +19,7 @@ import Cookies from "js-cookie";
 import { sendRequest } from "@/utils/api";
 import { GiMicrophone } from "react-icons/gi";
 import { useRouter } from "next/navigation";
-
+import { GoDesktopDownload } from "react-icons/go";
 interface MusicPlayerProps {
   setIsDonePlaying?: Dispatch<SetStateAction<boolean>>;
 }
@@ -238,6 +238,19 @@ const MusicPlayer = (p: MusicPlayerProps) => {
     router.push("/page/karaoke")
   }
 
+  const downloadFile = async () => {
+    const fileUrl = trackCurrent?.musicUrl!
+    const fileName = trackCurrent?.musicDescription!
+    const response = await fetch(fileUrl);
+    const blob = await response.blob();
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="w-full h-full  bg-gray-900/80 backdrop-blur-md text-white p-4 rounded-2xl shadow-lg">
       <div className="flex items-center">
@@ -260,6 +273,10 @@ const MusicPlayer = (p: MusicPlayerProps) => {
         </div>
         <div className="flex justify-center flex-col gap-2">
           <div className="flex gap-10 items-center justify-center">
+            <button onClick={() => downloadFile()} className="hover:text-green-400 transition">
+              <GoDesktopDownload size={20} />
+            </button>
+
             <button className="hover:text-green-400 transition">
               <FaShuffle size={20} />
             </button>
@@ -291,6 +308,7 @@ const MusicPlayer = (p: MusicPlayerProps) => {
             <button onClick={handleKaraoke} className="hover:text-green-400 transition">
               <GiMicrophone size={20} />
             </button>
+
           </div>
           <div className="flex justify-center items-center gap-5">
             <span>{formatTime(Math.floor(seek))}</span>
