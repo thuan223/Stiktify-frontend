@@ -78,3 +78,30 @@ export const handleDenyUserTickedAction = async (
     return { success: false, message: "Failed to deny the request" };
   }
 };
+
+export const handleFilterAndSearchUserRequest = async (
+  current: number, // Trang hiện tại
+  pageSize: number, // Số bản ghi trên mỗi trang
+  search: string, // Từ khóa tìm kiếm
+  filterReq: string // Yêu cầu lọc
+) => {
+  try {
+    const token = "your-auth-token-here"; // Thay bằng logic lấy token thực tế
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/ticked-users/filter-search?current=${current}&pageSize=${pageSize}&search=${search}&filterReq=${filterReq}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        next: { tags: ["list-ticked"] },
+      }
+    );
+    const result: IBackendRes<any> = await res.json();
+    return result;
+  } catch (error) {
+    console.error("Lỗi khi lấy dữ liệu đã lọc:", error);
+    return null;
+  }
+};
