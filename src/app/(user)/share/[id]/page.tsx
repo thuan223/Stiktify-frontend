@@ -61,22 +61,22 @@ const ShareVideo = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-[#22C55E] p-6 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-[#22C55E] to-[#a1e9b0] opacity-50 blur-3xl"></div>
-      <div className="bg-white/10 backdrop-blur-lg shadow-2xl rounded-3xl p-8 max-w-2xl w-full border border-white/20 relative z-10">
-        <h1 className="text-4xl font-bold text-gray-800 mb-6 font-serif text-center">
-          Video Player
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6 relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300 opacity-50 blur-3xl"></div>
+      <div className="bg-white shadow-2xl rounded-3xl p-8 max-w-2xl w-full border border-gray-200 relative z-10">
+        <h1 className="text-4xl font-bold text-gray-800 mb-6 text-center">
+          Video Sharing
         </h1>
 
         {loading && (
-          <div className="flex flex-col items-center justify-center text-white">
+          <div className="flex flex-col items-center justify-center text-gray-600">
             <Loader2 className="animate-spin w-6 h-6" />
             <p className="mt-2">Loading video...</p>
           </div>
         )}
 
         {error && (
-          <div className="flex items-center text-red-400 bg-red-900/30 p-3 rounded-lg border border-red-500/50">
+          <div className="flex items-center text-red-600 bg-red-50 p-3 rounded-lg border border-red-200">
             <AlertCircle className="w-5 h-5 mr-2" />
             <p>{error}</p>
           </div>
@@ -84,30 +84,44 @@ const ShareVideo = () => {
 
         {videoData && (
           <div className="mt-4 text-center">
-            <video
-              className="w-full rounded-xl shadow-md border border-white/10"
-              controls
-            >
-              <source src={videoData.videoUrl} type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
-            <h2 className="text-2xl font-bold text-white mt-4 drop-shadow-md">
+            <div className="bg-gray-100 p-2 rounded-xl">
+              <video className="w-full rounded-xl shadow-md" controls>
+                <source src={videoData.videoUrl} type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            </div>
+            <h2 className="text-2xl font-semibold text-gray-800 mt-4">
               {videoData.videoDescription}
             </h2>
-            <div className="mt-4 flex justify-center">
+            <div className="mt-6 flex justify-center">
               <button
                 onClick={handleCopyLink}
-                className="px-3 py-1 rounded-md transition duration-300 border border-white/20 text-white bg-white/20 hover:bg-white/30 active:scale-95 flex items-center"
+                className="
+                  px-4 py-2 
+                  rounded-md 
+                  transition 
+                  duration-300 
+                  border 
+                  border-gray-300 
+                  text-gray-700 
+                  bg-white 
+                  hover:bg-gray-50 
+                  hover:shadow-md 
+                  active:scale-95 
+                  flex 
+                  items-center 
+                  shadow-sm
+                "
               >
                 {copied ? (
                   <>
-                    <Check className="w-4 h-4 text-white-300" />
-                    <span className="ml-2">Copied</span>
+                    <Check className="w-5 h-5 text-green-600 mr-2" />
+                    <span>Link Copied</span>
                   </>
                 ) : (
                   <>
-                    <Copy className="w-4 h-4" />
-                    <span className="ml-2">Copy Link</span>
+                    <Copy className="w-5 h-5 mr-2" />
+                    <span>Copy Link</span>
                   </>
                 )}
               </button>

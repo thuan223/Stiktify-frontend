@@ -64,6 +64,20 @@ const Header: React.FC<HeaderProps> = ({
     {
       key: "3",
       label: (
+        <a
+          target="_blank"
+          rel=""
+          onClick={() => {
+            router.push(`/page/purchasehistory`);
+          }}
+        >
+          Purchase History
+        </a>
+      ),
+    },
+    {
+      key: "4",
+      label: (
         <a target="_blank" rel="" onClick={handleLogout}>
           <p className="text-red-500 hover:text-red-600">Logout</p>
         </a>
