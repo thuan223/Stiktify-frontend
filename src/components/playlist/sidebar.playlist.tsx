@@ -5,12 +5,14 @@ import { IoMdAdd } from "react-icons/io";
 import noImagePlaylist from "@/assets/images/playlist-no-image.jpg"
 import { useContext, useEffect, useState } from "react";
 import AddPlayList from "../modal/modal.add.playlist";
-import { Tooltip } from "antd";
+import { message, Popconfirm, Tooltip } from "antd";
 import { useRouter } from "next/navigation";
 import { PiMusicNotesPlusBold } from "react-icons/pi";
 import AddMusicModal from "../modal/modal.add.music";
 import { handleGetAllCategoryAction } from "@/actions/category.action";
 import { AuthContext } from "@/context/AuthContext";
+import { PiMusicNotesMinusBold } from "react-icons/pi";
+import { handleDeletePlaylist } from "@/actions/playlist.action";
 
 const SideBarPlaylist = () => {
     const { playlist } = useGlobalContext()!
@@ -33,6 +35,20 @@ const SideBarPlaylist = () => {
             setListCate([])
         })()
     }, [isOpenModalAddMusic])
+
+    const confirm = async (id: string) => {
+        const res = await handleDeletePlaylist(id)
+        console.log("res>>>>>>", res);
+
+        if (res?.statusCode === 200) {
+            message.success('Deleted successfully');
+        }
+    }
+
+    const cancel = (e: any) => {
+        console.log(e);
+        message.error('Click on No');
+    }
     return (
         <>
             {user &&
@@ -44,6 +60,19 @@ const SideBarPlaylist = () => {
                                     placement="left"
                                     overlayInnerStyle={{ background: "white", color: "#1e272e" }}
                                     title={item.name} >
+                                    <div className="absolute right-0 bg-red-600 p-[3px] rounded-sm cursor-pointer">
+                                        <Popconfirm
+                                            title="Are you sure delete this playlist?"
+                                            onConfirm={() => confirm(item._id)}
+                                            onCancel={cancel}
+                                            okText="Yes"
+                                            cancelText="No"
+                                            placement="topLeft"
+                                            okButtonProps={{ style: { color: "white", background: "red" } }}
+                                        >
+                                            <PiMusicNotesMinusBold color="white" size={15} />
+                                        </Popconfirm>
+                                    </div>
                                     <div onClick={() => handleNavigate(item._id)} className="cursor-pointer flex items-center justify-center w-14 h-14 bg-white rounded-md">
                                         <Image width={100} height={100} className="rounded-md w-full h-full" alt="thumbnail" src={!item.image || item.image === "" ? noImagePlaylist : item.image} />
                                     </div>

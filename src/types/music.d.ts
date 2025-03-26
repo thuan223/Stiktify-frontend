@@ -16,9 +16,10 @@ interface IMusic {
     totalListener: number,
     totalComment: number,
     totalReactions: number,
-    musicLyric: string,
+    musicLyric: { start: number, end: number, text: string }[],
     createdAt: string,
     updatedAt: string,
     isDelete: boolean,
     flag: boolean,
+    musicSeparate: string[]
 }
