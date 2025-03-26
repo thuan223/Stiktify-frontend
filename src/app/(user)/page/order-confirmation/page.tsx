@@ -8,6 +8,7 @@ import {
   Package,
   Mail,
   Truck,
+  HomeIcon,
 } from "lucide-react";
 import Head from "next/head";
 
@@ -88,8 +89,8 @@ const OrderConfirmationPage: React.FC = () => {
                 hover:shadow-md group"
                 aria-label="Back to Home"
               >
-                <ShoppingCart className="mr-2 w-6 h-6 group-hover:rotate-6 transition" />
-                Back to Order
+                <HomeIcon className="mr-2 w-6 h-6 group-hover:rotate-6 transition" />
+                Back to Home
               </button>
 
               <button

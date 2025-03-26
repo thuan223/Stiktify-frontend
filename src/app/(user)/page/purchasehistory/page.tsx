@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useContext } from "react";
-import { Typography, Spin, Alert, Image } from "antd";
+import { Typography, Spin, Alert, Image, Tooltip } from "antd";
 import { AuthContext } from "@/context/AuthContext";
 import { sendRequest } from "@/utils/api";
 import {
@@ -13,6 +13,11 @@ import {
   XCircle,
   AlertTriangle,
   ShoppingBag,
+  User,
+  Mail,
+  Phone,
+  MailCheckIcon,
+  MailIcon,
 } from "lucide-react";
 
 const { Title, Text } = Typography;
@@ -33,6 +38,8 @@ interface Order {
   isPaid: boolean;
   shippingAddress: string;
   fullName?: string;
+  emailAddress?: string;
+  phoneNumber?: string;
   productId?: string;
   product?: Product;
 }
@@ -311,11 +318,27 @@ const PurchaseHistory: React.FC = () => {
                         <Text strong>Shipping Information</Text>
                       </div>
                       <div className="space-y-1 text-gray-700">
-                        <p>
+                        <p className="flex items-center">
+                          <User className="w-4 h-4 mr-2 text-gray-500" />
                           <span className="text-gray-500">Name: </span>
                           {order.fullName || "Unknown"}
                         </p>
-                        <p>
+                        <Tooltip
+                          title={order.emailAddress || "No email provided"}
+                        >
+                          <p className="flex items-center truncate">
+                            <MailIcon className="w-4 h-4 mr-2 text-gray-500" />
+                            <span className="text-gray-500">Email: </span>
+                            {order.emailAddress || "N/A"}
+                          </p>
+                        </Tooltip>
+                        <p className="flex items-center">
+                          <Phone className="w-4 h-4 mr-2 text-gray-500" />
+                          <span className="text-gray-500">Phone: </span>
+                          {order.phoneNumber || "N/A"}
+                        </p>
+                        <p className="flex items-center">
+                          <MapPin className="w-4 h-4 mr-2 text-gray-500" />
                           <span className="text-gray-500">Address: </span>
                           {order.shippingAddress}
                         </p>

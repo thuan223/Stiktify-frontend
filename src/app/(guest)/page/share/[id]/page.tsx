@@ -4,7 +4,7 @@ import { useEffect, useState, useContext } from "react";
 import { useParams, usePathname } from "next/navigation";
 import { AuthContext } from "@/context/AuthContext";
 import { sendRequest } from "@/utils/api";
-import { Copy, Check, Loader2, AlertCircle, Play } from "lucide-react";
+import { Copy, Check, Loader2, AlertCircle, Play, Globe } from "lucide-react";
 
 interface Video {
   videoUrl: string;
@@ -61,37 +61,37 @@ const ShareVideo = () => {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden border border-neutral-200">
-        <div className="p-6 bg-neutral-100 border-b border-neutral-200">
-          <h1 className="text-2xl font-semibold text-neutral-800 flex items-center justify-center gap-2">
-            <Play className="w-6 h-6 text-neutral-600" />
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center p-6">
+      <div className="w-full max-w-2xl mx-auto bg-white rounded-3xl shadow-2xl border border-blue-100 overflow-hidden transform transition-all hover:scale-[1.02]">
+        <div className="p-6 bg-gradient-to-r from-blue-500 to-indigo-600 text-white">
+          <h1 className="text-3xl font-bold flex items-center justify-center gap-4">
+            <Globe className="w-10 h-10 text-white/80" />
             Video Sharing
           </h1>
         </div>
 
-        <div className="p-6">
+        <div className="p-8 space-y-6">
           {loading && (
-            <div className="flex flex-col items-center justify-center text-neutral-600">
-              <Loader2 className="animate-spin w-8 h-8 text-neutral-500" />
-              <p className="mt-3 text-sm text-neutral-500">
+            <div className="flex flex-col items-center justify-center text-blue-600">
+              <Loader2 className="animate-spin w-12 h-12 text-blue-500" />
+              <p className="mt-4 text-lg text-blue-700 font-medium">
                 Loading video content...
               </p>
             </div>
           )}
 
           {error && (
-            <div className="flex items-center bg-red-50 border border-red-200 p-4 rounded-lg text-red-600">
-              <AlertCircle className="w-6 h-6 mr-3 shrink-0" />
-              <p className="text-sm">{error}</p>
+            <div className="flex items-center bg-red-50 border-2 border-red-300 p-5 rounded-xl text-red-700 shadow-md">
+              <AlertCircle className="w-8 h-8 mr-4 shrink-0 text-red-500" />
+              <p className="text-base font-semibold">{error}</p>
             </div>
           )}
 
           {videoData && (
-            <div className="space-y-6">
-              <div className="bg-neutral-100 rounded-xl p-2 shadow-inner">
+            <div className="space-y-8">
+              <div className="bg-blue-50 rounded-2xl p-4 shadow-lg border border-blue-100">
                 <video
-                  className="w-full rounded-lg shadow-lg"
+                  className="w-full rounded-xl shadow-2xl border-4 border-white"
                   controls
                   poster="/api/placeholder/800/450"
                 >
@@ -100,8 +100,8 @@ const ShareVideo = () => {
                 </video>
               </div>
 
-              <div className="text-center">
-                <p className="text-lg font-medium text-neutral-800 mb-4">
+              <div className="text-center space-y-6">
+                <p className="text-xl font-semibold text-neutral-800 px-4">
                   {videoData.videoDescription}
                 </p>
 
@@ -109,30 +109,38 @@ const ShareVideo = () => {
                   onClick={handleCopyLink}
                   className="
                     w-full 
-                    py-3 
-                    rounded-lg 
-                    bg-neutral-800 
+                    py-4 
+                    rounded-xl 
+                    bg-gradient-to-r 
+                    from-blue-600 
+                    to-indigo-700 
                     text-white 
-                    hover:bg-neutral-700 
-                    transition-colors 
+                    text-lg 
+                    font-bold 
+                    hover:from-blue-700 
+                    hover:to-indigo-800 
+                    transition-all 
+                    duration-300 
                     flex 
                     items-center 
                     justify-center 
-                    space-x-2
+                    space-x-3
                     focus:outline-none 
-                    focus:ring-2 
-                    focus:ring-neutral-500 
-                    focus:ring-offset-2
+                    focus:ring-4 
+                    focus:ring-blue-300 
+                    focus:ring-opacity-50
+                    shadow-lg
+                    hover:shadow-xl
                   "
                 >
                   {copied ? (
                     <>
-                      <Check className="w-5 h-5 text-green-400" />
-                      <span>Link Copied</span>
+                      <Check className="w-6 h-6 text-green-300" />
+                      <span>Link Copied!</span>
                     </>
                   ) : (
                     <>
-                      <Copy className="w-5 h-5" />
+                      <Copy className="w-6 h-6" />
                       <span>Copy Sharing Link</span>
                     </>
                   )}
