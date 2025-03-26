@@ -17,6 +17,8 @@ import { getTrackRelatedAction, handleListenNeo4j, handleUpdateListenerAction } 
 import { AuthContext } from "@/context/AuthContext";
 import Cookies from "js-cookie";
 import { sendRequest } from "@/utils/api";
+import { GiMicrophone } from "react-icons/gi";
+import { useRouter } from "next/navigation";
 
 interface MusicPlayerProps {
   setIsDonePlaying?: Dispatch<SetStateAction<boolean>>;
@@ -36,7 +38,8 @@ const MusicPlayer = (p: MusicPlayerProps) => {
     prevList,
     setPrevList,
     musicTagRelated,
-    setMusicTagRelated
+    setMusicTagRelated,
+    setTrackKaraoke
   } = useGlobalContext()!;
   const [volume, setVolume] = useState(1);
   const playerRef = useRef<ReactHowler | null>(null);
@@ -49,6 +52,7 @@ const MusicPlayer = (p: MusicPlayerProps) => {
   const [countTrack, setCountTrack] = useState(0);
   const { user, accessToken } = useContext(AuthContext) ?? {};
   const { setIsDonePlaying } = p;
+  const router = useRouter();
 
   useEffect(() => {
     if (seek >= duration - 1.3 && setIsDonePlaying && duration > 0) {
@@ -229,6 +233,10 @@ const MusicPlayer = (p: MusicPlayerProps) => {
     setFlag(false);
   }, [prevList, listPlaylist.length, trackRelatedId, musicTagRelated, setTrackCurrent]);
 
+  const handleKaraoke = () => {
+    setTrackKaraoke(trackCurrent)
+    router.push("/page/karaoke")
+  }
 
   return (
     <div className="w-full h-full  bg-gray-900/80 backdrop-blur-md text-white p-4 rounded-2xl shadow-lg">
@@ -278,6 +286,10 @@ const MusicPlayer = (p: MusicPlayerProps) => {
 
             <button className="hover:text-green-400 transition">
               <FaRepeat size={20} />
+            </button>
+
+            <button onClick={handleKaraoke} className="hover:text-green-400 transition">
+              <GiMicrophone size={20} />
             </button>
           </div>
           <div className="flex justify-center items-center gap-5">

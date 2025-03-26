@@ -125,7 +125,8 @@ const AddMusicModal = (props: IProps) => {
     useEffect(() => {
         if (isLoading && progressUploadMusic === 100 && dataCreate) {
             (async () => {
-                const configData = { ...dataCreate, musicSeparate: separate, musicLyric: lyrics }
+                const newSeparate = separate.filter(x => !x.endsWith(".vocals.wav"))
+                const configData = { ...dataCreate, musicSeparate: newSeparate, musicLyric: lyrics }
                 const res = await handleCreateMusicAction(configData)
                 if (res?.statusCode === 201) {
                     notification.success({ message: "Created successfully" })
