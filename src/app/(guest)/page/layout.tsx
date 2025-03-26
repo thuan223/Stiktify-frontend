@@ -8,7 +8,7 @@ const PageLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="flex">
       {!showComments && <SideBar />}
-      <main className="flex-grow p-5">{children}</main>
+      <main className="flex-grow">{children}</main>
     </div>
   );
 };

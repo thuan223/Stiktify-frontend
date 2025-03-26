@@ -392,3 +392,25 @@ export const getTrackRelatedAction = async (musicId: string[] | [], musicTag: { 
     return null;
   }
 }
+
+export const handleGetDataHotMusic = async () => {
+  try {
+    const cookieStore = cookies();
+    const token = cookieStore.get("token")?.value;
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/list-hot-music`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        next: { tags: ["list-hot-music"] },
+      }
+    );
+    const result: IBackendRes<any> = await res.json();
+    return result;
+  } catch (error) {
+    return null;
+  }
+};

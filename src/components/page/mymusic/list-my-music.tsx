@@ -45,8 +45,10 @@ const MyMusic = () => {
         <div className="flex flex-wrap justify-start gap-5 my-3 mx-20">
           {myMusic.map((item: any) => (
             <CardMusic
+              isEdit={true}
+              showPlaying={false}
               key={item._id}
-              handlePlayer={() => {}}
+              handlePlayer={() => { }}
               isPlaying={false}
               item={item}
             />

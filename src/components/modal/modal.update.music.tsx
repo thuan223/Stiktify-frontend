@@ -22,7 +22,7 @@ interface IProps {
     listCate: { _id: string, categoryName: string }[] | []
 }
 
-const AddMusicModal = (props: IProps) => {
+const UpdateMusic = (props: IProps) => {
     const {
         isCreateModalOpen, setIsCreateModalOpen, listCate
     } = props;
@@ -408,4 +408,4 @@ const AddMusicModal = (props: IProps) => {
     )
 }
 
-export default AddMusicModal;
+export default UpdateMusic;

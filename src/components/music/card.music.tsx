@@ -14,17 +14,19 @@ import { MdOutlinePlaylistAdd } from "react-icons/md";
 import { handleAddMusicInPlaylistAction } from "@/actions/playlist.action"
 import AddPlayList from "../modal/modal.add.playlist"
 import { AuthContext } from "@/context/AuthContext"
-
+import UpdateMusic from "../modal/modal.update.music"
 interface IProps {
+    isEdit?: boolean,
+    showPlaying?: boolean,
     handlePlayer: (v: any) => void
     isPlaying: boolean,
     item: IMusic
-    ref?: any
+    ref?: any,
 }
 
 const CardMusic = (props: IProps) => {
-    const { handlePlayer, isPlaying, item, ref } = props
-    const { trackCurrent, playlist, listPlaylist } = useGlobalContext()!
+    const { handlePlayer, isPlaying, item, ref, showPlaying = true, isEdit = false } = props
+    const { trackCurrent, playlist, listPlaylist, } = useGlobalContext()!
     const { user } = useContext(AuthContext)!
     const [hoverPlayer, setHoverPlayer] = useState(false)
     const router = useRouter()
@@ -50,6 +52,7 @@ const CardMusic = (props: IProps) => {
     useEffect(() => {
         const playlistArr: MenuProps["items"] = []
         if (playlist && playlist.length > 0) {
+
             playlist.map((item, index) => {
                 const config = {
                     key: item._id,
@@ -64,22 +67,35 @@ const CardMusic = (props: IProps) => {
                 playlistArr.push(config)
             })
         }
-        const addNewPlaylist = {
-            key: playlistArr.length + 1,
-            label: <div>New playlist</div>,
-            icon: <MdOutlinePlaylistAdd size={20} />
+        if (isEdit) {
+            const data: MenuProps["items"] = [
+                {
+                    key: '1',
+                    label: <div className="font-medium font-roboto text-black">Update Music</div>,
+                    icon: <RiPlayListLine size={20} />,
+                    expandIcon: null
+                },
+            ]
+            setItems(data)
+        } else {
+            const addNewPlaylist = {
+                key: playlistArr.length + 1,
+                label: <div>New playlist</div>,
+                icon: <MdOutlinePlaylistAdd size={20} />
+            }
+            playlistArr.push(addNewPlaylist)
+            const data: MenuProps["items"] = [
+                {
+                    key: '1',
+                    label: <div className="font-medium font-roboto text-black">Add Playlist</div>,
+                    icon: <RiPlayListLine size={20} />,
+                    children: playlistArr,
+                    expandIcon: null
+                },
+            ]
+            setItems(data)
         }
-        playlistArr.push(addNewPlaylist)
-        const data: MenuProps["items"] = [
-            {
-                key: '1',
-                label: <div className="font-medium font-roboto text-black">Add Playlist</div>,
-                icon: <RiPlayListLine size={20} />,
-                children: playlistArr,
-                expandIcon: null
-            },
-        ]
-        setItems(data)
+
     }, [playlist])
 
     const handleAddMusicInPlaylist = async (playlistId: string) => {
@@ -100,6 +116,10 @@ const CardMusic = (props: IProps) => {
         return router.push("/auth/login")
 
     }
+
+    const handleUpdateMusic = () => {
+
+    }
     return (
         <>
             <div ref={ref}
@@ -115,7 +135,7 @@ const CardMusic = (props: IProps) => {
                         items,
                         onClick: (e) => {
                             e.domEvent.stopPropagation();
-                            handleAddMusicInPlaylist(e.key)
+                            isEdit ? handleUpdateMusic() : handleAddMusicInPlaylist(e.key)
                         },
                     }}>
                     <FaBarsStaggered onClick={(e) => e.stopPropagation()} className="absolute text-white top-3 right-2 hover:text-green-400" size={20} />
@@ -129,12 +149,15 @@ const CardMusic = (props: IProps) => {
                 <Tooltip title={item.musicDescription}>
                     <div className="mt-2 text-[20px] font-semibold font-roboto truncate w-[10vw] select-none">{item.musicDescription}</div>
                 </Tooltip>
-                <ButtonPlayer
-                    current={item._id}
-                    className={`absolute right-2 bottom-6 transition-all duration-300 transform 
-                        ${hoverPlayer ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}`}
-                    isPlaying={isPlaying}
-                    togglePlay={() => handleItem(item)} />
+                {showPlaying &&
+                    <ButtonPlayer
+                        current={item._id}
+                        className={`absolute right-2 bottom-6 transition-all duration-300 transform 
+                     ${hoverPlayer ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}`}
+                        isPlaying={isPlaying}
+                        togglePlay={() => handleItem(item)} />
+                }
+
             </div>
             <AddPlayList isOpenModal={isOpenModal} setIsOpenModal={setIsOpenModal} />
         </>
