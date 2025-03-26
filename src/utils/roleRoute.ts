@@ -22,6 +22,7 @@ const roleRoutes: Record<string, (string | RegExp)[]> = {
     "/page/detail_cart",
     "/personal/musichistory",
     "/page/order",
+    "/page/order-confirmation",
 
   ],
   GUEST: [

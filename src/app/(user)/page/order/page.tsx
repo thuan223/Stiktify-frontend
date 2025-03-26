@@ -25,7 +25,6 @@ import { useRouter } from "next/navigation";
 
 const { Title, Text } = Typography;
 
-// Detailed type definitions
 interface OrderItem {
   productId: string;
   productName: string;
@@ -36,40 +35,39 @@ interface OrderItem {
 
 interface OrderFormData {
   fullName: string;
-  phone: string;
-  email: string;
-  address: string;
+  phoneNumber: string;
+  emailAddress: string;
+  shippingAddress: string;
   paymentMethod: "COD" | "VNPAY";
 }
 
-interface OrderSubmissionData extends OrderFormData {
+interface OrderSubmissionData {
   userId: string;
-  items: OrderItem[];
-  totalPrice: number;
+  productId: string;
+  amount: number;
+  paymentMethod: "COD" | "VNPAY";
+  fullName: string;
+  phoneNumber: string;
+  emailAddress: string;
+  shippingAddress: string;
 }
 
 interface ApiResponse {
   statusCode: number;
   data?: any;
   message?: string;
-}
-
-interface IRequest {
-  url: string;
-  method: string;
-  headers?: { [key: string]: string };
-  body?: { [key: string]: any };
+  paymentUrl?: string;
 }
 
 const OrderPage: React.FC = () => {
   const [form] = Form.useForm<OrderFormData>();
   const [products, setProducts] = useState<any[]>([]);
-  const [cart, setCart] = useState<any[]>([]);
+  const [cart, setCart] = useState<OrderItem[]>([]);
   const [loading, setLoading] = useState(true);
   const authContext = useContext(AuthContext);
   const router = useRouter();
 
-  // Currency formatter for consistent price display
+  // Currency formatter
   const currencyFormatter = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
@@ -77,7 +75,7 @@ const OrderPage: React.FC = () => {
     maximumFractionDigits: 2,
   });
 
-  // Helper method to format price with two decimal places
+  // Helper method to format price
   const formatPrice = (price: number) => {
     return Math.round(price * 100) / 100;
   };
@@ -126,12 +124,12 @@ const OrderPage: React.FC = () => {
               ...cartItem,
               productName: product.productName,
               price: product.productPrice,
-              image: product.image,
+              image: product.image, // Lấy hình ảnh từ sản phẩm
             };
           }
           return null;
         })
-        .filter((item) => item !== null);
+        .filter((item) => item !== null) as OrderItem[];
 
       setCart(enrichedCart);
     }
@@ -170,20 +168,29 @@ const OrderPage: React.FC = () => {
 
   // Handle order submission
   const handleSubmitOrder = async (values: OrderFormData) => {
-    if (!accessToken || !user?._id) {
+    // Validate user ID
+    if (!user?._id || typeof user._id !== "string") {
       notification.error({
-        message: "Authentication Error",
-        description: "Please log in to complete your order",
+        message: "Invalid User",
+        description: "User ID is missing or invalid",
       });
       return;
     }
 
-    // Validate cart is not empty
-    if (cart.length === 0) {
+    // Validate cart and product
+    if (cart.length === 0 || !cart[0]?.productId) {
       notification.error({
-        message: "Empty Cart",
-        description:
-          "Your cart is empty. Please add items before placing an order.",
+        message: "Cart Error",
+        description: "Please add a valid product to your cart",
+      });
+      return;
+    }
+
+    // Ensure payment method is valid
+    if (!["COD", "VNPAY"].includes(values.paymentMethod)) {
+      notification.error({
+        message: "Payment Method Error",
+        description: "Please select a valid payment method",
       });
       return;
     }
@@ -191,34 +198,40 @@ const OrderPage: React.FC = () => {
     setLoading(true);
     try {
       const orderData: OrderSubmissionData = {
-        ...values,
-        userId: user._id,
-        items: cart,
-        totalPrice: getTotalPrice(),
+        userId: user._id.toString(),
+        productId: cart[0].productId.toString(),
+        amount: Number(getTotalPrice()),
+        paymentMethod: values.paymentMethod === "COD" ? "COD" : "VNPAY",
+        fullName: values.fullName.trim(),
+        phoneNumber: values.phoneNumber.trim(),
+        emailAddress: values.emailAddress.trim(),
+        shippingAddress: values.shippingAddress.trim(),
       };
 
-      const requestPayload: IRequest = {
+      const response = await sendRequest<any>({
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/orders`,
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
+        headers: { Authorization: `Bearer ${accessToken}` },
         body: orderData,
-      };
-
-      const response = await sendRequest<ApiResponse>(requestPayload);
+      });
 
       if (response.statusCode === 201) {
-        notification.success({
-          message: "Order Placed Successfully",
-          description: "Your order has been processed.",
-          placement: "bottomRight",
-        });
+        // Handle different payment methods
+        if (values.paymentMethod === "VNPAY" && response.paymentUrl) {
+          // Redirect to VNPAY payment URL
+          window.location.href = response.paymentUrl;
+        } else {
+          // For COD or other methods
+          notification.success({
+            message: "Order Placed Successfully",
+            description: "Your order has been processed.",
+            placement: "bottomRight",
+          });
 
-        // Clear cart after successful order
-        sessionStorage.removeItem("cart");
-        router.push("/page/order-confirmation");
+          // Clear cart after successful order
+          sessionStorage.removeItem("cart");
+          router.push("/page/order-confirmation");
+        }
       } else {
         notification.error({
           message: "Order Failed",
@@ -239,15 +252,6 @@ const OrderPage: React.FC = () => {
       setLoading(false);
     }
   };
-
-  // Loading state
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <Spin size="large" />
-      </div>
-    );
-  }
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
@@ -271,7 +275,23 @@ const OrderPage: React.FC = () => {
                   name="fullName"
                   label="Full Name"
                   rules={[
-                    { required: true, message: "Please enter your full name" },
+                    {
+                      required: true,
+                      message: "Please enter your full name",
+                    },
+                    {
+                      type: "string",
+                      message: "Full name must be a valid string",
+                    },
+                    {
+                      validator: async (_, value) => {
+                        if (!value || value.trim().length < 2) {
+                          throw new Error(
+                            "Full name must be at least 2 characters"
+                          );
+                        }
+                      },
+                    },
                   ]}
                 >
                   <Input
@@ -281,7 +301,7 @@ const OrderPage: React.FC = () => {
                 </Form.Item>
 
                 <Form.Item
-                  name="phone"
+                  name="phoneNumber"
                   label="Phone Number"
                   rules={[
                     {
@@ -301,11 +321,17 @@ const OrderPage: React.FC = () => {
                 </Form.Item>
 
                 <Form.Item
-                  name="email"
+                  name="emailAddress"
                   label="Email Address"
                   rules={[
-                    { required: true, message: "Please enter your email" },
-                    { type: "email", message: "Please enter a valid email" },
+                    {
+                      required: true,
+                      message: "Please enter your email",
+                    },
+                    {
+                      type: "email",
+                      message: "Please enter a valid email",
+                    },
                   ]}
                 >
                   <Input
@@ -315,12 +341,17 @@ const OrderPage: React.FC = () => {
                 </Form.Item>
 
                 <Form.Item
-                  name="address"
+                  name="shippingAddress"
                   label="Shipping Address"
                   rules={[
                     {
                       required: true,
                       message: "Please enter your shipping address",
+                    },
+                    {
+                      min: 10,
+                      message:
+                        "Shipping address must be at least 10 characters",
                     },
                   ]}
                 >
@@ -356,7 +387,7 @@ const OrderPage: React.FC = () => {
 
                 <Form.Item>
                   <Button
-                    type="primary"
+                    type="default"
                     htmlType="submit"
                     block
                     loading={loading}
@@ -370,58 +401,51 @@ const OrderPage: React.FC = () => {
             </Card>
           </div>
 
-          {/* Order Summary */}
+          {/* Order Summary Section */}
           <div className="md:col-span-1">
-            <Card>
-              <Title level={4}>Order Summary</Title>
-              {cart.length === 0 ? (
-                <div className="text-center text-gray-500">
-                  Your cart is empty
+            <Card title="Order Summary">
+              {loading ? (
+                <div className="flex justify-center items-center">
+                  <Spin size="large" />
                 </div>
               ) : (
                 <>
-                  <div className="space-y-2 mb-4">
-                    {cart.map((item) => (
-                      <div
-                        key={item.productId}
-                        className="flex justify-between items-center border-b pb-2 last:border-0"
-                      >
-                        <div className="flex items-center">
-                          <img
-                            src={item.image || "/default-image.jpg"}
-                            alt={item.productName || "Product"}
-                            className="w-16 h-16 object-cover rounded mr-3"
-                          />
-                          <div>
-                            <Text strong>
-                              {item.productName || "Unknown Product"}
-                            </Text>
-                            <div className="text-gray-500">
-                              {item.quantity} x ${formatPrice(item.price || 0)}
-                            </div>
-                          </div>
+                  {cart.map((item) => (
+                    <div
+                      key={item.productId}
+                      className="flex items-center mb-3 space-x-3"
+                    >
+                      {/* Thêm hình ảnh sản phẩm */}
+                      {item.image && (
+                        <img
+                          src={item.image}
+                          alt={item.productName}
+                          className="w-16 h-16 object-cover rounded"
+                        />
+                      )}
+                      <div className="flex-grow">
+                        <Text>{item.productName}</Text>
+                        <div className="flex justify-between">
+                          <Text type="secondary">x {item.quantity}</Text>
+                          <Text strong>
+                            {currencyFormatter.format(
+                              item.price * item.quantity
+                            )}
+                          </Text>
                         </div>
-                        <Text strong>
-                          $
-                          {formatPrice(
-                            (item.quantity || 0) * (item.price || 0)
-                          )}
-                        </Text>
                       </div>
-                    ))}
-                  </div>
-                  <div className="border-t pt-3">
-                    <div className="flex justify-between mb-2">
-                      <Text>Subtotal ({getTotalItems()} items)</Text>
-                      <Text strong>${formatPrice(getTotalPrice())}</Text>
                     </div>
-                    <div className="flex justify-between mb-2">
-                      <Text>Shipping</Text>
-                      <Text strong>Free</Text>
+                  ))}
+                  <div className="border-t mt-3 pt-3">
+                    <div className="flex justify-between">
+                      <Text>Total Items:</Text>
+                      <Text strong>{getTotalItems()}</Text>
                     </div>
-                    <div className="flex justify-between font-bold text-lg">
-                      <Text>Total</Text>
-                      <Text strong>${formatPrice(getTotalPrice())}</Text>
+                    <div className="flex justify-between">
+                      <Text>Total Price:</Text>
+                      <Text strong>
+                        {currencyFormatter.format(getTotalPrice())}
+                      </Text>
                     </div>
                   </div>
                 </>
