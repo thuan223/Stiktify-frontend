@@ -79,7 +79,7 @@ const BusinessAccountModal = ({
         <Button key="cancel" onClick={() => setIsOpen(false)}>
           Close
         </Button>,
-        <Button key="submit" type="primary" onClick={handleRegister}>
+        <Button key="submit" type="default" onClick={handleRegister}>
           Register
         </Button>,
       ]}

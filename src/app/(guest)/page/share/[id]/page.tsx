@@ -4,7 +4,7 @@ import { useEffect, useState, useContext } from "react";
 import { useParams, usePathname } from "next/navigation";
 import { AuthContext } from "@/context/AuthContext";
 import { sendRequest } from "@/utils/api";
-import { Copy, Check, Loader2, AlertCircle } from "lucide-react";
+import { Copy, Check, Loader2, AlertCircle, Play } from "lucide-react";
 
 interface Video {
   videoUrl: string;
@@ -24,7 +24,7 @@ const ShareVideo = () => {
     if (id) {
       fetchVideoShare();
     } else {
-      setError("Invalid video ID");
+      setError("Invalid video identifier");
       setLoading(false);
     }
   }, [id]);
@@ -42,10 +42,10 @@ const ShareVideo = () => {
           videoDescription: res.data.videoDescription,
         });
       } else {
-        setError("Video not found");
+        setError("Video content could not be retrieved");
       }
     } catch (err) {
-      setError("Failed to fetch video");
+      setError("Network error. Please try again later.");
       console.error(err);
     } finally {
       setLoading(false);
@@ -61,59 +61,86 @@ const ShareVideo = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-[#22C55E] p-6 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-[#22C55E] to-[#a1e9b0] opacity-50 blur-3xl"></div>
-      <div className="bg-white/10 backdrop-blur-lg shadow-2xl rounded-3xl p-8 max-w-2xl w-full border border-white/20 relative z-10">
-        <h1 className="text-4xl font-bold text-gray-800 mb-6 font-serif text-center">
-          Video Player
-        </h1>
+    <div className="min-h-screen bg-neutral-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden border border-neutral-200">
+        <div className="p-6 bg-neutral-100 border-b border-neutral-200">
+          <h1 className="text-2xl font-semibold text-neutral-800 flex items-center justify-center gap-2">
+            <Play className="w-6 h-6 text-neutral-600" />
+            Video Sharing
+          </h1>
+        </div>
 
-        {loading && (
-          <div className="flex flex-col items-center justify-center text-white">
-            <Loader2 className="animate-spin w-6 h-6" />
-            <p className="mt-2">Loading video...</p>
-          </div>
-        )}
-
-        {error && (
-          <div className="flex items-center text-red-400 bg-red-900/30 p-3 rounded-lg border border-red-500/50">
-            <AlertCircle className="w-5 h-5 mr-2" />
-            <p>{error}</p>
-          </div>
-        )}
-
-        {videoData && (
-          <div className="mt-4 text-center">
-            <video
-              className="w-full rounded-xl shadow-md border border-white/10"
-              controls
-            >
-              <source src={videoData.videoUrl} type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
-            <h2 className="text-2xl font-bold text-white mt-4 drop-shadow-md">
-              {videoData.videoDescription}
-            </h2>
-            <div className="mt-4 flex justify-center">
-              <button
-                onClick={handleCopyLink}
-                className="px-3 py-1 rounded-md transition duration-300 border border-white/20 text-white bg-white/20 hover:bg-white/30 active:scale-95 flex items-center"
-              >
-                {copied ? (
-                  <>
-                    <Check className="w-4 h-4 text-white-300" />
-                    <span className="ml-2">Copied</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-4 h-4" />
-                    <span className="ml-2">Copy Link</span>
-                  </>
-                )}
-              </button>
+        <div className="p-6">
+          {loading && (
+            <div className="flex flex-col items-center justify-center text-neutral-600">
+              <Loader2 className="animate-spin w-8 h-8 text-neutral-500" />
+              <p className="mt-3 text-sm text-neutral-500">
+                Loading video content...
+              </p>
             </div>
-          </div>
-        )}
+          )}
+
+          {error && (
+            <div className="flex items-center bg-red-50 border border-red-200 p-4 rounded-lg text-red-600">
+              <AlertCircle className="w-6 h-6 mr-3 shrink-0" />
+              <p className="text-sm">{error}</p>
+            </div>
+          )}
+
+          {videoData && (
+            <div className="space-y-6">
+              <div className="bg-neutral-100 rounded-xl p-2 shadow-inner">
+                <video
+                  className="w-full rounded-lg shadow-lg"
+                  controls
+                  poster="/api/placeholder/800/450"
+                >
+                  <source src={videoData.videoUrl} type="video/mp4" />
+                  Your browser does not support video playback.
+                </video>
+              </div>
+
+              <div className="text-center">
+                <p className="text-lg font-medium text-neutral-800 mb-4">
+                  {videoData.videoDescription}
+                </p>
+
+                <button
+                  onClick={handleCopyLink}
+                  className="
+                    w-full 
+                    py-3 
+                    rounded-lg 
+                    bg-neutral-800 
+                    text-white 
+                    hover:bg-neutral-700 
+                    transition-colors 
+                    flex 
+                    items-center 
+                    justify-center 
+                    space-x-2
+                    focus:outline-none 
+                    focus:ring-2 
+                    focus:ring-neutral-500 
+                    focus:ring-offset-2
+                  "
+                >
+                  {copied ? (
+                    <>
+                      <Check className="w-5 h-5 text-green-400" />
+                      <span>Link Copied</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-5 h-5" />
+                      <span>Copy Sharing Link</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

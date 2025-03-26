@@ -171,8 +171,9 @@ const OrderPage: React.FC = () => {
     // Validate user ID
     if (!user?._id || typeof user._id !== "string") {
       notification.error({
-        message: "Invalid User",
-        description: "User ID is missing or invalid",
+        message: "Authentication Error",
+        description: "User authentication failed. Please log in again.",
+        placement: "bottomRight",
       });
       return;
     }
@@ -181,16 +182,22 @@ const OrderPage: React.FC = () => {
     if (cart.length === 0 || !cart[0]?.productId) {
       notification.error({
         message: "Cart Error",
-        description: "Please add a valid product to your cart",
+        description:
+          "Your cart is empty. Please add products before placing an order.",
+        placement: "bottomRight",
       });
       return;
     }
 
-    // Ensure payment method is valid
-    if (!["COD", "VNPAY"].includes(values.paymentMethod)) {
+    // Validate payment method
+    const validPaymentMethods = ["COD", "VNPAY"];
+    const paymentMethod = values.paymentMethod === "VNPAY" ? "VNPAY" : "COD";
+
+    if (!validPaymentMethods.includes(paymentMethod)) {
       notification.error({
         message: "Payment Method Error",
-        description: "Please select a valid payment method",
+        description: "Please select a valid payment method.",
+        placement: "bottomRight",
       });
       return;
     }
@@ -201,14 +208,14 @@ const OrderPage: React.FC = () => {
         userId: user._id.toString(),
         productId: cart[0].productId.toString(),
         amount: Number(getTotalPrice()),
-        paymentMethod: values.paymentMethod === "COD" ? "COD" : "VNPAY",
+        paymentMethod: paymentMethod,
         fullName: values.fullName.trim(),
         phoneNumber: values.phoneNumber.trim(),
         emailAddress: values.emailAddress.trim(),
         shippingAddress: values.shippingAddress.trim(),
       };
 
-      const response = await sendRequest<any>({
+      const response = await sendRequest<ApiResponse>({
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/orders`,
         method: "POST",
         headers: { Authorization: `Bearer ${accessToken}` },
@@ -216,12 +223,12 @@ const OrderPage: React.FC = () => {
       });
 
       if (response.statusCode === 201) {
-        // Handle different payment methods
-        if (values.paymentMethod === "VNPAY" && response.paymentUrl) {
+        // Handle different payment methods separately
+        if (paymentMethod === "VNPAY" && response.paymentUrl) {
           // Redirect to VNPAY payment URL
           window.location.href = response.paymentUrl;
         } else {
-          // For COD or other methods
+          // For COD or if no payment URL is provided
           notification.success({
             message: "Order Placed Successfully",
             description: "Your order has been processed.",
@@ -234,7 +241,7 @@ const OrderPage: React.FC = () => {
         }
       } else {
         notification.error({
-          message: "Order Failed",
+          message: "Order Submission Failed",
           description:
             response.message ||
             "Unable to process your order. Please try again.",
@@ -244,8 +251,9 @@ const OrderPage: React.FC = () => {
     } catch (error) {
       console.error("Order submission error:", error);
       notification.error({
-        message: "Order Error",
-        description: "An unexpected error occurred. Please try again.",
+        message: "Network Error",
+        description:
+          "An unexpected error occurred. Please check your connection and try again.",
         placement: "bottomRight",
       });
     } finally {
