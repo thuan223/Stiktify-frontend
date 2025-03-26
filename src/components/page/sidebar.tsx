@@ -87,18 +87,20 @@ const SideBar: React.FC<SideBarProps> = ({ isHidden }) => {
               </Link>
             </li>
           )}
-            <li>
-              <Link href="/page/rankings" className={getLinkClass("/page/rankings")}>
-                Rankings
-
-              </Link>
-            </li>
+          <li>
+            <Link
+              href="/page/rankings"
+              className={getLinkClass("/page/rankings")}
+            >
+              Rankings
+            </Link>
+          </li>
           {isGuest ? (
             ""
           ) : (
             <li>
               <Link
-                href="/page/chat"
+                href="/page/sticktify-shop"
                 className={getLinkClass("/page/stiktify-shop")}
               >
                 Stiktify Shop
