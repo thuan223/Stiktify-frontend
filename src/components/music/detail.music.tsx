@@ -94,12 +94,6 @@ const DisplayMusicDetail = ({ item }: IProps) => {
   const handlePlayer = (track: IMusic) => {
     if (trackCurrent?._id !== track._id) {
       setFlag(false)
-      // const data = {
-      //   _id: track._id,
-      //   musicDescription: track.musicDescription,
-      //   musicThumbnail: track.musicThumbnail,
-      //   musicUrl: track.musicUrl,
-      // };
       setTrackCurrent(track);
       localStorage.setItem("trackCurrent", JSON.stringify(track));
 
@@ -118,7 +112,6 @@ const DisplayMusicDetail = ({ item }: IProps) => {
   const handleShareClick = () => {
     router.push(`/page/shareMusic/${item._id}`);
   };
-  // console.log(item);
 
   return (
     <div className="h-[40vh] w-full bg-gray-900 rounded-sm shadow-gray-400/50 flex items-center px-16 relative">

@@ -2,13 +2,23 @@
 
 import { ColumnsType } from "antd/es/table";
 import TableCustomize from "../table/table.dashboard";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Tooltip, Popconfirm, Avatar, notification } from "antd";
-import { CheckCircleTwoTone, CloseCircleTwoTone } from "@ant-design/icons";
+import {
+  CheckCircleTwoTone,
+  CloseCircleTwoTone,
+  FilterOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import { useShowComment } from "@/context/ShowCommentContext";
-import { handleAcceptUserTickedAction } from "@/actions/manage.user.ticked.action";
+import {
+  handleAcceptUserTickedAction,
+  handleFilterAndSearchUserRequest,
+} from "@/actions/manage.user.ticked.action";
 import RejectTickModal from "../modal/modal.reject.ticked";
+import InputCustomize from "../input/input.customize";
+import DropdownCustomize from "../dropdown/dropdown.customize";
 
 interface IProps {
   dataSource: ITicked[];
@@ -17,14 +27,37 @@ interface IProps {
     pageSize: number;
     total: number;
   };
+  metaDefault: {
+    current: number;
+    LIMIT: number;
+  };
 }
 
 const ManageUserTickedTable = (props: IProps) => {
-  const { dataSource, meta } = props;
+  const { dataSource, meta, metaDefault } = props;
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const router = useRouter();
   const { setShowComments } = useShowComment();
+  const [search, setSearch] = useState("");
+  const [filterReq, setFilterReq] = useState("");
+  const [dataTable, setDataTable] = useState<ITicked[] | []>(dataSource);
+  const [metaTable, setMetaTable] = useState(meta);
+
+  const dataFilter = [
+    {
+      value: "pending",
+      title: "Pending",
+    },
+    {
+      value: "approved",
+      title: "Approved",
+    },
+    {
+      value: "rejected",
+      title: "Rejected",
+    },
+  ];
 
   const handleAcceptUserTicked = async (id: string) => {
     const res = await handleAcceptUserTickedAction(id);
@@ -38,6 +71,24 @@ const ManageUserTickedTable = (props: IProps) => {
     setSelectedUser(record);
     setIsEmailModalOpen(true);
   };
+
+  useEffect(() => {
+    (async () => {
+      if (search.length > 0 || filterReq.length > 0) {
+        const res = await handleFilterAndSearchUserRequest(
+          metaDefault.current,
+          metaDefault.LIMIT,
+          search,
+          filterReq
+        );
+        setDataTable(res?.data?.result);
+        setMetaTable(res?.data?.meta);
+      } else {
+        setMetaTable(meta);
+        setDataTable(dataSource);
+      }
+    })();
+  }, [search, dataSource, filterReq, meta]);
 
   const columns: ColumnsType = [
     {
@@ -130,9 +181,38 @@ const ManageUserTickedTable = (props: IProps) => {
           fontSize: 20,
         }}
       >
-        <span>Manage User Ticked Reports</span>
+        <span>Quản lý báo cáo người dùng</span>
       </div>
-      <TableCustomize columns={columns} dataSource={dataSource} meta={meta} />
+      <div
+        style={{
+          marginBottom: "10px",
+          display: "flex",
+          justifyContent: "start",
+          gap: 10,
+        }}
+      >
+        <div style={{ width: "300px" }}>
+          <InputCustomize
+            setValue={setSearch}
+            value={search}
+            icon={<SearchOutlined />}
+          />
+        </div>
+        <div>
+          <DropdownCustomize
+            data={dataFilter}
+            title="Lọc"
+            selected={filterReq}
+            setSelect={setFilterReq}
+            icon={<FilterOutlined />}
+          />
+        </div>
+      </div>
+      <TableCustomize
+        columns={columns}
+        dataSource={dataTable}
+        meta={metaTable}
+      />
       {isEmailModalOpen && selectedUser && (
         <RejectTickModal
           tickedUser={selectedUser}

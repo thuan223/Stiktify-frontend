@@ -5,11 +5,12 @@ import CardMusic from "./card.music";
 import InputCustomize from "../input/input.customize";
 import { FilterOutlined, SearchOutlined } from "@ant-design/icons";
 import { useContext, useEffect, useState } from "react";
-import { handleFilterSearchMusic, handleGetRecommendMusic } from "@/actions/music.action";
+import { handleFilterSearchMusic, handleGetDataHotMusic, handleGetRecommendMusic } from "@/actions/music.action";
 import DropdownCustomizeFilterMusic from "../dropdown/dropdownFilterMusic";
 import { handleGetPlaylistAction } from "@/actions/playlist.action";
 import { AuthContext } from "@/context/AuthContext";
 import RecommendMusicList from "./recommend.music";
+import HotMusicList from "./hot.music.list";
 
 interface IProps {
   data: IMusic[];
@@ -24,6 +25,7 @@ const ListMusic = (props: IProps) => {
   const [filteredData, setFilteredData] = useState<IMusic[]>(data);
   const { user } = useContext(AuthContext)!
   const [dataRecommend, setDataRecommend] = useState<IMusic[] | []>([])
+  const [dataHotMusic, setDataHotMusic] = useState<IMusic[] | []>([])
 
   useEffect(() => {
     (async () => {
@@ -66,12 +68,6 @@ const ListMusic = (props: IProps) => {
   const handlePlayer = (track: IMusic) => {
     if (trackCurrent?._id !== track._id) {
       setFlag(false)
-      // const data = {
-      //   _id: track._id,
-      //   musicDescription: track.musicDescription,
-      //   musicThumbnail: track.musicThumbnail,
-      //   musicUrl: track.musicUrl,
-      // };
       setTrackCurrent(track);
       if (listPlaylist && listPlaylist.length > 0) {
         setListPlayList([])
@@ -86,6 +82,10 @@ const ListMusic = (props: IProps) => {
     (async () => {
       if (user) {
         const res = await handleGetRecommendMusic(user._id)
+        const resHotMusic = await handleGetDataHotMusic()
+        console.log(resHotMusic);
+
+        setDataHotMusic(resHotMusic?.data)
         setDataRecommend(res?.data)
       }
     })()
@@ -116,6 +116,14 @@ const ListMusic = (props: IProps) => {
             <div className="my-3 mx-20">
               <h1 className="font-bold text-2xl">Recommend Music</h1>
               <RecommendMusicList data={dataRecommend} />
+            </div>
+          }
+        </div>
+        <div>
+          {dataHotMusic && dataHotMusic.length > 0 &&
+            <div className="my-3 mx-20">
+              <h1 className="font-bold text-2xl">Hot Music On Week</h1>
+              <HotMusicList data={dataHotMusic} />
             </div>
           }
         </div>
