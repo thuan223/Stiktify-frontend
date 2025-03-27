@@ -11,21 +11,44 @@ const HistoryMusicPage = () => {
   const [watchedDate, setWatchedDate] = useState<string>("");
   const [searchValue, setSearchValue] = useState<string>("");
   const [searchedMusic, setSearchedMusic] = useState<any[]>([]);
-
-  const handleFilterDate = (date: string) => {
-    setWatchedDate(date);
-  };
+  interface MusicItem {
+    _id: string;
+    musicId: {
+      _id: string;
+      musicThumbnail: string;
+      musicDescription: string;
+      totalListener: number;
+      totalReactions: number;
+    };
+    createdAt: string;
+  }
 
   const handleSearchMusic = async (search: string) => {
     if (search.trim()) {
       const result = await handleSearchHistory(search);
       if (result?.data?.result) {
-        setSearchedMusic(result.data.result);
+        const uniqueMusic: MusicItem[] = [];
+        const musicIds = new Set<string>();
+
+        result.data.result.forEach((item: MusicItem) => {
+          const music = item.musicId;
+          if (!musicIds.has(music._id)) {
+            musicIds.add(music._id);
+            uniqueMusic.push(item);
+          }
+        });
+
+        setSearchedMusic(uniqueMusic);
       } else {
         setSearchedMusic([]);
       }
     }
   };
+
+  const handleFilterDate = (date: string) => {
+    setWatchedDate(date);
+  };
+
   const handleClearSearch = () => {
     setSearchValue("");
     setSearchedMusic([]);

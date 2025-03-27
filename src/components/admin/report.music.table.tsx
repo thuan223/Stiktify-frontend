@@ -1,7 +1,6 @@
 "use client";
 import { ColumnsType } from "antd/es/table";
-import TableCustomize from "../table/table.dashboard";
-import { useEffect, useState } from "react"; // Added useEffect
+import { useEffect, useState } from "react";
 import { formatNumber } from "@/utils/utils";
 import {
   CalendarOutlined,
@@ -24,11 +23,12 @@ import ModalListReport from "../modal/modal.list.report";
 import {
   handleDeleteReportVideoAction,
   handleFlagMusicAction,
-  handleSearchMusicReportAction, // Added import
+  handleSearchMusicReportAction,
 } from "@/actions/manage.report.action";
 import TagMusic from "../music/tag.music";
 import InputCustomize from "../input/input.customize";
 import dayjs from "dayjs"; // Thay moment bằng dayjs
+import TableCustomize from "../ticked-user/table/table.dashboard";
 
 interface IProps {
   dataSource: IReportMusic[];
@@ -65,12 +65,16 @@ const ManageReportMusicTable = (props: IProps) => {
   };
 
   const onChange: DatePickerProps["onChange"] = (date, dateString) => {
-    console.log(date, dateString);
+    if (Array.isArray(dateString)) {
+      setStartDate(dateString[0]);
+    } else {
+      setStartDate(dateString);
+    }
   };
 
   useEffect(() => {
     (async () => {
-      if (search.length > 0) {
+      if (search.length > 0 || startDate) {
         const res = await handleSearchMusicReportAction(search, startDate);
         if (res?.statusCode === 200) {
           if (res.data?.result?.length === 0) {
@@ -111,6 +115,7 @@ const ManageReportMusicTable = (props: IProps) => {
       }
     })();
   }, [search, dataSource, startDate]);
+
   const columns: ColumnsType<IReportMusic> = [
     {
       title: "Username",
@@ -190,16 +195,6 @@ const ManageReportMusicTable = (props: IProps) => {
                 twoToneColor={value?.flag ? "#ff7675" : ""}
               />
             </Popconfirm>
-            {/* <Popconfirm
-                            title="Sure to delete video report?"
-                            onConfirm={() => handleDeleteReportVideo(record.dataMusic._id)}
-                            okText="Yes"
-                            cancelText="No"
-                        >
-                            <DeleteTwoTone
-                                style={{ fontSize: "20px" }}
-                                twoToneColor={"#ff7675"} />
-                        </Popconfirm> */}
           </div>
         );
       },
@@ -219,10 +214,6 @@ const ManageReportMusicTable = (props: IProps) => {
         }}
       >
         <span>Manager Report Music</span>
-        {/* <Button onClick={() => setIsCreateModalOpen(true)}>
-                    <UserAddOutlined />
-                    <span>Add New</span>
-                </Button> */}
       </div>
       <div style={{ width: "300px" }}>
         <div>

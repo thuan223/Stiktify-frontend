@@ -343,22 +343,22 @@ export const handleClearAllListeningHistory = async (userId: string) => {
   }
 };
 
-export const handleSearchHistory = async (search: string) => {
+export const handleSearchHistory = async (search: string, startDate?: string) => {
   try {
     const cookieStore = cookies();
     const token = cookieStore.get("token")?.value;
-
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/listeninghistory/search-history?search=${search}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        next: { tags: ["search-history"] },
-      }
-    );
+    let url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/listeninghistory/search-history?search=${search}`;
+    if (startDate) {
+      url += `&startDate=${startDate}`;
+    }
+    const res = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      next: { tags: ["search-history"] },
+    });
 
     const result: IBackendRes<any> = await res.json();
     return result;
@@ -367,6 +367,7 @@ export const handleSearchHistory = async (search: string) => {
     return null;
   }
 };
+
 
 export const getTrackRelatedAction = async (musicId: string[] | [], musicTag: { _id: string, fullname: string }[]) => {
   try {

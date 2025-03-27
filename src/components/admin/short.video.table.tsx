@@ -1,6 +1,5 @@
 "use client";
 import { ColumnsType } from "antd/es/table";
-import TableCustomize from "../table/table.dashboard";
 import { useEffect, useState } from "react";
 import { formatNumber } from "@/utils/utils";
 import {
@@ -20,6 +19,7 @@ import InputCustomize from "../input/input.customize";
 import DropdownCustomizeFilterVideo from "../dropdown/dropdownFilterVide";
 
 import VideoCustomize from "../video/video.customize";
+import TableCustomize from "../ticked-user/table/table.dashboard";
 
 interface IProps {
   dataSource: IShortVideo[];
@@ -214,7 +214,6 @@ const ManageShortVideoTable = (props: IProps) => {
           />
         </div>
       </div>
-
       <TableCustomize
         columns={columns}
         dataSource={dataTable} // Đảm bảo dataTable được cập nhật đúng
