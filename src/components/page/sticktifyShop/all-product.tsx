@@ -1,23 +1,42 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation"; // Thêm useRouter từ next/navigation
+import { useRouter } from "next/navigation";
 import { Spin } from "antd";
-import { handleGetAllProducts } from "@/actions/product.action";
+import {
+  handleGetAllProducts,
+  handleSearchProducts,
+} from "@/actions/product.action";
+import InputCustomize from "@/components/input/input.customize";
+import { SearchOutlined } from "@ant-design/icons";
 
 const StorePage: React.FC = () => {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const router = useRouter(); // Khởi tạo useRouter
+  const [search, setSearch] = useState("");
+  const router = useRouter();
 
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const result = await handleGetAllProducts(1, 10, "");
+        const result = search
+          ? await handleSearchProducts(search, 1, 10) // Nếu có từ khóa tìm kiếm
+          : await handleGetAllProducts(1, 10, ""); // Nếu không có từ khóa tìm kiếm
+
         console.log("check result", result);
         if (result && result.data && result.data.result) {
-          setProducts(result.data.result);
+          // Lọc sản phẩm theo từ khóa tìm kiếm trong productName và productDescription
+          const filteredProducts = result.data.result.filter(
+            (product: any) =>
+              product.productName
+                .toLowerCase()
+                .includes(search.toLowerCase()) ||
+              product.productDescription
+                .toLowerCase()
+                .includes(search.toLowerCase())
+          );
+          setProducts(filteredProducts);
         } else {
           console.error("Invalid result structure:", result);
         }
@@ -28,10 +47,10 @@ const StorePage: React.FC = () => {
     };
 
     fetchProducts();
-  }, []);
+  }, [search]); // Gọi lại khi `search` thay đổi
 
   const handleCardClick = (productId: string) => {
-    router.push(`page/product-detail/${productId}`);
+    router.push(`/page/product-detail/${productId}`);
   };
 
   return (
@@ -46,6 +65,15 @@ const StorePage: React.FC = () => {
       >
         Sticktify Shop
       </h1>
+      <div style={{ width: "300px", marginBottom: "20px" }}>
+        <div>
+          <InputCustomize
+            setValue={setSearch}
+            value={search}
+            icon={<SearchOutlined />}
+          />
+        </div>
+      </div>
       {loading ? (
         <div className="flex justify-center items-center h-40">
           <Spin size="large" />
@@ -56,9 +84,8 @@ const StorePage: React.FC = () => {
             <div
               key={product._id}
               className="relative bg-white rounded-xl shadow-md overflow-hidden transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer"
-              onClick={() => handleCardClick(product._id)} // Thêm sự kiện onClick
+              onClick={() => handleCardClick(product._id)}
             >
-              {/* Hình ảnh sản phẩm */}
               <div className="relative w-full h-56">
                 <img
                   src={product.image}
@@ -71,8 +98,6 @@ const StorePage: React.FC = () => {
                   </span>
                 )}
               </div>
-
-              {/* Thông tin sản phẩm */}
               <div className="p-4 flex flex-col items-center">
                 <h3 className="text-lg font-semibold text-gray-800 text-center truncate w-full">
                   {product.productName}
@@ -83,18 +108,8 @@ const StorePage: React.FC = () => {
                 <p className="text-indigo-600 text-lg font-bold mt-2">
                   ${product.productPrice}
                 </p>
-
-                {/* Nút Add to Cart */}
-                <button
-                  className="mt-4 w-full bg-indigo-600 text-white py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors duration-200"
-                  onClick={(e) => {
-                    e.stopPropagation(); // Ngăn sự kiện onClick của card cha
-                    if (product.stock <= 0) return;
-                    alert(`Added ${product.productName} to cart!`);
-                  }}
-                  disabled={product.stock <= 0}
-                >
-                  {product.stock > 0 ? "Add to Cart" : "Out of Stock"}
+                <button className="mt-4 w-full bg-indigo-600 text-white py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors duration-200">
+                  View details
                 </button>
               </div>
             </div>

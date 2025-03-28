@@ -45,6 +45,8 @@ const roleRoutes: Record<string, (string | RegExp)[]> = {
     /^\/page\/shareMusic\/[\w-]+$/,
     /^\/page\/detail_user\/[\w-]+$/,
     /^\/page\/store\/[\w-]+$/,
+    "/page/sticktify-shop",
+    /^\/page\/product-detail\/[\w-]+$/,
   ],
   ADMIN: [
     "/dashboard/user",

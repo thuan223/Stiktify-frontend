@@ -40,7 +40,6 @@ const ProductDetailPage: React.FC = () => {
       return;
     }
     message.success(`${product.productName} has been added to your cart!`);
-    // Thêm logic thêm vào giỏ hàng tại đây
   };
 
   return (

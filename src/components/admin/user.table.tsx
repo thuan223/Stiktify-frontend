@@ -1,7 +1,5 @@
-"use client"
+"use client"    
 import { ColumnsType } from "antd/es/table";
-import TableCustomize from "../table/table.dashboard"
-import { ActionManagerUser, FormatDateTime, StyleStatus } from "../table/user.render.table";
 import { Button, MenuProps } from "antd";
 import { FilterOutlined, MailTwoTone, SearchOutlined, UserAddOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
@@ -11,6 +9,8 @@ import InputCustomize from "../input/input.customize";
 import DropdownCustomize from "../dropdown/dropdown.customize";
 import { handleFilterAndSearchAction } from "@/actions/manage.user.action";
 import SendEmailModal from "./send.email.modal";
+import { ActionManagerUser, FormatDateTime, StyleStatus } from "../ticked-user/table/user.render.table";
+import TableCustomize from "../ticked-user/table/table.dashboard";
 interface IProps {
     dataSource: IUser[];
     meta: {
@@ -37,19 +37,19 @@ const ManageUserTable = (props: IProps) => {
     const [isEmailModalOpen, setIsEmailModalOpen] = useState<boolean>(false)
 
     const dataFilter = [
-        {
-            value: "lock",
-            title: "Block"
-        }, {
-            value: "unlock",
-            title: "Unblock"
-        }, {
-            value: "USERS",
-            title: "Users"
-        }, {
-            value: "ADMIN",
-            title: "Admin"
-        },
+            {
+                value: "lock",
+                title: "Block"
+            }, {
+                value: "unlock",
+                title: "Unblock"
+            }, {
+                value: "USERS",
+                title: "Users"
+            }, {
+                value: "ADMIN",
+                title: "Admin"
+            },
     ]
 
     const handleMailClick = (record: any) => {

@@ -1,32 +1,39 @@
 "use client";
 
-import {
-  useState,
-  useContext,
-  useEffect,
-  Dispatch,
-  SetStateAction,
-} from "react";
+import { useState, useContext, useEffect } from "react";
 import Cookies from "js-cookie";
 import { FaPause, FaPlay } from "react-icons/fa";
 import { AuthContext } from "@/context/AuthContext";
-import { DatePicker, Button } from "antd";
-import { sendRequest } from "@/utils/api";
-import { handleClearAllListeningHistory } from "@/actions/music.action"; // Thêm import action
+import { DatePicker, Modal, Button } from "antd";
+import { handleClearAllListeningHistory } from "@/actions/music.action";
+
+interface ListeningHistory {
+  _id: string;
+  musicId: {
+    _id: string;
+    musicDescription: string;
+    musicThumbnail: string;
+    musicUrl: string;
+    totalListener: number;
+    totalReactions: number;
+  };
+  createdAt: string;
+}
 
 interface SettingListenHistoryProps {
-  setVideoList: Dispatch<SetStateAction<VideoHistoryProps[]>>;
+  setHistory: React.Dispatch<React.SetStateAction<ListeningHistory[]>>;
   onChange?: (value: string) => void;
 }
 
 const SettingListenHistory: React.FC<SettingListenHistoryProps> = ({
-  setVideoList,
+  setHistory,
   onChange,
 }) => {
   const [isMusicPaused, setIsMusicPaused] = useState(false);
   const [watchedDate, setWatchedDate] = useState<string | undefined>("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const { user, accessToken } = useContext(AuthContext) ?? {};
+  const { user } = useContext(AuthContext) ?? {};
 
   useEffect(() => {
     const musicPauseStatus = Cookies.get("isMusicPause") === "true";
@@ -46,12 +53,13 @@ const SettingListenHistory: React.FC<SettingListenHistoryProps> = ({
   };
 
   const handleClearAllHistory = async () => {
+    setIsModalOpen(false)
     if (user?._id) {
       try {
         const result = await handleClearAllListeningHistory(user._id);
         if (result) {
           console.log("Clear all listening history successful!");
-          setVideoList([]);
+          setHistory([]); // Cập nhật state để xóa danh sách mà không cần reload
         } else {
           console.error("Failed to clear all listening history.");
         }
@@ -78,7 +86,7 @@ const SettingListenHistory: React.FC<SettingListenHistoryProps> = ({
       </div>
 
       <div
-        onClick={handleClearAllHistory} 
+        onClick={() => setIsModalOpen(true)} // Mở modal khi nhấn nút
         className="mb-4 w-[300px] flex items-center gap-2 p-2 rounded-lg cursor-pointer hover:bg-gray-200 transition"
       >
         <svg
@@ -90,6 +98,40 @@ const SettingListenHistory: React.FC<SettingListenHistoryProps> = ({
         </svg>
         <span className="text-sm font-medium">Clear all listen history</span>
       </div>
+
+      <Modal
+        title={
+          <span style={{ fontSize: "24px", fontWeight: "bold" }}>
+            Clear Listening History?
+          </span>
+        }
+        open={isModalOpen}
+        onCancel={() => setIsModalOpen(false)}
+        width={700}
+        footer={[
+          <Button key="cancel" onClick={() => setIsModalOpen(false)}>
+            Cancel
+          </Button>,
+          <Button
+            key="confirm"
+            type="primary"
+            danger
+            onClick={handleClearAllHistory}
+          >
+            Clear Listening History
+          </Button>,
+        ]}
+      >
+        <p className="text-[20px] mb-2">{user?.email}</p>
+        <p className="text-[16px]">
+          Your listening history will be deleted from all devices where you use
+          this platform.
+        </p>
+        <p className="text-[16px]">
+          Music recommendations will be reset, but they may still be influenced
+          by your other activity on our platform.
+        </p>
+      </Modal>
     </div>
   );
 };
