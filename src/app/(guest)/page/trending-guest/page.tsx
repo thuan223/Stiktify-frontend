@@ -182,7 +182,7 @@ const TrendingPage = () => {
               videoDescription={currentVideo?.videoDescription || ""}
               totalView={currentVideo?.totalViews || 0}
               videoTag={currentVideo?.videoTag || []}
-              createdAt={currentVideo?.createdAt.toString() || ""}
+              createdAt={currentVideo?.createdAt?.toString() || ""}
             />
             {isShowOtherVideos ? (
               <OtherVideos
