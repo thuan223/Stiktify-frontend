@@ -1,6 +1,5 @@
 "use client"
 import { ColumnsType } from "antd/es/table";
-import TableCustomize from "../table/table.dashboard"
 import { Popconfirm } from "antd";
 import { FilterOutlined, FlagTwoTone, SearchOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
@@ -9,6 +8,7 @@ import DropdownCustomize from "../dropdown/dropdown.customize";
 import TagMusic from "../music/tag.music";
 import { formatNumber } from "@/utils/utils";
 import { handleFilterAndSearchMusicAction } from "@/actions/music.action";
+import TableCustomize from "../ticked-user/table/table.dashboard";
 interface IProps {
     dataSource: IMusic[];
     meta: {

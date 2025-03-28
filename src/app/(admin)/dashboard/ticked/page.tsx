@@ -19,7 +19,11 @@ const UserTickedReportPage = async ({ searchParams }: any) => {
 
   return (
     <div>
-      <ManageUserTickedTable dataSource={data?.result || []} meta={meta} />
+      <ManageUserTickedTable
+        metaDefault={{ current: result, LIMIT: LIMIT }}
+        dataSource={data?.result || []}
+        meta={meta}
+      />
     </div>
   );
 };

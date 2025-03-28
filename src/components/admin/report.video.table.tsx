@@ -1,6 +1,6 @@
 "use client";
 import { ColumnsType } from "antd/es/table";
-import TableCustomize from "../table/table.dashboard";
+
 import { useEffect, useState } from "react";
 import { formatNumber } from "@/utils/utils";
 import {
@@ -26,6 +26,7 @@ import {
 } from "@/actions/manage.report.action";
 import InputCustomize from "../input/input.customize";
 import dayjs from "dayjs";
+import TableCustomize from "../ticked-user/table/table.dashboard";
 
 interface IProps {
   dataSource: IReport[];
@@ -40,10 +41,10 @@ const ManageReportTable = (props: IProps) => {
   const { dataSource, meta } = props;
   const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(false);
   const [dataReport, setDataReport] = useState<IDataReport[] | []>([]);
-  const [startDate, setStartDate] = useState<string | undefined>(undefined);
+  const [search, setSearch] = useState("");
   const [dataTable, setDataTable] = useState<IReport[] | []>(dataSource);
   const [metaTable, setMetaTable] = useState(meta);
-  const [search, setSearch] = useState("");
+  const [startDate, setStartDate] = useState<string | undefined>(undefined);
 
   const handleFlagVideo = async (record: IShortVideo) => {
     const res = await handleFlagShortVideoAction(record._id, !record.flag);
@@ -64,7 +65,11 @@ const ManageReportTable = (props: IProps) => {
   };
 
   const onChange: DatePickerProps["onChange"] = (date, dateString) => {
-    console.log(date, dateString);
+    if (Array.isArray(dateString)) {
+      setStartDate(dateString[0]);
+    } else {
+      setStartDate(dateString); 
+    }
   };
 
   useEffect(() => {
@@ -79,28 +84,43 @@ const ManageReportTable = (props: IProps) => {
                 : "No reports found for the search term.",
             });
           }
-          const mappedData = res.data?.result?.map((item: any) => ({
-            _id: item._id,
-            dataVideo: {
-              _id: item.videoId._id,
-              videoUrl: item.videoId.videoUrl,
-              videoDescription: item.videoId.videoDescription,
-              videoThumbnail: item.videoId.videoThumbnail,
-              totalViews: item.videoId.totalViews || 0, // Sửa từ totalListener thành totalViews
-              flag: item.videoId.flag || false,
-              userId: {
-                _id: item.videoId.userId._id,
-                userName: item.videoId.userId.userName,
-              },
-            },
-            total: item.total || 1,
-            dataReport: item.dataReport || [
-              {
-                userName: item.userId.userName,
-                reason: item.reasons,
-              },
-            ],
-          }));
+          const mappedData = res.data?.result
+            ?.map((item: any) => {
+              const reportDate = item.reportDate
+                ? dayjs(item.reportDate)
+                : null;
+              const isDateMatch = startDate
+                ? reportDate &&
+                  reportDate.isSame(dayjs(startDate, "YYYY-MM-DD"), "day")
+                : true;
+              if (isDateMatch) {
+                return {
+                  _id: item._id,
+                  dataVideo: {
+                    _id: item.videoId._id,
+                    videoUrl: item.videoId.videoUrl,
+                    videoDescription: item.videoId.videoDescription,
+                    videoThumbnail: item.videoId.videoThumbnail,
+                    totalViews: item.videoId.totalViews || 0,
+                    flag: item.videoId.flag || false,
+                    userId: {
+                      _id: item.videoId.userId._id,
+                      userName: item.videoId.userId.userName,
+                    },
+                  },
+                  total: item.total || 1,
+                  dataReport: item.dataReport || [
+                    {
+                      userName: item.userId.userName,
+                      reason: item.reasons,
+                    },
+                  ],
+                };
+              }
+              return null;
+            })
+            .filter((item: any) => item !== null);
+
           setDataTable(mappedData || []);
           setMetaTable({
             current: res.data?.meta?.current || 1,

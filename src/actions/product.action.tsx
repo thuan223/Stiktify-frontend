@@ -54,3 +54,29 @@ export const handleGetProductDetails = async (id: string) => {
       return null;
     }
   };
+
+  export const handleSearchProducts = async (
+    query: string,
+    current: number,
+    pageSize: number
+  ) => {
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/products/search-product?query=${query}&current=${current}&pageSize=${pageSize}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          next: { tags: ["search-products"] },
+        }
+      );
+      const result: IBackendRes<any> = await res.json();
+      return result;
+    } catch (error) {
+      console.error("Error searching products:", error);
+      return null;
+    }
+  };
+  

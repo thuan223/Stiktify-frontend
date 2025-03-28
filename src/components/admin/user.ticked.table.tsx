@@ -1,7 +1,6 @@
 "use client";
 
 import { ColumnsType } from "antd/es/table";
-import TableCustomize from "../table/table.dashboard";
 import { useEffect, useState } from "react";
 import { Tooltip, Popconfirm, Avatar, notification } from "antd";
 import {
@@ -19,6 +18,7 @@ import {
 import RejectTickModal from "../modal/modal.reject.ticked";
 import InputCustomize from "../input/input.customize";
 import DropdownCustomize from "../dropdown/dropdown.customize";
+import TableCustomize from "../ticked-user/table/table.dashboard";
 
 interface IProps {
   dataSource: ITicked[];
@@ -81,14 +81,16 @@ const ManageUserTickedTable = (props: IProps) => {
           search,
           filterReq
         );
-        setDataTable(res?.data?.result);
-        setMetaTable(res?.data?.meta);
+        if (res?.data) {
+          setDataTable(res?.data?.result);
+          setMetaTable(res?.data?.meta);
+        }
       } else {
         setMetaTable(meta);
         setDataTable(dataSource);
       }
     })();
-  }, [search, dataSource, filterReq, meta]);
+  }, [search, filterReq, dataSource, meta]);
 
   const columns: ColumnsType = [
     {
@@ -181,7 +183,7 @@ const ManageUserTickedTable = (props: IProps) => {
           fontSize: 20,
         }}
       >
-        <span>Quản lý báo cáo người dùng</span>
+        <span>Manage ticked users</span>
       </div>
       <div
         style={{
@@ -201,7 +203,7 @@ const ManageUserTickedTable = (props: IProps) => {
         <div>
           <DropdownCustomize
             data={dataFilter}
-            title="Lọc"
+            title="Filter"
             selected={filterReq}
             setSelect={setFilterReq}
             icon={<FilterOutlined />}

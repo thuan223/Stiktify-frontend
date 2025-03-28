@@ -75,18 +75,6 @@ const SideBar: React.FC<SideBarProps> = ({ isHidden }) => {
               Music
             </Link>
           </li>
-          {isGuest ? (
-            ""
-          ) : (
-            <li>
-              <Link
-                href="/page/search-user"
-                className={getLinkClass("/page/search-user")}
-              >
-                Search user
-              </Link>
-            </li>
-          )}
           <li>
             <Link
               href="/page/rankings"
@@ -95,18 +83,15 @@ const SideBar: React.FC<SideBarProps> = ({ isHidden }) => {
               Rankings
             </Link>
           </li>
-          {isGuest ? (
-            ""
-          ) : (
-            <li>
-              <Link
-                href="/page/sticktify-shop"
-                className={getLinkClass("/page/stiktify-shop")}
-              >
-                Stiktify Shop
-              </Link>
-            </li>
-          )}
+
+          <li>
+            <Link
+              href="/page/sticktify-shop"
+              className={getLinkClass("/page/stiktify-shop")}
+            >
+              Stiktify Shop
+            </Link>
+          </li>
         </ul>
       </nav>
       <footer className="mt-[10px] text-center">

@@ -20,7 +20,13 @@ interface ListeningHistory {
   createdAt: string;
 }
 
-const ListenedHistory = () => {
+interface ListenedHistoryProps {
+  setHistory?: React.Dispatch<React.SetStateAction<ListeningHistory[]>>;
+}
+
+const ListenedHistory = ({
+  setHistory: setParentHistory,
+}: ListenedHistoryProps) => {
   const authContext = useContext(AuthContext);
   const userId = authContext?.user?._id;
   const [history, setHistory] = useState<ListeningHistory[]>([]);
@@ -36,11 +42,17 @@ const ListenedHistory = () => {
           const response = await handleGetAllListeningHistory(userId);
           if (response?.data?.result) {
             setHistory(response.data.result);
+            if (setParentHistory) {
+              setParentHistory(response.data.result); // Đồng bộ với parent
+            }
           } else {
             console.warn("No listening history found!");
+            setHistory([]);
+            if (setParentHistory) setParentHistory([]);
           }
         } catch (err) {
           setError("Error fetching history data");
+          console.error(err);
         } finally {
           setLoading(false);
         }
@@ -48,7 +60,7 @@ const ListenedHistory = () => {
 
       fetchHistory();
     }
-  }, [userId]);
+  }, [userId, setParentHistory]);
 
   const handleNavigateToMusic = (musicId: string) => {
     router.push(`/page/music/${musicId}`);
@@ -73,7 +85,7 @@ const ListenedHistory = () => {
                 <img
                   src={music.musicThumbnail}
                   className="w-32 h-32 object-cover rounded-md shadow-sm cursor-pointer"
-                  alt={music.musicDescription}  
+                  alt={music.musicDescription}
                   onClick={() => handleNavigateToMusic(music._id)}
                 />
                 <div className="ml-4">
@@ -87,10 +99,7 @@ const ListenedHistory = () => {
                     Reactions: {music.totalReactions || 0}
                   </p>
                   <p className="text-sm text-gray-700">
-                    {" "}
-                    View At: {new Date(
-                      item.createdAt
-                    ).toLocaleTimeString()}{" "}
+                    View At: {new Date(item.createdAt).toLocaleTimeString()}{" "}
                     {new Date(item.createdAt).toLocaleDateString()}
                   </p>
                 </div>

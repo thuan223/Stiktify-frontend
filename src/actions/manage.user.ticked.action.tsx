@@ -80,13 +80,12 @@ export const handleDenyUserTickedAction = async (
 };
 
 export const handleFilterAndSearchUserRequest = async (
-  current: number, // Trang hiện tại
-  pageSize: number, // Số bản ghi trên mỗi trang
-  search: string, // Từ khóa tìm kiếm
-  filterReq: string // Yêu cầu lọc
+  current: number, 
+  pageSize: number, 
+  search: string, 
+  filterReq: string 
 ) => {
   try {
-    const token = "your-auth-token-here"; // Thay bằng logic lấy token thực tế
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/ticked-users/filter-search?current=${current}&pageSize=${pageSize}&search=${search}&filterReq=${filterReq}`,
       {

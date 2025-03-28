@@ -50,28 +50,20 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
   }, [user, pathname]);
 
   return (
-    <div>
-      {progressUploadMusic !== 0 && (
-        <div className="absolute gap-4 top-2 left-28 z-30 flex items-center justify-start bg-white border border-zinc-200 rounded-lg shadow-lg w-fit h-20 p-4">
-          <CircularProgress
-            progress={progressUploadMusic}
-            size={50}
-            strokeWidth={3}
-          />
-          <img
-            alt="image"
-            style={{
-              width: 50,
-              height: 50,
-              borderRadius: 5,
-            }}
-            src={informationUpload.image}
-          />
-          <h5 className="text-1xl font-medium">
-            {informationUpload.name} Ac Quy
-          </h5>
-        </div>
-      )}
+ <div>
+      {progressUploadMusic !== 0 && <div className="absolute gap-4 top-2 left-28 z-30 flex items-center justify-start bg-white border border-zinc-200 rounded-lg shadow-lg w-fit h-20 p-4">
+        <CircularProgress progress={progressUploadMusic} size={50} strokeWidth={3} />
+        <img
+          alt="image"
+          style={{
+            width: 50,
+            height: 50,
+            borderRadius: 5
+          }}
+          src={informationUpload?.image}
+        />
+        <h5 className="text-1xl font-medium">{informationUpload?.name}</h5>
+      </div>}
 
       {children}
     </div>

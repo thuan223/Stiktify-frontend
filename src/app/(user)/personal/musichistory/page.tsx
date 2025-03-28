@@ -1,35 +1,76 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ListenedHistory from "@/components/personal/history/listened-history";
 import SettingListenHistory from "@/components/personal/history/setting-listen-history";
 import Header from "@/components/page/trending/header";
 import { handleSearchHistory } from "@/actions/music.action";
 
+interface Music {
+  _id: string;
+  musicDescription: string;
+  musicThumbnail: string;
+  musicUrl: string;
+  totalListener: number;
+  totalReactions: number;
+}
+
+interface ListeningHistory {
+  _id: string;
+  musicId: Music;
+  createdAt: string;
+}
+
 const HistoryMusicPage = () => {
-  const [videoList, setVideoList] = useState<any[]>([]);
+  const [history, setHistory] = useState<ListeningHistory[]>([]);
   const [watchedDate, setWatchedDate] = useState<string>("");
   const [searchValue, setSearchValue] = useState<string>("");
-  const [searchedMusic, setSearchedMusic] = useState<any[]>([]);
-
-  const handleFilterDate = (date: string) => {
-    setWatchedDate(date);
-  };
+  const [searchedMusic, setSearchedMusic] = useState<ListeningHistory[]>([]);
 
   const handleSearchMusic = async (search: string) => {
     if (search.trim()) {
       const result = await handleSearchHistory(search);
       if (result?.data?.result) {
-        setSearchedMusic(result.data.result);
+        const uniqueMusic: ListeningHistory[] = [];
+        const musicIds = new Set<string>();
+
+        result.data.result.forEach((item: ListeningHistory) => {
+          const music = item.musicId;
+          if (!musicIds.has(music._id)) {
+            musicIds.add(music._id);
+            uniqueMusic.push(item);
+          }
+        });
+
+        setSearchedMusic(uniqueMusic);
       } else {
         setSearchedMusic([]);
       }
+    } else {
+      setSearchedMusic([]);
     }
   };
+
+  const handleFilterDate = (date: string) => {
+    setWatchedDate(date);
+  };
+
   const handleClearSearch = () => {
     setSearchValue("");
     setSearchedMusic([]);
   };
+
+  useEffect(() => {
+    if (watchedDate && history.length > 0) {
+      const filteredHistory = history.filter((item) => {
+        const itemDate = new Date(item.createdAt).toISOString().split("T")[0];
+        return itemDate === watchedDate;
+      });
+      setSearchedMusic(filteredHistory);
+    } else if (!searchValue) {
+      setSearchedMusic([]); // Đảm bảo quay lại danh sách gốc khi không lọc
+    }
+  }, [watchedDate, history, searchValue]);
 
   return (
     <div>
@@ -43,7 +84,7 @@ const HistoryMusicPage = () => {
       </div>
       <div className="flex p-4">
         <div className="flex-1 mr-8">
-          {searchedMusic.length > 0 || searchValue.trim() ? (
+          {searchedMusic.length > 0 ? (
             <div className="space-y-4">
               {searchedMusic.map((item) => {
                 const music = item.musicId;
@@ -76,13 +117,15 @@ const HistoryMusicPage = () => {
                 );
               })}
             </div>
+          ) : searchValue.trim() ? (
+            <p className="text-center text-gray-500">No results found.</p>
           ) : (
-            <ListenedHistory />
+            <ListenedHistory setHistory={setHistory} />
           )}
         </div>
         <div className="w-[30%] p-5">
           <SettingListenHistory
-            setVideoList={setVideoList}
+            setHistory={setHistory}
             onChange={handleFilterDate}
           />
         </div>

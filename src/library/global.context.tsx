@@ -28,8 +28,8 @@ interface IGlobalContext {
     }[]) => void,
     progressUploadMusic: number,
     setProgressUploadMusic: (v: number) => void
-    informationUpload: { image: string, name: string },
-    setInformationUpload: (v: { image: string, name: string }) => void,
+    informationUpload: { image: string, name: string } | null,
+    setInformationUpload: (v: { image: string, name: string } | null) => void,
     trackKaraoke: IMusic | null,
     setTrackKaraoke: (v: any) => void,
 }
@@ -50,10 +50,17 @@ export const GlobalContextProvider = ({ children }: { children: React.ReactNode 
         fullname: string
     }[] | []>([])
     const [progressUploadMusic, setProgressUploadMusic] = useState<number>(0);
-    const [informationUpload, setInformationUpload] = useState<{ image: string, name: string }>({ image: "", name: "" });
+    const [informationUpload, setInformationUpload] = useState<{ image: string, name: string } | null>(null);
     const [trackKaraoke, setTrackKaraoke] = useState<IMusic | null>(null);
 
-
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const track = localStorage.getItem("trackKaraoke");
+            if (track) {
+                setTrackKaraoke(JSON.parse(track));
+            }
+        }
+    }, [])
 
     useEffect(() => {
         if (typeof window !== "undefined") {
