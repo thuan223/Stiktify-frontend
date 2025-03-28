@@ -407,11 +407,11 @@ const OrderPage: React.FC = () => {
                         <CreditCardOutlined /> Cash on Delivery (COD)
                       </Space>
                     </Radio>
-                    <Radio value="VNPAY">
+                    {/* <Radio value="VNPAY">
                       <Space>
                         <CreditCardOutlined /> VNPAY Online Payment
                       </Space>
-                    </Radio>
+                    </Radio> */}
                   </Radio.Group>
                 </Form.Item>
 
