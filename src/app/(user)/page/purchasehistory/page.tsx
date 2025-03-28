@@ -158,48 +158,65 @@ const PurchaseHistory: React.FC = () => {
     fetchOrders();
   }, [accessToken]);
 
-  // Render method modifications
   const renderProductColumn = (order: Order) => {
-    const product = order.products?.[0]; // Assuming first product for simplicity
+    const products = order.products || [];
 
     return (
       <div>
         <div className="flex items-center space-x-2 mb-2">
           <ShoppingBag className="w-5 h-5 text-green-600" />
           <Text strong>Product Information</Text>
+          <Text className="text-gray-500 ml-2">({products.length} items)</Text>
         </div>
-        {product ? (
-          <div className="flex items-center space-x-4">
-            {product.image ? (
-              <Image
-                src={product.image}
-                alt={product.productName}
-                className="w-24 h-24 object-cover rounded"
-                preview={true}
-              />
-            ) : (
-              <div className="w-24 h-24 bg-gray-200 flex items-center justify-center rounded">
-                <ShoppingBag className="w-12 h-12 text-gray-500" />
+        {products.length > 0 ? (
+          <div className="space-y-4 max-h-[500px] overflow-y-auto">
+            {products.map((product, index) => (
+              <div
+                key={`${product.productId}-${index}`}
+                className="flex items-center space-x-4 border-b pb-4 last:border-b-0"
+              >
+                {product.image ? (
+                  <Image
+                    src={product.image}
+                    alt={product.productName}
+                    className="w-24 h-24 object-cover rounded"
+                    preview={true}
+                  />
+                ) : (
+                  <div className="w-24 h-24 bg-gray-200 flex items-center justify-center rounded">
+                    <ShoppingBag className="w-12 h-12 text-gray-500" />
+                  </div>
+                )}
+                <div>
+                  <Text strong className="block truncate max-w-[300px]">
+                    {product.productName}
+                  </Text>
+                  <p className="text-gray-500 whitespace-nowrap">
+                    Price:{" "}
+                    {product.price.toLocaleString("en-US", {
+                      style: "currency",
+                      currency: "USD",
+                    })}
+                  </p>
+                  <p className="text-gray-500">Quantity: {product.quantity}</p>
+                  <p className="text-gray-500 font-semibold">
+                    Subtotal:{" "}
+                    {(product.price * product.quantity).toLocaleString(
+                      "en-US",
+                      {
+                        style: "currency",
+                        currency: "USD",
+                      }
+                    )}
+                  </p>
+                </div>
               </div>
-            )}
-            <div>
-              <Text strong className="block truncate max-w-[200px]">
-                {product.productName}
-              </Text>
-              <p className="text-gray-500 whitespace-nowrap">
-                Price:{" "}
-                {product.price.toLocaleString("en-US", {
-                  style: "currency",
-                  currency: "USD",
-                })}
-              </p>
-              <p className="text-gray-500">Quantity: {product.quantity}</p>
-            </div>
+            ))}
           </div>
         ) : (
           <div className="flex items-center space-x-2 text-gray-500">
             <ShoppingBag className="w-5 h-5" />
-            <Text type="secondary">Product not available</Text>
+            <Text type="secondary">No products in this order</Text>
           </div>
         )}
       </div>
@@ -208,7 +225,14 @@ const PurchaseHistory: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl bg-gray-100">
-      {/* ... (previous header code remains the same) */}
+      <div className="mb-8">
+        <Title level={2} className="text-gray-800 mb-2">
+          Purchase History
+        </Title>
+        <Text className="text-gray-600">
+          View and manage all of your previous orders
+        </Text>
+      </div>
 
       {loading ? (
         <div className="flex justify-center items-center h-64">
