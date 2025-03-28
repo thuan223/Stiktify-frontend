@@ -10,6 +10,7 @@ import {
   Select,
   Dropdown,
   Menu,
+  Rate,
 } from "antd";
 import {
   PlusOutlined,
@@ -25,13 +26,20 @@ import {
 import UploadProduct from "@/components/modal/modal.add.product";
 import EditProduct from "@/components/modal/modal.edit.product";
 import EditShopOwnerDetail from "@/components/modal/modal.edit.shop.infor";
-import ShoppingCartModal from "@/components/modal/modal.shopping.cart"; // Import ShoppingCartModal
+import ShoppingCartModal from "@/components/modal/modal.shopping.cart";
 import { sendRequest } from "@/utils/api";
 import { AuthContext } from "@/context/AuthContext";
 import CartPreview from "@/components/modal/modal.shopping.cart";
 
 const { confirm } = Modal;
 const { Option } = Select;
+
+interface Rating {
+  _id: string;
+  productId: string;
+  rating: number;
+  totalRatings: number;
+}
 
 const StorePage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -46,6 +54,7 @@ const StorePage: React.FC = () => {
   );
   const [products, setProducts] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
+  const [ratings, setRatings] = useState<Rating[]>([]);
   const [loading, setLoading] = useState(true);
   const [cart, setCart] = useState<any[]>([]);
   const authContext = useContext(AuthContext);
@@ -56,11 +65,55 @@ const StorePage: React.FC = () => {
 
   const { accessToken, user } = authContext;
 
+  // Enhanced rating calculation functions
+  const getProductRating = (
+    productId: string
+  ): { averageRating: number; totalRatings: number } => {
+    const productRatings = ratings.filter(
+      (rating) => rating.productId === productId
+    );
+
+    if (productRatings.length === 0) {
+      return { averageRating: 0, totalRatings: 0 };
+    }
+
+    // Calculate total of all ratings
+    const totalRatingSum = productRatings.reduce(
+      (sum, rating) => sum + rating.rating,
+      0
+    );
+
+    // Calculate average rating
+    const averageRating = totalRatingSum / productRatings.length;
+
+    return {
+      averageRating: Math.round(averageRating * 2) / 2, // Round to nearest 0.5
+      totalRatings: productRatings.length,
+    };
+  };
+
+  // Enhanced color function for star ratings
+  const getStarColor = (averageRating: number) => {
+    if (averageRating >= 4.5) {
+      return "text-yellow-500"; // Bright yellow for excellent rating
+    } else if (averageRating >= 4) {
+      return "text-yellow-500"; // Same bright yellow for very good rating
+    } else if (averageRating >= 3.5) {
+      return "text-yellow-400"; // Slightly lighter yellow for good rating
+    } else if (averageRating >= 3) {
+      return "text-yellow-400"; // Same lighter yellow for average rating
+    } else if (averageRating >= 2) {
+      return "text-yellow-300"; // Light yellow for below average
+    } else {
+      return "text-yellow-200"; // Pale yellow for poor rating
+    }
+  };
   // Load cart from session storage on mount
   useEffect(() => {
     fetchCategories();
     fetchProducts();
     fetchShopData();
+    fetchRatings();
     const savedCart = sessionStorage.getItem("cart");
     if (savedCart) {
       try {
@@ -95,22 +148,19 @@ const StorePage: React.FC = () => {
     }
   };
 
-  const fetchProducts = async () => {
+  const fetchRatings = async () => {
     if (!accessToken || !user?._id) return;
-    setLoading(true);
     try {
-      const res = await sendRequest<{ statusCode: number; data: any[] }>({
-        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/products/user/${user._id}`,
+      const res = await sendRequest<{ statusCode: number; data: Rating[] }>({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/ratings/`,
         method: "GET",
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       if (res.statusCode === 200) {
-        setProducts(res.data);
+        setRatings(res.data);
       }
     } catch (error) {
-      console.error("Error fetching products:", error);
-    } finally {
-      setLoading(false);
+      console.error("Error fetching ratings:", error);
     }
   };
 
@@ -127,6 +177,25 @@ const StorePage: React.FC = () => {
       }
     } catch (error) {
       console.error("Error fetching shop data:", error);
+    }
+  };
+
+  const fetchProducts = async () => {
+    if (!accessToken || !user?._id) return;
+    setLoading(true);
+    try {
+      const res = await sendRequest<{ statusCode: number; data: any[] }>({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/products/user/${user._id}`,
+        method: "GET",
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      if (res.statusCode === 200) {
+        setProducts(res.data);
+      }
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -184,6 +253,11 @@ const StorePage: React.FC = () => {
     setSelectedCategory(value);
   };
 
+  // Hàm tính toán tổng số sản phẩm trong giỏ hàng
+  const getTotalCartItems = () => {
+    return cart.reduce((total, item) => total + item.quantity, 0);
+  };
+
   const filteredProducts = products.filter((product) => {
     const matchesSearchQuery = (product.productName || "")
       .toLowerCase()
@@ -193,16 +267,11 @@ const StorePage: React.FC = () => {
     return matchesSearchQuery && matchesCategory;
   });
 
-  // Hàm tính toán tổng số sản phẩm trong giỏ hàng
-  const getTotalCartItems = () => {
-    return cart.reduce((total, item) => total + item.quantity, 0);
-  };
-
   return (
     <div className="p-8 bg-gray-100 min-h-screen">
       <h1
         className="text-4xl font-bold text-center mb-6 text-transparent 
-             bg-gradient-to-r from-blue-500 to-indigo-600 bg-clip-text"
+            bg-gradient-to-r from-blue-500 to-indigo-600 bg-clip-text"
         style={{
           fontFamily: "'Montserrat', sans-serif",
           letterSpacing: "2px",
@@ -285,64 +354,81 @@ const StorePage: React.FC = () => {
         </div>
       ) : filteredProducts.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {filteredProducts.map((product) => (
-            <div
-              key={product._id}
-              className="bg-white p-4 rounded-lg shadow-lg flex flex-col items-center relative"
-            >
-              <Dropdown
-                overlay={
-                  <Menu>
-                    <Menu.Item
-                      key="edit"
-                      onClick={() => handleEdit(product)}
-                      icon={<EditOutlined />}
-                    >
-                      Edit
-                    </Menu.Item>
-                    <Menu.Item
-                      key="delete"
-                      onClick={() => handleDelete(product._id)}
-                      icon={<DeleteOutlined />}
-                      danger
-                    >
-                      Delete
-                    </Menu.Item>
-                  </Menu>
-                }
-                trigger={["click"]}
+          {filteredProducts.map((product) => {
+            const { averageRating, totalRatings } = getProductRating(
+              product._id
+            );
+
+            return (
+              <div
+                key={product._id}
+                className="bg-white p-4 rounded-lg shadow-lg flex flex-col items-center relative"
               >
-                <MoreOutlined className="absolute top-3 right-3 text-xl cursor-pointer" />
-              </Dropdown>
-              <img
-                src={product.image || "/default-image.jpg"}
-                alt={product.productName}
-                className="w-40 h-40 object-cover rounded-lg mb-4"
-              />
-              <span className="text-lg font-semibold text-gray-800 text-center">
-                {product.productName}
-              </span>
-              <span className="text-gray-500 text-xs mt-1">
-                {product.productDescription}
-              </span>
-              <span className="text-green-600 text-sm font-medium mt-1">
-                ${product.productPrice}
-              </span>
-              <div className="flex gap-2 mt-3 w-full">
-                <Button className="flex-1" icon={<DollarCircleOutlined />}>
-                  Buy Now
-                </Button>
-                <Button
-                  type="default"
-                  className="flex-1"
-                  icon={<ShoppingCartOutlined />}
-                  onClick={() => addToCart(product._id)}
+                <Dropdown
+                  overlay={
+                    <Menu>
+                      <Menu.Item
+                        key="edit"
+                        onClick={() => handleEdit(product)}
+                        icon={<EditOutlined />}
+                      >
+                        Edit
+                      </Menu.Item>
+                      <Menu.Item
+                        key="delete"
+                        onClick={() => handleDelete(product._id)}
+                        icon={<DeleteOutlined />}
+                        danger
+                      >
+                        Delete
+                      </Menu.Item>
+                    </Menu>
+                  }
+                  trigger={["click"]}
                 >
-                  Add to Cart
-                </Button>
+                  <MoreOutlined className="absolute top-3 right-3 text-xl cursor-pointer" />
+                </Dropdown>
+                <img
+                  src={product.image || "/default-image.jpg"}
+                  alt={product.productName}
+                  className="w-40 h-40 object-cover rounded-lg mb-4"
+                />
+                <span className="text-lg font-semibold text-gray-800 text-center">
+                  {product.productName}
+                </span>
+                <span className="text-gray-500 text-xs mt-1">
+                  {product.productDescription}
+                </span>
+                <span className="text-green-600 text-sm font-medium mt-1">
+                  ${product.productPrice}
+                </span>
+                <div className="flex items-center mt-2">
+                  <Rate
+                    disabled
+                    defaultValue={averageRating}
+                    allowHalf
+                    className={getStarColor(averageRating)}
+                  />
+                  <span className="text-gray-500 text-xs ml-2">
+                    ({totalRatings} {totalRatings === 1 ? "rating" : "ratings"})
+                  </span>
+                </div>
+                <div className="flex gap-2 mt-3 w-full">
+                  <Button className="flex-1" icon={<DollarCircleOutlined />}>
+                    Buy Now
+                  </Button>
+                  <Button
+                    type="default"
+                    className="flex-1"
+                    icon={<ShoppingCartOutlined />}
+                    onClick={() => addToCart(product._id)}
+                  >
+                    Add to Cart
+                  </Button>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <div className="text-center text-gray-500 text-lg font-semibold py-10">
