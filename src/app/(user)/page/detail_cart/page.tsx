@@ -19,6 +19,7 @@ import {
 import { AuthContext } from "@/context/AuthContext";
 import { sendRequest } from "@/utils/api";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const DetailCart: React.FC = () => {
   const [cart, setCart] = useState<any[]>([]);

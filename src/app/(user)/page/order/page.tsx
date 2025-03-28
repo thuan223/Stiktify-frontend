@@ -30,7 +30,8 @@ interface OrderItem {
   productName: string;
   price: number;
   quantity: number;
-  image?: string;
+  image: string;
+  description?: string;
 }
 
 interface OrderFormData {
@@ -43,7 +44,14 @@ interface OrderFormData {
 
 interface OrderSubmissionData {
   userId: string;
-  productId: string;
+  products: {
+    productId: string;
+    productName: string;
+    image: string;
+    description: string;
+    price: number;
+    quantity: number;
+  }[];
   amount: number;
   paymentMethod: "COD" | "VNPAY";
   fullName: string;
@@ -124,7 +132,8 @@ const OrderPage: React.FC = () => {
               ...cartItem,
               productName: product.productName,
               price: product.productPrice,
-              image: product.image, // Lấy hình ảnh từ sản phẩm
+              image: product.image,
+              description: product.description || "No description available",
             };
           }
           return null;
@@ -178,8 +187,8 @@ const OrderPage: React.FC = () => {
       return;
     }
 
-    // Validate cart and product
-    if (cart.length === 0 || !cart[0]?.productId) {
+    // Validate cart
+    if (cart.length === 0) {
       notification.error({
         message: "Cart Error",
         description:
@@ -206,7 +215,20 @@ const OrderPage: React.FC = () => {
     try {
       const orderData: OrderSubmissionData = {
         userId: user._id.toString(),
-        productId: cart[0].productId.toString(),
+        products: cart.map((item) => {
+          // Tìm thông tin chi tiết sản phẩm từ danh sách products
+          const productDetail = products.find((p) => p._id === item.productId);
+
+          return {
+            productId: item.productId,
+            productName: productDetail?.productName || "",
+            image: productDetail?.image || "",
+            description:
+              productDetail?.description || "No description available",
+            price: item.price,
+            quantity: item.quantity,
+          };
+        }),
         amount: Number(getTotalPrice()),
         paymentMethod: paymentMethod,
         fullName: values.fullName.trim(),
@@ -385,11 +407,11 @@ const OrderPage: React.FC = () => {
                         <CreditCardOutlined /> Cash on Delivery (COD)
                       </Space>
                     </Radio>
-                    <Radio value="VNPAY">
+                    {/* <Radio value="VNPAY">
                       <Space>
                         <CreditCardOutlined /> VNPAY Online Payment
                       </Space>
-                    </Radio>
+                    </Radio> */}
                   </Radio.Group>
                 </Form.Item>
 
@@ -423,7 +445,6 @@ const OrderPage: React.FC = () => {
                       key={item.productId}
                       className="flex items-center mb-3 space-x-3"
                     >
-                      {/* Thêm hình ảnh sản phẩm */}
                       {item.image && (
                         <img
                           src={item.image}

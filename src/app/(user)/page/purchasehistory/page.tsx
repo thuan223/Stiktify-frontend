@@ -1,7 +1,16 @@
 "use client";
 
 import React, { useEffect, useState, useContext } from "react";
-import { Typography, Spin, Alert, Image, Tooltip } from "antd";
+import {
+  Typography,
+  Spin,
+  Alert,
+  Image,
+  Tooltip,
+  Badge,
+  Rate,
+  message,
+} from "antd";
 import { AuthContext } from "@/context/AuthContext";
 import { sendRequest } from "@/utils/api";
 import {
@@ -14,9 +23,7 @@ import {
   AlertTriangle,
   ShoppingBag,
   User,
-  Mail,
   Phone,
-  MailCheckIcon,
   MailIcon,
 } from "lucide-react";
 
@@ -40,8 +47,16 @@ interface Order {
   fullName?: string;
   emailAddress?: string;
   phoneNumber?: string;
-  productId?: string;
-  product?: Product;
+  products?: OrderProduct[];
+}
+
+interface OrderProduct {
+  productId: string;
+  productName: string;
+  price: number;
+  image: string;
+  quantity: number;
+  rating?: number;
 }
 
 interface ApiResponse {
@@ -50,31 +65,33 @@ interface ApiResponse {
   data: Order[];
 }
 
-const OrderStatusBadge = ({ status }: { status: string }) => {
-  const getStatusStyle = () => {
+// OrderStatusBadge Component
+const OrderStatusBadge: React.FC<{ status: string }> = ({ status }) => {
+  const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
+      case "processing":
+        return "processing";
       case "completed":
-        return "bg-green-100 text-green-800 border-green-200";
+        return "success";
+      case "shipped":
+        return "success";
       case "pending":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+        return "warning";
       case "cancelled":
-        return "bg-red-100 text-red-800 border-red-200";
+        return "error";
+      case "refunded":
+        return "error";
       default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
+        return "default";
     }
   };
 
   return (
-    <span
-      className={`
-        px-3 py-1 rounded-full text-xs font-medium uppercase 
-        inline-flex items-center 
-        ${getStatusStyle()}
-        border
-      `}
-    >
-      {status}
-    </span>
+    <Badge
+      status={getStatusColor(status)}
+      text={status.charAt(0).toUpperCase() + status.slice(1)}
+      className="order-status-badge"
+    />
   );
 };
 
@@ -83,9 +100,52 @@ const PurchaseHistory: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
-  const [productDetails, setProductDetails] = useState<{
-    [key: string]: Product;
-  }>({});
+
+  // Hàm xử lý rating sản phẩm
+  const handleProductRating = async (
+    orderId: string,
+    productId: string,
+    rating: number
+  ) => {
+    if (!accessToken) {
+      message.error("Please log in to rate");
+      return;
+    }
+
+    try {
+      await sendRequest({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/products/${productId}/rate`,
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: { rating },
+      });
+
+      message.success("Thank you for rating!");
+
+      // Cập nhật rating trong state
+      const updatedOrders = orders.map((order) =>
+        order._id === orderId
+          ? {
+              ...order,
+              products: order.products?.map((product) =>
+                product.productId === productId
+                  ? { ...product, rating }
+                  : product
+              ),
+            }
+          : order
+      );
+      setOrders(updatedOrders);
+    } catch (err: any) {
+      message.error(
+        err.response?.data?.message ||
+          "An error occurred while submitting rating. Please try again."
+      );
+    }
+  };
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -107,43 +167,35 @@ const PurchaseHistory: React.FC = () => {
         });
 
         if (res.data && res.data.length > 0) {
-          // First, fetch all unique product details with type guard
-          const productIds = [
-            ...new Set(
-              res.data
-                .map((order) => order.productId)
-                .filter((id): id is string => typeof id === "string")
-            ),
-          ];
-
-          const productDetailsMap: { [key: string]: Product } = {};
-
-          await Promise.all(
-            productIds.map(async (productId) => {
+          // Fetch products for each order
+          const ordersWithProducts = await Promise.all(
+            res.data.map(async (order) => {
               try {
-                const productRes = await sendRequest<{ data: Product }>({
-                  url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/products/${productId}`,
-                  method: "GET",
-                  headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                    "Content-Type": "application/json",
-                  },
-                });
+                const productsRes = await sendRequest<{ data: OrderProduct[] }>(
+                  {
+                    url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/orders/${order._id}/products`,
+                    method: "GET",
+                    headers: {
+                      Authorization: `Bearer ${accessToken}`,
+                    },
+                  }
+                );
 
-                if (productRes.data) {
-                  productDetailsMap[productId] = productRes.data;
-                }
+                return {
+                  ...order,
+                  products: productsRes.data || [],
+                };
               } catch (productError) {
                 console.error(
-                  `Error fetching product ${productId}:`,
+                  `Error fetching products for order ${order._id}:`,
                   productError
                 );
+                return order;
               }
             })
           );
 
-          setProductDetails(productDetailsMap);
-          setOrders(res.data);
+          setOrders(ordersWithProducts);
         } else {
           setError("No orders found");
         }
@@ -162,17 +214,101 @@ const PurchaseHistory: React.FC = () => {
     fetchOrders();
   }, [accessToken]);
 
+  const renderProductColumn = (order: Order) => {
+    const products = order.products || [];
+
+    return (
+      <div className="w-full">
+        <div className="flex items-center space-x-2 mb-4">
+          <ShoppingBag className="w-5 h-5 text-green-600" />
+          <Text strong>Product Information</Text>
+          <Text className="text-gray-500 ml-2">({products.length} items)</Text>
+        </div>
+        {products.length > 0 ? (
+          <div className="space-y-6 max-h-[500px] overflow-y-auto">
+            {products.map((product, index) => (
+              <div
+                key={`${product.productId}-${index}`}
+                className="flex flex-col items-center space-y-4 pb-6 border-b last:border-b-0"
+              >
+                {product.image ? (
+                  <Image
+                    src={product.image}
+                    alt={product.productName}
+                    className="w-12 h-12 object-cover rounded"
+                    preview={true}
+                  />
+                ) : (
+                  <div className="w-12 h-12 bg-gray-200 flex items-center justify-center rounded">
+                    <ShoppingBag className="w-6 h-6 text-gray-500" />
+                  </div>
+                )}
+
+                <div className="w-full text-center">
+                  <Text strong className="block text-base mb-1 truncate">
+                    {product.productName}
+                  </Text>
+                  <div className="text-gray-500 text-sm space-x-2 mb-2">
+                    <span>
+                      Price:{" "}
+                      {product.price.toLocaleString("en-US", {
+                        style: "currency",
+                        currency: "USD",
+                      })}
+                    </span>
+                    <span>•</span>
+                    <span>Quantity: {product.quantity}</span>
+                  </div>
+                  <Text strong className="text-green-600">
+                    {(product.price * product.quantity).toLocaleString(
+                      "en-US",
+                      {
+                        style: "currency",
+                        currency: "USD",
+                      }
+                    )}
+                  </Text>
+
+                  {/* Product Rating */}
+                  <div className="mt-3 flex justify-center items-center space-x-2">
+                    <Text className="text-gray-600">Rate Product:</Text>
+                    <Rate
+                      value={product.rating || 0}
+                      onChange={(value) =>
+                        handleProductRating(order._id, product.productId, value)
+                      }
+                      className={product.rating ? "" : ""}
+                    />
+                    {product.rating && (
+                      <Text type="secondary" className="ml-2">
+                        (Rated)
+                      </Text>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="flex items-center space-x-2 text-gray-500">
+            <ShoppingBag className="w-5 h-5" />
+            <Text type="secondary">No products in this order</Text>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl bg-gray-100">
-      <header className="mb-8 text-center">
-        <Title level={1} className="text-3xl font-bold text-gray-800 mb-4">
+    <div className="container mx-auto px-4 py-8 max-w-6xl bg-gray-100">
+      <div className="mb-8">
+        <Title level={2} className="text-gray-800 mb-2">
           Purchase History
         </Title>
-        <p className="text-gray-600 max-w-xl mx-auto">
-          Details of your completed orders. Check the status, payment, and
-          shipping information for each order.
-        </p>
-      </header>
+        <Text className="text-gray-600">
+          View and manage all of your previous orders
+        </Text>
+      </div>
 
       {loading ? (
         <div className="flex justify-center items-center h-64">
@@ -187,168 +323,148 @@ const PurchaseHistory: React.FC = () => {
         />
       ) : orders.length > 0 ? (
         <div className="space-y-6">
-          {orders.map((order) => {
-            const product = order.productId
-              ? productDetails[order.productId]
-              : undefined;
-
-            return (
-              <div
-                key={order._id}
-                className="
-                  bg-white 
-                  shadow-lg 
-                  rounded-xl 
-                  border 
-                  border-gray-200 
-                  overflow-hidden 
-                  transition 
-                  hover:shadow-xl
-                "
-              >
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex items-center space-x-3">
-                      <Package className="text-blue-600 w-6 h-6" />
-                      <div>
-                        <Text strong className="text-lg text-gray-800">
-                          Order ID: #{order._id.slice(-8)}
-                        </Text>
-                        <OrderStatusBadge status={order.status} />
-                      </div>
-                    </div>
-                    <div className="text-right">
+          {orders.map((order) => (
+            <div
+              key={order._id}
+              className="
+                bg-white 
+                shadow-lg 
+                rounded-xl 
+                border 
+                border-gray-200 
+                overflow-hidden 
+                transition 
+                hover:shadow-xl
+              "
+            >
+              <div className="p-6">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex items-center space-x-3 truncate">
+                    <Package className="text-blue-600 w-6 h-6 flex-shrink-0" />
+                    <div className="truncate">
                       <Text
                         strong
-                        className="text-xl text-green-600 block mb-1"
+                        className="
+                          text-lg 
+                          text-gray-800 
+                          block 
+                          truncate 
+                          max-w-[250px] 
+                          sm:max-w-full
+                        "
                       >
-                        {order.amount.toLocaleString("en-US", {
-                          style: "currency",
-                          currency: "USD",
-                        })}
+                        Order ID: #{order._id.slice(-8)}
                       </Text>
-                      <div className="text-sm text-gray-500 flex items-center justify-end space-x-2">
-                        <Calendar className="w-4 h-4" />
-                        <span>
-                          {order.createdAt
-                            ? new Date(order.createdAt).toLocaleDateString(
-                                "en-US",
-                                {
-                                  year: "numeric",
-                                  month: "long",
-                                  day: "numeric",
-                                }
-                              )
-                            : "Date Unknown"}
-                        </span>
-                      </div>
+                      <OrderStatusBadge status={order.status} />
+                    </div>
+                  </div>
+                  <div className="text-right flex-shrink-0">
+                    <Text
+                      strong
+                      className="text-xl text-green-600 block mb-1 whitespace-nowrap"
+                    >
+                      {order.amount.toLocaleString("en-US", {
+                        style: "currency",
+                        currency: "USD",
+                      })}
+                    </Text>
+                    <div className="text-sm text-gray-500 flex items-center justify-end space-x-2 whitespace-nowrap">
+                      <Calendar className="w-4 h-4" />
+                      <span>
+                        {order.createdAt
+                          ? new Date(order.createdAt).toLocaleDateString(
+                              "en-US",
+                              {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              }
+                            )
+                          : "Date Unknown"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-3 gap-6 mt-4 border-t pt-4 border-gray-100">
+                  {/* Product Details Column */}
+                  <div className="md:col-span-1">
+                    {renderProductColumn(order)}
+                  </div>
+
+                  {/* Payment Information Column */}
+                  <div className="md:col-span-1">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <CreditCard className="w-5 h-5 text-blue-600" />
+                      <Text strong>Payment Information</Text>
+                    </div>
+                    <div className="space-y-1 text-gray-700">
+                      <p className="flex items-center justify-between text-sm">
+                        <span className="text-gray-500">Method:</span>
+                        <span>{order.paymentMethod}</span>
+                      </p>
+                      <p className="flex items-center justify-between text-sm">
+                        <span className="text-gray-500">Status:</span>
+                        {order.isPaid ? (
+                          <span className="text-green-600 flex items-center">
+                            <CheckCircle className="w-4 h-4 mr-1" /> Paid
+                          </span>
+                        ) : (
+                          <span className="text-red-600 flex items-center">
+                            <XCircle className="w-4 h-4 mr-1" /> Not Paid
+                          </span>
+                        )}
+                      </p>
                     </div>
                   </div>
 
-                  <div className="grid md:grid-cols-3 gap-4 mt-4 border-t pt-4 border-gray-100">
-                    {/* Product Details Column */}
-                    <div>
-                      <div className="flex items-center space-x-2 mb-2">
-                        <ShoppingBag className="w-5 h-5 text-green-600" />
-                        <Text strong>Product Information</Text>
-                      </div>
-                      {product ? (
-                        <div className="flex items-center space-x-4">
-                          {product.image ? (
-                            <Image
-                              src={product.image}
-                              alt={product.productName}
-                              className="w-24 h-24 object-cover rounded"
-                              preview={true}
-                            />
-                          ) : (
-                            <div className="w-24 h-24 bg-gray-200 flex items-center justify-center rounded">
-                              <ShoppingBag className="w-12 h-12 text-gray-500" />
-                            </div>
-                          )}
-                          <div>
-                            <Text strong>{product.productName}</Text>
-                            <p className="text-gray-500">
-                              Price:{" "}
-                              {product.productPrice.toLocaleString("en-US", {
-                                style: "currency",
-                                currency: "USD",
-                              })}
-                            </p>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="flex items-center space-x-2 text-gray-500">
-                          <ShoppingBag className="w-5 h-5" />
-                          <Text type="secondary">Product not available</Text>
-                        </div>
-                      )}
+                  {/* Shipping Information Column */}
+                  <div className="md:col-span-1">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <MapPin className="w-5 h-5 text-red-600" />
+                      <Text strong>Shipping Information</Text>
                     </div>
-
-                    {/* Payment Information Column */}
-                    <div>
-                      <div className="flex items-center space-x-2 mb-2">
-                        <CreditCard className="w-5 h-5 text-blue-600" />
-                        <Text strong>Payment Information</Text>
-                      </div>
-                      <div className="space-y-1 text-gray-700">
-                        <p>
-                          <span className="text-gray-500">Method: </span>
-                          {order.paymentMethod}
-                        </p>
-                        <p>
-                          <span className="text-gray-500">Status: </span>
-                          {order.isPaid ? (
-                            <span className="text-green-600 flex items-center">
-                              <CheckCircle className="w-4 h-4 mr-1" /> Paid
-                            </span>
-                          ) : (
-                            <span className="text-red-600 flex items-center">
-                              <XCircle className="w-4 h-4 mr-1" /> Not Paid
-                            </span>
-                          )}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Shipping Information Column */}
-                    <div>
-                      <div className="flex items-center space-x-2 mb-2">
-                        <MapPin className="w-5 h-5 text-red-600" />
-                        <Text strong>Shipping Information</Text>
-                      </div>
-                      <div className="space-y-1 text-gray-700">
-                        <p className="flex items-center">
+                    <div className="space-y-2 text-gray-700">
+                      <p className="flex items-center justify-between">
+                        <span className="text-gray-500 flex items-center">
                           <User className="w-4 h-4 mr-2 text-gray-500" />
-                          <span className="text-gray-500">Name: </span>
-                          {order.fullName || "Unknown"}
-                        </p>
-                        <Tooltip
-                          title={order.emailAddress || "No email provided"}
-                        >
-                          <p className="flex items-center truncate">
+                          Name:
+                        </span>
+                        <span>{order.fullName || "Unknown"}</span>
+                      </p>
+                      <Tooltip
+                        title={order.emailAddress || "No email provided"}
+                      >
+                        <p className="flex items-center justify-between">
+                          <span className="text-gray-500 flex items-center">
                             <MailIcon className="w-4 h-4 mr-2 text-gray-500" />
-                            <span className="text-gray-500">Email: </span>
-                            {order.emailAddress || "N/A"}
-                          </p>
-                        </Tooltip>
-                        <p className="flex items-center">
+                            Email:
+                          </span>
+                          <span>{order.emailAddress || "N/A"}</span>
+                        </p>
+                      </Tooltip>
+                      <p className="flex items-center justify-between">
+                        <span className="text-gray-500 flex items-center">
                           <Phone className="w-4 h-4 mr-2 text-gray-500" />
-                          <span className="text-gray-500">Phone: </span>
-                          {order.phoneNumber || "N/A"}
-                        </p>
-                        <p className="flex items-center">
+                          Phone:
+                        </span>
+                        <span>{order.phoneNumber || "N/A"}</span>
+                      </p>
+                      <p className="flex items-center justify-between">
+                        <span className="text-gray-500 flex items-center">
                           <MapPin className="w-4 h-4 mr-2 text-gray-500" />
-                          <span className="text-gray-500">Address: </span>
+                          Address:
+                        </span>
+                        <span className="text-right">
                           {order.shippingAddress}
-                        </p>
-                      </div>
+                        </span>
+                      </p>
                     </div>
                   </div>
                 </div>
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
       ) : (
         <div className="text-center py-16 bg-white rounded-lg shadow-md">
