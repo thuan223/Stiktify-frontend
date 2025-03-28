@@ -1,7 +1,16 @@
 "use client";
 
 import React, { useEffect, useState, useContext } from "react";
-import { Typography, Spin, Alert, Image, Tooltip, Badge } from "antd";
+import {
+  Typography,
+  Spin,
+  Alert,
+  Image,
+  Tooltip,
+  Badge,
+  Rate,
+  message,
+} from "antd";
 import { AuthContext } from "@/context/AuthContext";
 import { sendRequest } from "@/utils/api";
 import {
@@ -47,6 +56,7 @@ interface OrderProduct {
   price: number;
   image: string;
   quantity: number;
+  rating?: number;
 }
 
 interface ApiResponse {
@@ -90,6 +100,52 @@ const PurchaseHistory: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
+
+  // Hàm xử lý rating sản phẩm
+  const handleProductRating = async (
+    orderId: string,
+    productId: string,
+    rating: number
+  ) => {
+    if (!accessToken) {
+      message.error("Please log in to rate");
+      return;
+    }
+
+    try {
+      await sendRequest({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/products/${productId}/rate`,
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: { rating },
+      });
+
+      message.success("Thank you for rating!");
+
+      // Cập nhật rating trong state
+      const updatedOrders = orders.map((order) =>
+        order._id === orderId
+          ? {
+              ...order,
+              products: order.products?.map((product) =>
+                product.productId === productId
+                  ? { ...product, rating }
+                  : product
+              ),
+            }
+          : order
+      );
+      setOrders(updatedOrders);
+    } catch (err: any) {
+      message.error(
+        err.response?.data?.message ||
+          "An error occurred while submitting rating. Please try again."
+      );
+    }
+  };
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -162,45 +218,48 @@ const PurchaseHistory: React.FC = () => {
     const products = order.products || [];
 
     return (
-      <div>
-        <div className="flex items-center space-x-2 mb-2">
+      <div className="w-full">
+        <div className="flex items-center space-x-2 mb-4">
           <ShoppingBag className="w-5 h-5 text-green-600" />
           <Text strong>Product Information</Text>
           <Text className="text-gray-500 ml-2">({products.length} items)</Text>
         </div>
         {products.length > 0 ? (
-          <div className="space-y-4 max-h-[500px] overflow-y-auto">
+          <div className="space-y-6 max-h-[500px] overflow-y-auto">
             {products.map((product, index) => (
               <div
                 key={`${product.productId}-${index}`}
-                className="flex items-center space-x-4 border-b pb-4 last:border-b-0"
+                className="flex flex-col items-center space-y-4 pb-6 border-b last:border-b-0"
               >
                 {product.image ? (
                   <Image
                     src={product.image}
                     alt={product.productName}
-                    className="w-24 h-24 object-cover rounded"
+                    className="w-12 h-12 object-cover rounded"
                     preview={true}
                   />
                 ) : (
-                  <div className="w-24 h-24 bg-gray-200 flex items-center justify-center rounded">
-                    <ShoppingBag className="w-12 h-12 text-gray-500" />
+                  <div className="w-12 h-12 bg-gray-200 flex items-center justify-center rounded">
+                    <ShoppingBag className="w-6 h-6 text-gray-500" />
                   </div>
                 )}
-                <div>
-                  <Text strong className="block truncate max-w-[300px]">
+
+                <div className="w-full text-center">
+                  <Text strong className="block text-base mb-1 truncate">
                     {product.productName}
                   </Text>
-                  <p className="text-gray-500 whitespace-nowrap">
-                    Price:{" "}
-                    {product.price.toLocaleString("en-US", {
-                      style: "currency",
-                      currency: "USD",
-                    })}
-                  </p>
-                  <p className="text-gray-500">Quantity: {product.quantity}</p>
-                  <p className="text-gray-500 font-semibold">
-                    Subtotal:{" "}
+                  <div className="text-gray-500 text-sm space-x-2 mb-2">
+                    <span>
+                      Price:{" "}
+                      {product.price.toLocaleString("en-US", {
+                        style: "currency",
+                        currency: "USD",
+                      })}
+                    </span>
+                    <span>•</span>
+                    <span>Quantity: {product.quantity}</span>
+                  </div>
+                  <Text strong className="text-green-600">
                     {(product.price * product.quantity).toLocaleString(
                       "en-US",
                       {
@@ -208,7 +267,24 @@ const PurchaseHistory: React.FC = () => {
                         currency: "USD",
                       }
                     )}
-                  </p>
+                  </Text>
+
+                  {/* Product Rating */}
+                  <div className="mt-3 flex justify-center items-center space-x-2">
+                    <Text className="text-gray-600">Rate Product:</Text>
+                    <Rate
+                      value={product.rating || 0}
+                      onChange={(value) =>
+                        handleProductRating(order._id, product.productId, value)
+                      }
+                      className={product.rating ? "" : ""}
+                    />
+                    {product.rating && (
+                      <Text type="secondary" className="ml-2">
+                        (Rated)
+                      </Text>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}
@@ -224,7 +300,7 @@ const PurchaseHistory: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl bg-gray-100">
+    <div className="container mx-auto px-4 py-8 max-w-6xl bg-gray-100">
       <div className="mb-8">
         <Title level={2} className="text-gray-800 mb-2">
           Purchase History
@@ -310,23 +386,25 @@ const PurchaseHistory: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="grid md:grid-cols-3 gap-4 mt-4 border-t pt-4 border-gray-100">
+                <div className="grid md:grid-cols-3 gap-6 mt-4 border-t pt-4 border-gray-100">
                   {/* Product Details Column */}
-                  {renderProductColumn(order)}
+                  <div className="md:col-span-1">
+                    {renderProductColumn(order)}
+                  </div>
 
                   {/* Payment Information Column */}
-                  <div>
+                  <div className="md:col-span-1">
                     <div className="flex items-center space-x-2 mb-2">
                       <CreditCard className="w-5 h-5 text-blue-600" />
                       <Text strong>Payment Information</Text>
                     </div>
                     <div className="space-y-1 text-gray-700">
-                      <p className="truncate">
-                        <span className="text-gray-500">Method: </span>
-                        {order.paymentMethod}
+                      <p className="flex items-center justify-between text-sm">
+                        <span className="text-gray-500">Method:</span>
+                        <span>{order.paymentMethod}</span>
                       </p>
-                      <p>
-                        <span className="text-gray-500">Status: </span>
+                      <p className="flex items-center justify-between text-sm">
+                        <span className="text-gray-500">Status:</span>
                         {order.isPaid ? (
                           <span className="text-green-600 flex items-center">
                             <CheckCircle className="w-4 h-4 mr-1" /> Paid
@@ -341,35 +419,45 @@ const PurchaseHistory: React.FC = () => {
                   </div>
 
                   {/* Shipping Information Column */}
-                  <div>
+                  <div className="md:col-span-1">
                     <div className="flex items-center space-x-2 mb-2">
                       <MapPin className="w-5 h-5 text-red-600" />
                       <Text strong>Shipping Information</Text>
                     </div>
-                    <div className="space-y-1 text-gray-700">
-                      <p className="flex items-center truncate">
-                        <User className="w-4 h-4 mr-2 text-gray-500 flex-shrink-0" />
-                        <span className="text-gray-500 mr-1">Name:</span>
-                        {order.fullName || "Unknown"}
+                    <div className="space-y-2 text-gray-700">
+                      <p className="flex items-center justify-between">
+                        <span className="text-gray-500 flex items-center">
+                          <User className="w-4 h-4 mr-2 text-gray-500" />
+                          Name:
+                        </span>
+                        <span>{order.fullName || "Unknown"}</span>
                       </p>
                       <Tooltip
                         title={order.emailAddress || "No email provided"}
                       >
-                        <p className="flex items-center truncate">
-                          <MailIcon className="w-4 h-4 mr-2 text-gray-500 flex-shrink-0" />
-                          <span className="text-gray-500 mr-1">Email:</span>
-                          {order.emailAddress || "N/A"}
+                        <p className="flex items-center justify-between">
+                          <span className="text-gray-500 flex items-center">
+                            <MailIcon className="w-4 h-4 mr-2 text-gray-500" />
+                            Email:
+                          </span>
+                          <span>{order.emailAddress || "N/A"}</span>
                         </p>
                       </Tooltip>
-                      <p className="flex items-center truncate">
-                        <Phone className="w-4 h-4 mr-2 text-gray-500 flex-shrink-0" />
-                        <span className="text-gray-500 mr-1">Phone:</span>
-                        {order.phoneNumber || "N/A"}
+                      <p className="flex items-center justify-between">
+                        <span className="text-gray-500 flex items-center">
+                          <Phone className="w-4 h-4 mr-2 text-gray-500" />
+                          Phone:
+                        </span>
+                        <span>{order.phoneNumber || "N/A"}</span>
                       </p>
-                      <p className="flex items-center truncate">
-                        <MapPin className="w-4 h-4 mr-2 text-gray-500 flex-shrink-0" />
-                        <span className="text-gray-500 mr-1">Address:</span>
-                        {order.shippingAddress}
+                      <p className="flex items-center justify-between">
+                        <span className="text-gray-500 flex items-center">
+                          <MapPin className="w-4 h-4 mr-2 text-gray-500" />
+                          Address:
+                        </span>
+                        <span className="text-right">
+                          {order.shippingAddress}
+                        </span>
                       </p>
                     </div>
                   </div>
