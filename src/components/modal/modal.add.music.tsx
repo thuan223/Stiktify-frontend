@@ -106,26 +106,31 @@ const AddMusicModal = (props: IProps) => {
             console.log("dataSeparate>>>>", dataSeparate);
             setProgressUploadMusic(46);
 
-
-            console.log("Đang lấy lyric.....");
-
-            const dataLyric = await lyricMusicAction(mp3File!)
-            setLyrics(dataLyric)
-            console.log("dataLyric>>>>", dataLyric);
-            setProgressUploadMusic(77);
-
-
         } catch (error) {
             console.error("Error:", error);
+            setSeparate([])
         } finally {
-            setProgressUploadMusic(100);
+            try {
+                console.log("Đang lấy lyric.....");
+
+                const dataLyric = await lyricMusicAction(mp3File!)
+                setLyrics(dataLyric)
+                console.log("dataLyric>>>>", dataLyric);
+                setProgressUploadMusic(77);
+            } catch (error) {
+                console.error("Error:", error);
+                setLyrics([])
+            } finally {
+                setProgressUploadMusic(100);
+            }
+
         }
     };
 
     useEffect(() => {
         if (isLoading && progressUploadMusic === 100 && dataCreate) {
             (async () => {
-                const newSeparate = separate.filter(x => !x.endsWith(".vocals.wav"))
+                const newSeparate = separate.filter(x => !x.endsWith("vocals.wav"))
                 const configData = { ...dataCreate, musicSeparate: newSeparate, musicLyric: lyrics }
                 const res = await handleCreateMusicAction(configData)
                 if (res?.statusCode === 201) {
@@ -139,7 +144,7 @@ const AddMusicModal = (props: IProps) => {
                     setDataSearch([])
                     setUrlUploadMp3("")
                     setTimeout(() => setProgressUploadMusic(0), 1000);
-                    setInformationUpload({ image: "", name: "" })
+                    setInformationUpload(null)
                     return
                 }
                 notification.error({ message: res?.message })
@@ -175,7 +180,6 @@ const AddMusicModal = (props: IProps) => {
                 const uploadedUrl = info.file.response.data;
                 setUrlUploadMp3(uploadedUrl)
 
-
                 const file = info.file.originFileObj as File;
 
                 setMp3File(file)
@@ -202,7 +206,7 @@ const AddMusicModal = (props: IProps) => {
             authorization: `Bearer ${accessToken}`,
         },
         data: {
-            folder: "thumbnail"
+            folder: "thumbnails"
         },
         withCredentials: true,
         onChange(info) {
@@ -259,7 +263,6 @@ const AddMusicModal = (props: IProps) => {
                     </Button>,
                 ]}
             >
-                <p>geegee</p>
                 <Form
                     name="basic"
                     onFinish={onFinish}

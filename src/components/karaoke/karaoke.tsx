@@ -16,7 +16,7 @@ const Karaoke = () => {
     const { trackKaraoke } = useGlobalContext()!;
     const [currentLyricIndex, setCurrentLyricIndex] = useState(-1);
     const [currentTime, setCurrentTime] = useState(0);
-    const [isPlaying, setIsPlaying] = useState(true);
+    const [isPlaying, setIsPlaying] = useState(false);
     const lyricsContainerRef = useRef<HTMLDivElement>(null);
     const lyrics = trackKaraoke?.musicLyric as Lyric[] || [];
     const router = useRouter();

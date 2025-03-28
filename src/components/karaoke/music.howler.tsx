@@ -156,17 +156,19 @@ const MusicPlayerKaraoke = (p: MusicPlayerProps) => {
             </div>
 
             <div hidden>
-                {trackKaraoke?.musicSeparate?.map((url, index) => (
-                    <ReactHowler
-                        key={index}
-                        src={url}
-                        playing={isPlayingProp}
-                        volume={volume}
-                        ref={index === 0 ? playerRef : undefined}
-                        onLoad={index === 0 ? handleLoad : undefined}
-                        onEnd={index === 0 ? handleEnd : undefined}
-                    />
-                ))}
+                {trackKaraoke && trackKaraoke?.musicSeparate?.length > 0 &&
+                    trackKaraoke.musicSeparate.map((url, index) => (
+                        <ReactHowler
+                            key={index}
+                            src={url}
+                            playing={isPlayingProp}
+                            volume={volume}
+                            ref={index === 0 ? playerRef : undefined}
+                            onLoad={index === 0 ? handleLoad : undefined}
+                            onEnd={index === 0 ? handleEnd : undefined}
+                        />
+                    ))
+                }
             </div>
         </div>
     );

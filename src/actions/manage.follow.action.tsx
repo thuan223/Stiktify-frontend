@@ -30,6 +30,30 @@ export const handleFollow = async (followerId: string, followingId: string) => {
   }
 };
 
+export const checkFollowAction = async (followerId: string, followingId: string) => {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/follow/check-follow`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          followerId: followerId,
+          followingId: followingId,
+        }),
+      }
+    );
+    revalidateTag("follow");
+    const result: IBackendRes<any> = await res.json();
+    return result;
+  } catch (error) {
+    return null;
+  }
+};
+
 export const getAllFollowing = async (followerId: string) => {
   try {
     const res = await fetch(
