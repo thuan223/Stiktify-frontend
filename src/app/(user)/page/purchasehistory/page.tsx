@@ -14,9 +14,7 @@ import {
   AlertTriangle,
   ShoppingBag,
   User,
-  Mail,
   Phone,
-  MailCheckIcon,
   MailIcon,
 } from "lucide-react";
 
@@ -71,6 +69,7 @@ const OrderStatusBadge = ({ status }: { status: string }) => {
         inline-flex items-center 
         ${getStatusStyle()}
         border
+        ml-2
       `}
     >
       {status}
@@ -107,22 +106,13 @@ const PurchaseHistory: React.FC = () => {
         });
 
         if (res.data && res.data.length > 0) {
-          // First, fetch all unique product details with type guard
-          const productIds = [
-            ...new Set(
-              res.data
-                .map((order) => order.productId)
-                .filter((id): id is string => typeof id === "string")
-            ),
-          ];
-
           const productDetailsMap: { [key: string]: Product } = {};
 
-          await Promise.all(
-            productIds.map(async (productId) => {
+          const productDetailPromises = res.data.map(async (order) => {
+            if (order.productId) {
               try {
                 const productRes = await sendRequest<{ data: Product }>({
-                  url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/products/${productId}`,
+                  url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/products/${order.productId}`,
                   method: "GET",
                   headers: {
                     Authorization: `Bearer ${accessToken}`,
@@ -131,16 +121,18 @@ const PurchaseHistory: React.FC = () => {
                 });
 
                 if (productRes.data) {
-                  productDetailsMap[productId] = productRes.data;
+                  productDetailsMap[order.productId] = productRes.data;
                 }
               } catch (productError) {
                 console.error(
-                  `Error fetching product ${productId}:`,
+                  `Error fetching product ${order.productId}:`,
                   productError
                 );
               }
-            })
-          );
+            }
+          });
+
+          await Promise.all(productDetailPromises);
 
           setProductDetails(productDetailsMap);
           setOrders(res.data);
@@ -165,10 +157,23 @@ const PurchaseHistory: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl bg-gray-100">
       <header className="mb-8 text-center">
-        <Title level={1} className="text-3xl font-bold text-gray-800 mb-4">
-          Purchase History
+        <Title
+          level={1}
+          className="
+            text-4xl 
+            font-extrabold 
+            text-transparent 
+            bg-clip-text 
+            bg-gradient-to-r 
+            from-blue-600 
+            to-purple-600 
+            mb-4
+            tracking-tight
+          "
+        >
+          PURCHASE HISTORY
         </Title>
-        <p className="text-gray-600 max-w-xl mx-auto">
+        <p className="text-gray-600 max-w-xl mx-auto text-base">
           Details of your completed orders. Check the status, payment, and
           shipping information for each order.
         </p>
@@ -208,26 +213,36 @@ const PurchaseHistory: React.FC = () => {
               >
                 <div className="p-6">
                   <div className="flex justify-between items-start mb-4">
-                    <div className="flex items-center space-x-3">
-                      <Package className="text-blue-600 w-6 h-6" />
-                      <div>
-                        <Text strong className="text-lg text-gray-800">
+                    <div className="flex items-center space-x-3 truncate">
+                      <Package className="text-blue-600 w-6 h-6 flex-shrink-0" />
+                      <div className="truncate">
+                        <Text
+                          strong
+                          className="
+                            text-lg 
+                            text-gray-800 
+                            block 
+                            truncate 
+                            max-w-[250px] 
+                            sm:max-w-full
+                          "
+                        >
                           Order ID: #{order._id.slice(-8)}
                         </Text>
                         <OrderStatusBadge status={order.status} />
                       </div>
                     </div>
-                    <div className="text-right">
+                    <div className="text-right flex-shrink-0">
                       <Text
                         strong
-                        className="text-xl text-green-600 block mb-1"
+                        className="text-xl text-green-600 block mb-1 whitespace-nowrap"
                       >
                         {order.amount.toLocaleString("en-US", {
                           style: "currency",
                           currency: "USD",
                         })}
                       </Text>
-                      <div className="text-sm text-gray-500 flex items-center justify-end space-x-2">
+                      <div className="text-sm text-gray-500 flex items-center justify-end space-x-2 whitespace-nowrap">
                         <Calendar className="w-4 h-4" />
                         <span>
                           {order.createdAt
@@ -267,8 +282,13 @@ const PurchaseHistory: React.FC = () => {
                             </div>
                           )}
                           <div>
-                            <Text strong>{product.productName}</Text>
-                            <p className="text-gray-500">
+                            <Text
+                              strong
+                              className="block truncate max-w-[200px]"
+                            >
+                              {product.productName}
+                            </Text>
+                            <p className="text-gray-500 whitespace-nowrap">
                               Price:{" "}
                               {product.productPrice.toLocaleString("en-US", {
                                 style: "currency",
@@ -292,7 +312,7 @@ const PurchaseHistory: React.FC = () => {
                         <Text strong>Payment Information</Text>
                       </div>
                       <div className="space-y-1 text-gray-700">
-                        <p>
+                        <p className="truncate">
                           <span className="text-gray-500">Method: </span>
                           {order.paymentMethod}
                         </p>
@@ -318,28 +338,28 @@ const PurchaseHistory: React.FC = () => {
                         <Text strong>Shipping Information</Text>
                       </div>
                       <div className="space-y-1 text-gray-700">
-                        <p className="flex items-center">
-                          <User className="w-4 h-4 mr-2 text-gray-500" />
-                          <span className="text-gray-500">Name: </span>
+                        <p className="flex items-center truncate">
+                          <User className="w-4 h-4 mr-2 text-gray-500 flex-shrink-0" />
+                          <span className="text-gray-500 mr-1">Name:</span>
                           {order.fullName || "Unknown"}
                         </p>
                         <Tooltip
                           title={order.emailAddress || "No email provided"}
                         >
                           <p className="flex items-center truncate">
-                            <MailIcon className="w-4 h-4 mr-2 text-gray-500" />
-                            <span className="text-gray-500">Email: </span>
+                            <MailIcon className="w-4 h-4 mr-2 text-gray-500 flex-shrink-0" />
+                            <span className="text-gray-500 mr-1">Email:</span>
                             {order.emailAddress || "N/A"}
                           </p>
                         </Tooltip>
-                        <p className="flex items-center">
-                          <Phone className="w-4 h-4 mr-2 text-gray-500" />
-                          <span className="text-gray-500">Phone: </span>
+                        <p className="flex items-center truncate">
+                          <Phone className="w-4 h-4 mr-2 text-gray-500 flex-shrink-0" />
+                          <span className="text-gray-500 mr-1">Phone:</span>
                           {order.phoneNumber || "N/A"}
                         </p>
-                        <p className="flex items-center">
-                          <MapPin className="w-4 h-4 mr-2 text-gray-500" />
-                          <span className="text-gray-500">Address: </span>
+                        <p className="flex items-center truncate">
+                          <MapPin className="w-4 h-4 mr-2 text-gray-500 flex-shrink-0" />
+                          <span className="text-gray-500 mr-1">Address:</span>
                           {order.shippingAddress}
                         </p>
                       </div>
