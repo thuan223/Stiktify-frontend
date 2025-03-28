@@ -5,7 +5,7 @@ import { IoMdAdd } from "react-icons/io";
 import noImagePlaylist from "@/assets/images/playlist-no-image.jpg"
 import { useContext, useEffect, useState } from "react";
 import AddPlayList from "../modal/modal.add.playlist";
-import { message, Popconfirm, Tooltip } from "antd";
+import { message, notification, Popconfirm, Tooltip } from "antd";
 import { useRouter } from "next/navigation";
 import { PiMusicNotesPlusBold } from "react-icons/pi";
 import AddMusicModal from "../modal/modal.add.music";
@@ -15,16 +15,29 @@ import { PiMusicNotesMinusBold } from "react-icons/pi";
 import { handleDeletePlaylist } from "@/actions/playlist.action";
 
 const SideBarPlaylist = () => {
-    const { playlist } = useGlobalContext()!
+    const { playlist, progressUploadMusic } = useGlobalContext()!
     const { user } = useContext(AuthContext)!
     const [isOpenModal, setIsOpenModal] = useState(false)
     const [isOpenModalAddMusic, setIsOpenModalMusic] = useState(false)
     const [listCate, setListCate] = useState([])
     const router = useRouter()
-
+    const [checkProgress, setCheckProgress] = useState(0)
     const handleNavigate = (playlistId: string) => {
         router.push(`music/playlist?playlistId=${playlistId}`)
     }
+
+    useEffect(() => {
+        setCheckProgress(progressUploadMusic)
+    }, [progressUploadMusic])
+
+    const openCreateMusic = (v: boolean) => {
+        if (checkProgress === 0) {
+            setIsOpenModalMusic(v)
+        } else {
+            notification.warning({ message: "There is a process running please try again after the process is complete" })
+        }
+    }
+
 
     useEffect(() => {
         (async () => {
@@ -90,7 +103,7 @@ const SideBarPlaylist = () => {
                         </Tooltip>
                     </div >
                     <AddPlayList isOpenModal={isOpenModal} setIsOpenModal={setIsOpenModal} />
-                    <AddMusicModal listCate={listCate} isCreateModalOpen={isOpenModalAddMusic} setIsCreateModalOpen={setIsOpenModalMusic} />
+                    <AddMusicModal listCate={listCate} isCreateModalOpen={isOpenModalAddMusic} setIsCreateModalOpen={openCreateMusic} />
                 </>
             }
         </>

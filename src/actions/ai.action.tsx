@@ -29,7 +29,6 @@ export const lyricMusicAction = async (file: File): Promise<any> => {
         });
 
         if (!response.ok) throw new Error("Processing failed");
-        console.log("check res>>>>", response);
 
         return await response.json();
     } catch (error) {

@@ -14,9 +14,7 @@ import { MdOutlinePlaylistAdd } from "react-icons/md";
 import { handleAddMusicInPlaylistAction } from "@/actions/playlist.action"
 import AddPlayList from "../modal/modal.add.playlist"
 import { AuthContext } from "@/context/AuthContext"
-import UpdateMusic from "../modal/modal.update.music"
 interface IProps {
-    isEdit?: boolean,
     showPlaying?: boolean,
     handlePlayer: (v: any) => void
     isPlaying: boolean,
@@ -25,7 +23,7 @@ interface IProps {
 }
 
 const CardMusic = (props: IProps) => {
-    const { handlePlayer, isPlaying, item, ref, showPlaying = true, isEdit = false } = props
+    const { handlePlayer, isPlaying, item, ref, showPlaying = true } = props
     const { trackCurrent, playlist, listPlaylist, } = useGlobalContext()!
     const { user } = useContext(AuthContext)!
     const [hoverPlayer, setHoverPlayer] = useState(false)
@@ -67,34 +65,22 @@ const CardMusic = (props: IProps) => {
                 playlistArr.push(config)
             })
         }
-        if (isEdit) {
-            const data: MenuProps["items"] = [
-                {
-                    key: '1',
-                    label: <div className="font-medium font-roboto text-black">Update Music</div>,
-                    icon: <RiPlayListLine size={20} />,
-                    expandIcon: null
-                },
-            ]
-            setItems(data)
-        } else {
-            const addNewPlaylist = {
-                key: playlistArr.length + 1,
-                label: <div>New playlist</div>,
-                icon: <MdOutlinePlaylistAdd size={20} />
-            }
-            playlistArr.push(addNewPlaylist)
-            const data: MenuProps["items"] = [
-                {
-                    key: '1',
-                    label: <div className="font-medium font-roboto text-black">Add Playlist</div>,
-                    icon: <RiPlayListLine size={20} />,
-                    children: playlistArr,
-                    expandIcon: null
-                },
-            ]
-            setItems(data)
+        const addNewPlaylist = {
+            key: playlistArr.length + 1,
+            label: <div>New playlist</div>,
+            icon: <MdOutlinePlaylistAdd size={20} />
         }
+        playlistArr.push(addNewPlaylist)
+        const data: MenuProps["items"] = [
+            {
+                key: '1',
+                label: <div className="font-medium font-roboto text-black">Add Playlist</div>,
+                icon: <RiPlayListLine size={20} />,
+                children: playlistArr,
+                expandIcon: null
+            },
+        ]
+        setItems(data)
 
     }, [playlist])
 
@@ -135,7 +121,7 @@ const CardMusic = (props: IProps) => {
                         items,
                         onClick: (e) => {
                             e.domEvent.stopPropagation();
-                            isEdit ? handleUpdateMusic() : handleAddMusicInPlaylist(e.key)
+                            handleAddMusicInPlaylist(e.key)
                         },
                     }}>
                     <FaBarsStaggered onClick={(e) => e.stopPropagation()} className="absolute text-white top-3 right-2 hover:text-green-400" size={20} />

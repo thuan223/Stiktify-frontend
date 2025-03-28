@@ -20,6 +20,7 @@ import { sendRequest } from "@/utils/api";
 import { GiMicrophone } from "react-icons/gi";
 import { useRouter } from "next/navigation";
 import { GoDesktopDownload } from "react-icons/go";
+import { notification } from "antd";
 interface MusicPlayerProps {
   setIsDonePlaying?: Dispatch<SetStateAction<boolean>>;
 }
@@ -39,7 +40,8 @@ const MusicPlayer = (p: MusicPlayerProps) => {
     setPrevList,
     musicTagRelated,
     setMusicTagRelated,
-    setTrackKaraoke
+    setTrackKaraoke,
+
   } = useGlobalContext()!;
   const [volume, setVolume] = useState(1);
   const playerRef = useRef<ReactHowler | null>(null);
@@ -50,6 +52,7 @@ const MusicPlayer = (p: MusicPlayerProps) => {
   const [second, setSecond] = useState(0);
   const [isMusicPaused, setIsMusicPaused] = useState(false);
   const [countTrack, setCountTrack] = useState(0);
+  const [countRelated, setCountRelated] = useState(0);
   const { user, accessToken } = useContext(AuthContext) ?? {};
   const { setIsDonePlaying } = p;
   const router = useRouter();
@@ -95,14 +98,17 @@ const MusicPlayer = (p: MusicPlayerProps) => {
         setTrackRelatedId([...trackRelatedId, trackCurrent._id])
         setPrevList([...prevList, trackCurrent])
 
-        // const newTags = trackCurrent.musicTag.filter(
-        //   (tag) => !musicTagRelated.some((existingTag) => existingTag._id === tag._id)
-        // );
+        const newTags = trackCurrent.musicTag.filter(
+          (tag) => !musicTagRelated.some((existingTag) => existingTag._id === tag._id)
+        );
 
-        // if (newTags.length > 0) {
-        //   setMusicTagRelated([...musicTagRelated, ...newTags]);
-        // }
-
+        if (newTags.length > 0) {
+          setMusicTagRelated([...musicTagRelated, ...newTags]);
+        }
+      } else {
+        setTrackRelatedId([trackCurrent._id]);
+        setPrevList([trackCurrent])
+        setMusicTagRelated(trackCurrent.musicTag);
       }
     }
   }, [trackCurrent])
@@ -111,26 +117,33 @@ const MusicPlayer = (p: MusicPlayerProps) => {
     setIsMusicPaused(Cookies.get("isMusicPause") === "true");
   }, []);
 
+
+  console.log("musicTagRelated >>>>", musicTagRelated);
+  console.log("trackRelatedId >>>>", trackRelatedId);
+
   const togglePlay = useCallback(() => setIsPlaying(!isPlaying), [isPlaying, setIsPlaying]);
   const toggleMute = useCallback(() => setVolume((prev) => (prev > 0 ? 0 : 1)), []);
   // const nextTrack = useCallback(() => setCountTrack((prev) => (prev + 1) % listPlaylist.length), [listPlaylist.length]);
   // const prevTrack = useCallback(() => setCountTrack((prev) => (prev - 1 + listPlaylist.length) % listPlaylist.length), [listPlaylist.length]);
 
-  const nextTrack = useCallback(() => {
-    setCountTrack((prev) => (prev + 1) % listPlaylist.length);
+  const nextTrack = useCallback(async () => {
 
     if (listPlaylist.length > 0) {
-      const nextTrack = listPlaylist[(countTrack + 1) % listPlaylist.length];
-
+      setCountTrack((prev) => (prev + 1) % listPlaylist.length);
+      // const nextTrack = listPlaylist[(countTrack + 1) % listPlaylist.length];
+    } else {
+      setSecond(0);
+      setFlag(false);
+      const res = await getTrackRelatedAction(trackRelatedId, musicTagRelated);
+      setTrackCurrent(res?.data)
     }
-  }, [listPlaylist, countTrack]);
-  console.log(prevList);
+  }, [listPlaylist, countTrack, trackRelatedId, musicTagRelated]);
 
   const prevTrack = useCallback(async () => {
     if (listPlaylist.length > 0) {
       setCountTrack((prev) => (prev - 1 + listPlaylist.length) % listPlaylist.length)
     } else if (prevList.length > 0) {
-      setCountTrack((prev) => (prev - 1 + prevList.length) % prevList.length)
+      setCountRelated((prev) => (prev - 1 + prevList.length) % prevList.length)
     }
 
   }, [listPlaylist.length]);
@@ -148,7 +161,7 @@ const MusicPlayer = (p: MusicPlayerProps) => {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [isPlaying, seek]);
+  }, [isPlaying]);
 
   useEffect(() => {
     if (!trackCurrent || flag || second < 15) return;
@@ -188,6 +201,7 @@ const MusicPlayer = (p: MusicPlayerProps) => {
       setSecond(0);
     }
   }, [seek]);
+
   useEffect(() => {
     if (+seek.toFixed(0) === +duration.toFixed(0)) {
       (async () => {
@@ -202,14 +216,24 @@ const MusicPlayer = (p: MusicPlayerProps) => {
   }, [second, duration])
 
   useEffect(() => {
+    if (trackCurrent) {
+      localStorage.setItem("trackCurrent", JSON.stringify(trackCurrent));
+    }
+  }, [trackCurrent])
+
+  useEffect(() => {
     if (listPlaylist.length > 0) {
       const newTrack = listPlaylist[countTrack]?.musicId;
       if (newTrack) {
-        localStorage.setItem("trackCurrent", JSON.stringify(newTrack));
+        setTrackCurrent(newTrack);
+      }
+    } else {
+      const newTrack = prevList[countRelated];
+      if (newTrack) {
         setTrackCurrent(newTrack);
       }
     }
-  }, [listPlaylist, countTrack, setTrackCurrent]);
+  }, [listPlaylist, countTrack, setTrackCurrent, countRelated]);
 
   const handleSeekChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newSeek = parseFloat(e.target.value);
@@ -231,11 +255,22 @@ const MusicPlayer = (p: MusicPlayerProps) => {
   const handleEndMusic = useCallback(async () => {
     setSecond(0);
     setFlag(false);
-  }, [prevList, listPlaylist.length, trackRelatedId, musicTagRelated, setTrackCurrent]);
+    console.log("Track>>>>", trackRelatedId);
+
+    const res = await getTrackRelatedAction(trackRelatedId, musicTagRelated);
+    setTrackCurrent(res?.data)
+    console.log(res);
+
+  }, [prevList, listPlaylist.length, trackRelatedId, musicTagRelated, setTrackCurrent, playerRef]);
 
   const handleKaraoke = () => {
-    setTrackKaraoke(trackCurrent)
-    router.push("/page/karaoke")
+    if (trackCurrent) {
+      setTrackKaraoke(trackCurrent)
+      localStorage.setItem("trackKaraoke", JSON.stringify(trackCurrent))
+      router.push("/page/karaoke")
+    } else {
+      notification.warning({ message: "Not found track" })
+    }
   }
 
   const downloadFile = async () => {
@@ -250,6 +285,12 @@ const MusicPlayer = (p: MusicPlayerProps) => {
     link.click();
     document.body.removeChild(link);
   };
+
+  useEffect(() => {
+    if (+seek.toFixed(0) === +duration.toFixed(0) - 1) {
+      handleEndMusic();
+    }
+  }, [seek, duration]);
 
   return (
     <div className="w-full h-full  bg-gray-900/80 backdrop-blur-md text-white p-4 rounded-2xl shadow-lg">

@@ -28,6 +28,10 @@ const ListMusic = (props: IProps) => {
   const [dataHotMusic, setDataHotMusic] = useState<IMusic[] | []>([])
 
   useEffect(() => {
+    setListPlayList([])
+  }, [])
+
+  useEffect(() => {
     (async () => {
       if (user) {
         const res = await handleGetPlaylistAction(user._id)
@@ -83,7 +87,6 @@ const ListMusic = (props: IProps) => {
       if (user) {
         const res = await handleGetRecommendMusic(user._id)
         const resHotMusic = await handleGetDataHotMusic()
-        console.log(resHotMusic);
 
         setDataHotMusic(resHotMusic?.data)
         setDataRecommend(res?.data)

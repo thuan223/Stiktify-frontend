@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useContext } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { AuthContext } from "@/context/AuthContext";
 import { sendRequest } from "@/utils/api";
 import { FaUser, FaRegEnvelope, FaEllipsisH } from "react-icons/fa";
@@ -23,6 +23,8 @@ import { CheckCircleTwoTone } from "@ant-design/icons";
 import BusinessAccountModal from "@/components/modal/modal.upgrade.to.business.account";
 import FollowerModal from "@/components/modal/modal.follower";
 import FollowingModal from "@/components/modal/modal.following";
+import { checkFollowAction, handleFollow } from "@/actions/manage.follow.action";
+import { message } from "antd";
 
 // ======= Interfaces for User & Video =======
 interface User {
@@ -59,6 +61,18 @@ const UserDetail = () => {
   const [isFollowingModalVisible, setIsFollowingModalVisible] = useState(false);
   const [friendRequestSent, setFriendRequestSent] = useState(false);
   const [isFriend, setIsFriend] = useState(false);
+  const [isFollow, setFollow] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const res = await checkFollowAction(user?._id, id + "")
+      if (res?.statusCode === 201) {
+        setFollow(res?.data)
+      } else {
+        setFollow(false)
+      }
+    })()
+  }, [])
 
   useEffect(() => {
     if (id && accessToken) {
@@ -236,6 +250,15 @@ const UserDetail = () => {
     router.refresh();
   };
 
+  const handleFollowA = async () => {
+    const res = await handleFollow(user?._id, id + "");
+    if (res?.statusCode === 201) {
+      message.success(res.data.message)
+      setFollow(!isFollow)
+    }
+  }
+
+
   return (
     <div className="max-w-screen-xl mx-auto p-6 bg-white border rounded-2xl shadow-2xl transition-shadow duration-300 min-h-screen max-h-screen overflow-hidden flex flex-col">
       {/* Header */}
@@ -275,9 +298,8 @@ const UserDetail = () => {
           </div>
           <p className="flex items-center text-lg font-medium mt-1">
             <span
-              className={`w-3 h-3 mr-2 rounded-full ${
-                userData.isActive ? "bg-green-500" : "bg-gray-400"
-              }`}
+              className={`w-3 h-3 mr-2 rounded-full ${userData.isActive ? "bg-green-500" : "bg-gray-400"
+                }`}
             ></span>
             {userData.isActive ? "Online" : "Offline"}
           </p>
@@ -369,20 +391,20 @@ const UserDetail = () => {
                   isFriend
                     ? "Unfriend"
                     : friendRequestSent
-                    ? "Request Sent"
-                    : "Add Friend"
+                      ? "Request Sent"
+                      : "Add Friend"
                 }
-                className={`${
-                  friendRequestSent
-                    ? "bg-gray-400"
-                    : "bg-blue-500 hover:bg-blue-600"
-                } text-white`}
+                className={`${friendRequestSent
+                  ? "bg-gray-400"
+                  : "bg-blue-500 hover:bg-blue-600"
+                  } text-white`}
                 onClick={isFriend ? unfriend : sendFriendRequest}
                 disabled={friendRequestSent}
               />
               <Button
+                onClick={() => handleFollowA()}
                 icon={<LuBellRing />}
-                text="Follow"
+                text={`${isFollow ? "Unfollow" : "Follow"}`}
                 className="bg-gray-200 hover:bg-gray-300 text-gray-700"
               />
               {canAccessStore && (
@@ -415,11 +437,10 @@ const UserDetail = () => {
             (tab) => (
               <button
                 key={tab}
-                className={`text-lg font-semibold p-2 flex-1 text-center ${
-                  activeTab === tab
-                    ? "border-b-4 border-blue-500 text-blue-600"
-                    : "text-gray-600"
-                }`}
+                className={`text-lg font-semibold p-2 flex-1 text-center ${activeTab === tab
+                  ? "border-b-4 border-blue-500 text-blue-600"
+                  : "text-gray-600"
+                  }`}
                 onClick={() => setActiveTab(tab)}
               >
                 {tabLabels[tab]}

@@ -57,9 +57,9 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
             height: 50,
             borderRadius: 5
           }}
-          src={informationUpload.image}
+          src={informationUpload?.image}
         />
-        <h5 className="text-1xl font-medium">{informationUpload.name} Ac Quy</h5>
+        <h5 className="text-1xl font-medium">{informationUpload?.name}</h5>
       </div>}
 
       {children}

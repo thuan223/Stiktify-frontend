@@ -141,12 +141,12 @@ const DisplayMusicDetail = ({ item }: IProps) => {
                     {index !== 0 && <LuDot size={40} />}
                     <div
                       onClick={() =>
-                        router.push(`/page/detail_user/${item.userId._id}`)
+                        router.push(`/page/detail_user/${tag._id}`)
                       }
                       className="relative group"
                     >
                       <span className="cursor-pointer after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-full after:h-[2px] after:bg-white after:scale-x-0 after:transition-transform after:duration-300 group-hover:after:scale-x-100">
-                        {/* {capitalizeWords(tag?.fullname)} */}
+                        {capitalizeWords(tag?.fullname)}
                       </span>
                     </div>
                   </div>
