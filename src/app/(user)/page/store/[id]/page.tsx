@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useContext } from "react";
+import { useRouter } from "next/navigation"; // Add router import
 import {
   Button,
   Input,
@@ -42,6 +43,7 @@ interface Rating {
 }
 
 const StorePage: React.FC = () => {
+  const router = useRouter(); // Initialize router
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isEditShopModalOpen, setIsEditShopModalOpen] = useState(false);
@@ -218,6 +220,24 @@ const StorePage: React.FC = () => {
 
     notification.success({
       message: "Product added to cart",
+      placement: "bottomRight",
+    });
+  };
+
+  // New function to handle Buy Now
+  const handleBuyNow = (productId: string) => {
+    // Clear existing cart and add only this product
+    const newCart = [{ productId, quantity: 1 }];
+    setCart(newCart);
+
+    // Save to session storage immediately
+    sessionStorage.setItem("cart", JSON.stringify(newCart));
+
+    // Navigate to the order page
+    router.push("/page/order");
+
+    notification.info({
+      message: "Proceeding to checkout",
       placement: "bottomRight",
     });
   };
@@ -414,7 +434,11 @@ const StorePage: React.FC = () => {
                   </span>
                 </div>
                 <div className="flex gap-2 mt-3 w-full">
-                  <Button className="flex-1" icon={<DollarCircleOutlined />}>
+                  <Button
+                    className="flex-1"
+                    icon={<DollarCircleOutlined />}
+                    onClick={() => handleBuyNow(product._id)}
+                  >
                     Buy Now
                   </Button>
                   <Button

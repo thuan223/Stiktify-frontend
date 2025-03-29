@@ -189,6 +189,8 @@ const PurchaseHistory: React.FC = () => {
     }
   };
 
+  // Thay đổi đoạn code trong useEffect khi bạn nhận được dữ liệu đơn hàng
+
   useEffect(() => {
     const fetchOrders = async () => {
       if (!accessToken) {
@@ -237,7 +239,14 @@ const PurchaseHistory: React.FC = () => {
             })
           );
 
-          setOrders(ordersWithProducts);
+          // Sắp xếp đơn hàng theo thời gian tạo, mới nhất lên đầu
+          const sortedOrders = ordersWithProducts.sort((a, b) => {
+            const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+            const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+            return dateB - dateA; // Sắp xếp giảm dần (mới nhất đầu tiên)
+          });
+
+          setOrders(sortedOrders);
         } else {
           setError("No orders found");
         }
