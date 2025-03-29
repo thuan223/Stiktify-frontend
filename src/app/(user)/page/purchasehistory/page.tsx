@@ -10,6 +10,9 @@ import {
   Badge,
   Rate,
   message,
+  Modal,
+  Form,
+  Input,
 } from "antd";
 import { AuthContext } from "@/context/AuthContext";
 import { sendRequest } from "@/utils/api";
@@ -26,6 +29,7 @@ import {
   Phone,
   MailIcon,
 } from "lucide-react";
+import TextArea from "antd/es/input/TextArea";
 
 const { Title, Text } = Typography;
 
@@ -65,6 +69,12 @@ interface ApiResponse {
   data: Order[];
 }
 
+interface RatingData {
+  productId: string;
+  rating: number;
+  description?: string;
+}
+
 // OrderStatusBadge Component
 const OrderStatusBadge: React.FC<{ status: string }> = ({ status }) => {
   const getStatusColor = (status: string) => {
@@ -101,44 +111,76 @@ const PurchaseHistory: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
 
-  // Hàm xử lý rating sản phẩm
-  const handleProductRating = async (
-    orderId: string,
-    productId: string,
-    rating: number
-  ) => {
+  // New state for rating modal
+  const [ratingModalVisible, setRatingModalVisible] = useState<boolean>(false);
+  const [currentRatingData, setCurrentRatingData] = useState<RatingData | null>(
+    null
+  );
+  const [ratingForm] = Form.useForm();
+
+  // Handle product rating
+  const handleProductRating = async (productId: string, star: number) => {
     if (!accessToken) {
       message.error("Please log in to rate");
       return;
     }
 
+    // Open modal to add description
+    setCurrentRatingData({ productId, rating: star });
+    setRatingModalVisible(true);
+  };
+
+  // Submit rating with description
+  const submitRating = async () => {
+    if (!currentRatingData || !accessToken) return;
+
     try {
+      // Get description from form (optional)
+      const description = ratingForm.getFieldValue("description") || "";
+
+      // Send request to rating API
       await sendRequest({
-        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/products/${productId}/rate`,
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/ratings`,
         method: "POST",
         headers: {
           Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
         },
-        body: { rating },
+        body: {
+          productId: currentRatingData.productId,
+          star: currentRatingData.rating,
+          description: description,
+        },
       });
 
-      message.success("Thank you for rating!");
+      // Send request to update product rating
+      await sendRequest({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/products/${currentRatingData.productId}/rate`,
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: {
+          rating: currentRatingData.rating,
+        },
+      });
 
-      // Cập nhật rating trong state
-      const updatedOrders = orders.map((order) =>
-        order._id === orderId
-          ? {
-              ...order,
-              products: order.products?.map((product) =>
-                product.productId === productId
-                  ? { ...product, rating }
-                  : product
-              ),
-            }
-          : order
-      );
+      message.success("Thank you for your rating!");
+
+      // Update orders state to reflect new rating
+      const updatedOrders = orders.map((order) => ({
+        ...order,
+        products: order.products?.map((product) =>
+          product.productId === currentRatingData.productId
+            ? { ...product, rating: currentRatingData.rating }
+            : product
+        ),
+      }));
       setOrders(updatedOrders);
+
+      // Close modal and reset form
+      setRatingModalVisible(false);
+      ratingForm.resetFields();
+      setCurrentRatingData(null);
     } catch (err: any) {
       message.error(
         err.response?.data?.message ||
@@ -146,6 +188,8 @@ const PurchaseHistory: React.FC = () => {
       );
     }
   };
+
+  // Thay đổi đoạn code trong useEffect khi bạn nhận được dữ liệu đơn hàng
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -195,7 +239,14 @@ const PurchaseHistory: React.FC = () => {
             })
           );
 
-          setOrders(ordersWithProducts);
+          // Sắp xếp đơn hàng theo thời gian tạo, mới nhất lên đầu
+          const sortedOrders = ordersWithProducts.sort((a, b) => {
+            const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+            const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+            return dateB - dateA; // Sắp xếp giảm dần (mới nhất đầu tiên)
+          });
+
+          setOrders(sortedOrders);
         } else {
           setError("No orders found");
         }
@@ -213,6 +264,48 @@ const PurchaseHistory: React.FC = () => {
 
     fetchOrders();
   }, [accessToken]);
+
+  const renderProductRating = (order: Order, product: OrderProduct) => (
+    <>
+      <div className="mt-3 flex justify-center items-center space-x-2">
+        <Text className="text-gray-600">Rate Product:</Text>
+        <Rate
+          value={product.rating || 0}
+          onChange={(value) => handleProductRating(product.productId, value)}
+          className={product.rating ? "" : ""}
+        />
+        {product.rating && (
+          <Text type="secondary" className="ml-2">
+            (Rated)
+          </Text>
+        )}
+      </div>
+
+      {/* Rating Description Modal */}
+      <Modal
+        title="Rate Product"
+        open={ratingModalVisible}
+        onOk={submitRating}
+        onCancel={() => {
+          setRatingModalVisible(false);
+          ratingForm.resetFields();
+          setCurrentRatingData(null);
+        }}
+      >
+        <Form form={ratingForm} layout="vertical">
+          <div className="flex justify-center mb-4">
+            <Rate value={currentRatingData?.rating || 0} disabled />
+          </div>
+          <Form.Item name="description" label="Product Review">
+            <TextArea
+              rows={4}
+              placeholder="Share your experience with this product (Optional)"
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
+    </>
+  );
 
   const renderProductColumn = (order: Order) => {
     const products = order.products || [];
@@ -269,22 +362,7 @@ const PurchaseHistory: React.FC = () => {
                     )}
                   </Text>
 
-                  {/* Product Rating */}
-                  <div className="mt-3 flex justify-center items-center space-x-2">
-                    <Text className="text-gray-600">Rate Product:</Text>
-                    <Rate
-                      value={product.rating || 0}
-                      onChange={(value) =>
-                        handleProductRating(order._id, product.productId, value)
-                      }
-                      className={product.rating ? "" : ""}
-                    />
-                    {product.rating && (
-                      <Text type="secondary" className="ml-2">
-                        (Rated)
-                      </Text>
-                    )}
-                  </div>
+                  {renderProductRating(order, product)}
                 </div>
               </div>
             ))}
