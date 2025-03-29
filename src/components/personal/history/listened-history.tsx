@@ -85,20 +85,20 @@ const ListenedHistory = ({
                 className="flex items-center bg-white shadow-md rounded-lg p-4"
               >
                 <img
-                  src={music.musicThumbnail}
+                  src={music?.musicThumbnail}
                   className="w-32 h-32 object-cover rounded-md shadow-sm cursor-pointer"
-                  alt={music.musicDescription}
-                  onClick={() => handleNavigateToMusic(music._id)}
+                  alt={music?.musicDescription}
+                  onClick={() => handleNavigateToMusic(music?._id)}
                 />
                 <div className="ml-4">
                   <h3 className="text-lg font-semibold text-gray-900">
-                    {music.musicDescription}
+                    {music?.musicDescription}
                   </h3>
                   <p className="text-sm text-gray-700">
-                    Views: {music.totalListener || 0}
+                    Views: {music?.totalListener || 0}
                   </p>
                   <p className="text-sm text-gray-700">
-                    Reactions: {music.totalReactions || 0}
+                    Reactions: {music?.totalReactions || 0}
                   </p>
                   <p className="text-sm text-gray-700">
                     View At: {new Date(item.createdAt).toLocaleTimeString()}{" "}

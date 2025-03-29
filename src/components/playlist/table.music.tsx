@@ -17,7 +17,12 @@ const TableListMusicInPlaylist = (props: IProps) => {
     const { playlistP } = props
     const [durations, setDurations] = useState<{ [key: string]: string }>({});
     const [data, setData] = useState<IMusicInPlaylist[] | []>([])
-    const { setListPlayList, listPlaylist, trackCurrent } = useGlobalContext()!
+    const { setListPlayList, listPlaylist, trackCurrent, setIsPlaying, setPrevList } = useGlobalContext()!
+
+    useEffect(() => {
+        setIsPlaying(false)
+        setPrevList([])
+    }, [])
 
     const getDuration = (url: string): Promise<string> => {
         return new Promise((resolve, reject) => {

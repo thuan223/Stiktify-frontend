@@ -41,7 +41,7 @@ const MusicPlayer = (p: MusicPlayerProps) => {
     musicTagRelated,
     setMusicTagRelated,
     setTrackKaraoke,
-
+    setListPlayList
   } = useGlobalContext()!;
   const [volume, setVolume] = useState(1);
   const playerRef = useRef<ReactHowler | null>(null);
@@ -95,15 +95,17 @@ const MusicPlayer = (p: MusicPlayerProps) => {
   useEffect(() => {
     if (trackCurrent !== null && trackCurrent) {
       if (!trackRelatedId.some((x: any) => x === trackCurrent._id)) {
-        setTrackRelatedId([...trackRelatedId, trackCurrent._id])
-        setPrevList([...prevList, trackCurrent])
+        if (listPlaylist.length === 0 && listPlaylist) {
+          setTrackRelatedId([...trackRelatedId, trackCurrent._id])
+          setPrevList([...prevList, trackCurrent])
 
-        const newTags = trackCurrent.musicTag.filter(
-          (tag) => !musicTagRelated.some((existingTag) => existingTag._id === tag._id)
-        );
+          const newTags = trackCurrent.musicTag.filter(
+            (tag) => !musicTagRelated.some((existingTag) => existingTag._id === tag._id)
+          );
 
-        if (newTags.length > 0) {
-          setMusicTagRelated([...musicTagRelated, ...newTags]);
+          if (newTags.length > 0) {
+            setMusicTagRelated([...musicTagRelated, ...newTags]);
+          }
         }
       } else {
         setTrackRelatedId([trackCurrent._id]);
@@ -117,16 +119,15 @@ const MusicPlayer = (p: MusicPlayerProps) => {
     setIsMusicPaused(Cookies.get("isMusicPause") === "true");
   }, []);
 
-
-  console.log("musicTagRelated >>>>", musicTagRelated);
-  console.log("trackRelatedId >>>>", trackRelatedId);
-
   const togglePlay = useCallback(() => setIsPlaying(!isPlaying), [isPlaying, setIsPlaying]);
   const toggleMute = useCallback(() => setVolume((prev) => (prev > 0 ? 0 : 1)), []);
   // const nextTrack = useCallback(() => setCountTrack((prev) => (prev + 1) % listPlaylist.length), [listPlaylist.length]);
   // const prevTrack = useCallback(() => setCountTrack((prev) => (prev - 1 + listPlaylist.length) % listPlaylist.length), [listPlaylist.length]);
-
+  useEffect(() => {
+    setCountTrack(0)
+  }, [])
   const nextTrack = useCallback(async () => {
+    console.log("listPlaylist>>>", listPlaylist);
 
     if (listPlaylist.length > 0) {
       setCountTrack((prev) => (prev + 1) % listPlaylist.length);
@@ -222,12 +223,14 @@ const MusicPlayer = (p: MusicPlayerProps) => {
   }, [trackCurrent])
 
   useEffect(() => {
+    console.log("Check prevList>>>>>", prevList);
+
     if (listPlaylist.length > 0) {
-      const newTrack = listPlaylist[countTrack]?.musicId;
+      const newTrack = listPlaylist[countTrack]?.musicId || listPlaylist[countTrack];
       if (newTrack) {
         setTrackCurrent(newTrack);
       }
-    } else {
+    } else if (prevList.length > 0) {
       const newTrack = prevList[countRelated];
       if (newTrack) {
         setTrackCurrent(newTrack);

@@ -36,9 +36,7 @@ const HotMusicList = (props: IProps) => {
         if (trackCurrent?._id !== track._id) {
             setFlag(false)
             setTrackCurrent(track);
-            if (listPlaylist && listPlaylist.length > 0) {
-                setListPlayList([])
-            }
+            setListPlayList(data)
             localStorage.setItem("trackCurrent", JSON.stringify(track));
             return setIsPlaying(isPlaying ? true : !isPlaying);
         }

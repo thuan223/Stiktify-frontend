@@ -175,18 +175,16 @@ const DetailPage = ({ params }: { params: { detail: string } }) => {
 
     return musicItem?.thumbnailBackground || "bg-gray-500";
   };
-  const description = `Ranking of Musics with the highest ${
-    detail.split("-")[0] === "Listens"
+  const description = `Ranking of Musics with the highest ${detail.split("-")[0] === "Listens"
       ? " listened musics"
       : detail.split("-")[0] === "Reactions"
-      ? " reacted musics"
-      : " linked videos"
-  } of the ${
-    detail.split("-")[1] == "alltime"
+        ? " reacted musics"
+        : " linked videos"
+    } of the ${detail.split("-")[1] == "alltime"
       ? "All Time"
       : detail.split("-")[1].charAt(0).toUpperCase() +
-        detail.split("-")[1].slice(1).toLowerCase()
-  }.`;
+      detail.split("-")[1].slice(1).toLowerCase()
+    }.`;
   const stats = `Stiktify • ${musicData.length.toLocaleString()} musics • ${new Date().toLocaleDateString(
     "vi-VN",
     {
@@ -224,7 +222,7 @@ const DetailPage = ({ params }: { params: { detail: string } }) => {
                 {detail.split("-")[1] == "alltime"
                   ? "All Time"
                   : detail.split("-")[1].charAt(0).toUpperCase() +
-                    detail.split("-")[1].slice(1).toLowerCase()}
+                  detail.split("-")[1].slice(1).toLowerCase()}
               </p>
             </div>
           </div>
@@ -328,8 +326,8 @@ const DetailPage = ({ params }: { params: { detail: string } }) => {
               <div className="col-span-5 flex items-center">
                 <div className="relative w-10 h-10 mr-3">
                   <Image
-                    src={music.musicThumbnail}
-                    alt={music.musicDescription}
+                    src={music?.musicThumbnail}
+                    alt={music?.musicDescription}
                     sizes="40px"
                     style={{ objectFit: "cover" }}
                     fill
