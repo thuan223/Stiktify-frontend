@@ -93,7 +93,7 @@ const MusicPlayer = (p: MusicPlayerProps) => {
   };
 
   useEffect(() => {
-    if (trackCurrent) {
+    if (trackCurrent !== null && trackCurrent) {
       if (!trackRelatedId.some((x: any) => x === trackCurrent._id)) {
         setTrackRelatedId([...trackRelatedId, trackCurrent._id])
         setPrevList([...prevList, trackCurrent])
