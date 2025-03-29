@@ -57,6 +57,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
     email: profile.email || "",
     phone: profile.phone || "",
     address: profile.address || "",
+    userName: profile.userName || ""
   });
 
   const [successMessage, setSuccessMessage] = useState("");
@@ -232,7 +233,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
             <span className="text-xl text-gray-500">Choose</span>
           )}
         </div>
-        <p className="text-gray-500">@{profile.userName || "No username"}</p>
+        <p className="text-gray-500">@{editProfile.userName || "No username"}</p>
       </div>
 
       <Modal

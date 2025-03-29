@@ -27,6 +27,8 @@ const HistoryMusicPage = () => {
   const [searchValue, setSearchValue] = useState<string>("");
   const [searchedMusic, setSearchedMusic] = useState<ListeningHistory[]>([]);
 
+
+
   const handleSearchMusic = async (search: string) => {
     if (search.trim()) {
       const result = await handleSearchHistory(search);

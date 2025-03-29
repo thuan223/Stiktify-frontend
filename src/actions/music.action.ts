@@ -337,6 +337,7 @@ export const handleClearAllListeningHistory = async (userId: string) => {
         },
       }
     );
+    revalidateTag("all-listening-history")
     return await response.json();
   } catch (error) {
     return null;
