@@ -6,6 +6,7 @@ import { FaPause, FaPlay } from "react-icons/fa";
 import { AuthContext } from "@/context/AuthContext";
 import { DatePicker, Modal, Button } from "antd";
 import { handleClearAllListeningHistory } from "@/actions/music.action";
+import { useGlobalContext } from "@/library/global.context";
 
 interface ListeningHistory {
   _id: string;
@@ -35,6 +36,7 @@ const SettingListenHistory: React.FC<SettingListenHistoryProps> = ({
 
   const { user } = useContext(AuthContext) ?? {};
 
+  const { refreshHistoryMusic, setRefreshHistoryMusic } = useGlobalContext()!
   useEffect(() => {
     const musicPauseStatus = Cookies.get("isMusicPause") === "true";
     setIsMusicPaused(musicPauseStatus);
@@ -58,8 +60,10 @@ const SettingListenHistory: React.FC<SettingListenHistoryProps> = ({
       try {
         const result = await handleClearAllListeningHistory(user._id);
         if (result) {
+
           console.log("Clear all listening history successful!");
-          setHistory([]); // Cập nhật state để xóa danh sách mà không cần reload
+          setHistory([]);
+          setRefreshHistoryMusic(!refreshHistoryMusic)
         } else {
           console.error("Failed to clear all listening history.");
         }

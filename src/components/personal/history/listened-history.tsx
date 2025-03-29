@@ -4,6 +4,7 @@ import { useEffect, useState, useContext } from "react";
 import { AuthContext } from "@/context/AuthContext";
 import { handleGetAllListeningHistory } from "@/actions/music.action";
 import { useRouter } from "next/navigation";
+import { useGlobalContext } from "@/library/global.context";
 
 interface Music {
   _id: string;
@@ -33,6 +34,7 @@ const ListenedHistory = ({
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const { refreshHistoryMusic } = useGlobalContext()!
 
   useEffect(() => {
     if (userId) {
@@ -43,7 +45,7 @@ const ListenedHistory = ({
           if (response?.data?.result) {
             setHistory(response.data.result);
             if (setParentHistory) {
-              setParentHistory(response.data.result); // Đồng bộ với parent
+              setParentHistory(response.data.result);
             }
           } else {
             console.warn("No listening history found!");
@@ -60,7 +62,7 @@ const ListenedHistory = ({
 
       fetchHistory();
     }
-  }, [userId, setParentHistory]);
+  }, [userId, setParentHistory, refreshHistoryMusic]);
 
   const handleNavigateToMusic = (musicId: string) => {
     router.push(`/page/music/${musicId}`);

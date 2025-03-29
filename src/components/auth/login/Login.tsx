@@ -74,6 +74,7 @@ const Login = () => {
         });
       }
     } catch (error) {
+      console.log(error)
       notification.error({
         message: "Server can't connect",
         duration: 3,
