@@ -15,7 +15,7 @@ import { PiMusicNotesMinusBold } from "react-icons/pi";
 import { handleDeletePlaylist } from "@/actions/playlist.action";
 
 const SideBarPlaylist = () => {
-    const { playlist, progressUploadMusic } = useGlobalContext()!
+    const { playlist, progressUploadMusic, setPlaylist } = useGlobalContext()!
     const { user } = useContext(AuthContext)!
     const [isOpenModal, setIsOpenModal] = useState(false)
     const [isOpenModalAddMusic, setIsOpenModalMusic] = useState(false)
@@ -52,7 +52,8 @@ const SideBarPlaylist = () => {
     const confirm = async (id: string) => {
         const res = await handleDeletePlaylist(id)
         console.log("res>>>>>>", res);
-
+        const newList = playlist.filter(x => x._id !== id);
+        setPlaylist(newList)
         if (res?.statusCode === 200) {
             message.success('Deleted successfully');
         }

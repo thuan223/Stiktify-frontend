@@ -32,9 +32,13 @@ const CreateUserModal = (props: IProps) => {
             userName: values.userName
         }
         const res = await handleCreateUserAction(data)
-        notification.success({ message: res?.message })
-        form.resetFields()
-        setIsCreateModalOpen(false);
+        if (res?.statusCode === 201) {
+            notification.success({ message: res?.message })
+            form.resetFields()
+            setIsCreateModalOpen(false);
+        } else {
+            notification.warning({ message: res?.message })
+        }
     };
 
     return (
